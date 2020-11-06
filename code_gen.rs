@@ -11,6 +11,7 @@ pub fn code_gen(out_dir: OsString) {
 
     gen_tuple_impl(&ctx, &out_dir);
     gen_tuple_n_impl(&ctx, &out_dir);
+    gen_tuple_alias_macro(&ctx, &out_dir);
     #[cfg(feature = "tuple_iter")]
     gen_tuple_iter(&ctx, &out_dir);
     #[cfg(feature = "tuple_map")]
@@ -98,7 +99,7 @@ fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
         impl<T> TupleSame<T> for (#(#ts),*) { }
 
         impl<#(#nts),*> Tuple for (#(#nts),*) {
-            fn size(&self) -> usize {
+            fn arity(&self) -> usize {
                 #size_lit
             }
         }
@@ -125,9 +126,19 @@ fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
 }
 
 fn gen_tuple_n_impl(ctx: &Ctx, out_dir: &OsString) {
-    let item_names = (0..34usize).into_iter().map(|i| format_ident!("Item{}", i)).collect::<Vec<_>>();
-    let type_items = item_names.iter().map(|i| quote! { type #i; }).collect::<Vec<_>>();
-    let let_items = item_names.iter().zip(ctx.nts.iter()).map(|(i, t)| quote! { type #i = #t; }).collect::<Vec<_>>();
+    let item_names = (0..34usize)
+        .into_iter()
+        .map(|i| format_ident!("Item{}", i))
+        .collect::<Vec<_>>();
+    let type_items = item_names
+        .iter()
+        .map(|i| quote! { type #i; })
+        .collect::<Vec<_>>();
+    let let_items = item_names
+        .iter()
+        .zip(ctx.nts.iter())
+        .map(|(i, t)| quote! { type #i = #t; })
+        .collect::<Vec<_>>();
     let items = (2..33usize)
         .into_iter()
         .map(|i| gen_tuple_n_impl_size(ctx, i, &type_items, &let_items));
@@ -137,7 +148,12 @@ fn gen_tuple_n_impl(ctx: &Ctx, out_dir: &OsString) {
     fs::write(&dest_path, code).unwrap();
 }
 
-fn gen_tuple_n_impl_size(ctx: &Ctx, size: usize, type_items: &[TokenStream], let_items: &[TokenStream]) -> TokenStream {
+fn gen_tuple_n_impl_size(
+    ctx: &Ctx,
+    size: usize,
+    type_items: &[TokenStream],
+    let_items: &[TokenStream],
+) -> TokenStream {
     let tuple_name = format_ident!("Tuple{}", size);
 
     let nts = &ctx.nts[0..size];
@@ -156,11 +172,128 @@ fn gen_tuple_n_impl_size(ctx: &Ctx, size: usize, type_items: &[TokenStream], let
     tks
 }
 
-#[cfg(feature = "tuple_iter")]
-fn gen_tuple_iter(ctx: &Ctx, out_dir: &OsString) {
+fn gen_tuple_alias_macro(ctx: &Ctx, out_dir: &OsString) {
     let items = (2..33usize)
         .into_iter()
-        .map(|i| gen_tuple_iter_size(ctx, i));
+        .map(|i| gen_tuple_alias_macro_size(ctx, i));
+    let tks = quote! {
+        #[doc(hidden)]
+        #[macro_export(local_inner_macros)]
+        macro_rules! tuple_ {
+            { $t:ty ; 0 } => { () };
+            { $t:expr ; 0 } => { () };
+            { $t:ty ; 1 } => { ($t,) };
+            { $t:expr ; 1 } => { ($t,) };
+            #(#items)*
+        }
+        /// Convenient shorthand
+        ///
+        /// # Syntax
+        /// 
+        /// - `tuple![<type>; <repeat times>]`
+        /// - `tuple![<expr>; <repeat times>]`
+        /// - `tuple![<tuple size>; <type>, <type> ...]`
+        ///
+        /// # Examples
+        /// *Repeat type*
+        /// ```
+        /// # use tuples::*;
+        /// let a: tuple![u8; 3] = (5, 5, 5);
+        /// # drop(a)
+        /// ```
+        /// *Repeat expr*
+        /// ```
+        /// # use tuples::*;
+        /// let a: (u8, u8, u8) = tuple![5; 3];
+        /// # drop(a)
+        /// ```
+        /// *Auto types*
+        /// ```
+        /// # use tuples::*;
+        /// let a: tuple![3; u8] = (5, 5, 5usize);
+        /// let b: (u8, i32, usize) = tuple![5; 3];
+        /// assert_eq!(a, b);
+        /// ```
+        /// *Iter*
+        /// ```
+        /// # use tuples::*;
+        /// let a = (1, 2, 3)
+        ///     .into_iter()
+        ///     .map(|v| v * 3)
+        ///     .collect_tuple::<tuple![3;]>();
+        /// let b: (i32, i32, i32) = (3, 6, 9);
+        /// assert_eq!(a, b);
+        /// ```
+        /// ----
+        /// ```ignore
+        /// tuple![u8; 3] => (u8, u8, u8)
+        /// tuple![5; 3] => (5, 5, 5)
+        /// tuple![3; u8, u8, u8] => (u8, u8, u8)
+        /// tuple![3; u8] => (u8, _, _)
+        /// tuple![3;] => (_, _, _)
+        /// ```
+        #[macro_export]
+        macro_rules! tuple {
+            { $($t:tt)* } => { tuple_! { $($t)* } }
+        }
+    };
+    let code = tks.to_string();
+    let dest_path = Path::new(out_dir).join("tuple_alias.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_tuple_alias_macro_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let size_lit = &ctx.size_lits[size];
+
+    let ty = quote! { $t };
+    let tys = (0..size).into_iter().map(|_| &ty).collect::<Vec<_>>();
+
+    let ntys = (0..size + 1)
+        .into_iter()
+        .map(|i| format_ident!("t{}", i))
+        .map(|i| quote! { $#i })
+        .collect::<Vec<_>>();
+
+    let items = (0..size + 1)
+        .into_iter()
+        .map(|i| gen_tuple_alias_macro_size_n(ctx, size, i, &ntys));
+
+    let tks = quote! {
+        { $t:ty ; #size_lit } => { (#(#tys),*) };
+        { $t:expr ; #size_lit } => { (#(#tys),*) };
+        #(#items)*
+    };
+    tks
+}
+
+fn gen_tuple_alias_macro_size_n(
+    ctx: &Ctx,
+    size: usize,
+    n: usize,
+    ntys: &[TokenStream],
+) -> TokenStream {
+    let size_lit = &ctx.size_lits[size];
+
+    let u = quote! { _ };
+    let dtys = ntys[0..n]
+        .iter()
+        .map(|i| quote! { #i:ty })
+        .collect::<Vec<_>>();
+    let tys = ntys[0..size]
+        .iter()
+        .enumerate()
+        .map(|(i, l)| if i < n { l } else { &u })
+        .collect::<Vec<_>>();
+
+    let tks = quote! {
+        { #size_lit; #(#dtys),* } => { (#(#tys),*) };
+    };
+    tks
+}
+
+#[cfg(feature = "tuple_iter")]
+fn gen_tuple_iter(ctx: &Ctx, out_dir: &OsString) {
+    let items = (2..33usize).into_iter().map(|i| gen_tuple_iter_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
     let dest_path = Path::new(out_dir).join("tuple_iter.rs");
@@ -170,33 +303,24 @@ fn gen_tuple_iter(ctx: &Ctx, out_dir: &OsString) {
 #[cfg(feature = "tuple_iter")]
 fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
     let size_lit = &ctx.size_lits[size];
-    let last_lit = &ctx.size_lits[size - 1];
 
     let iter_struct_name = format_ident!("Tuple{}Iter", size);
     let into_iter_struct_name = format_ident!("Tuple{}IntoIter", size);
 
     let ts = &ctx.ts[0..size];
-    let ut = quote! { MaybeUninit<T> };
-    let uts = (0..size).into_iter().map(|_| &ut);
-    let utts = ctx.size_lits[0..size]
-        .iter()
-        .map(|i| quote! { MaybeUninit::new(t.#i) });
-    let iter_match = ctx.size_lits[0..size]
-        .iter()
-        .map(|i| quote! { #i => &self.1 .#i, })
-        .collect::<Vec<_>>();
-    let into_match = ctx.size_lits[0..size]
-        .iter()
-        .zip(ctx.size_lits[1..size + 1].iter())
-        .map(|(i, n)| quote! { #i => std::mem::replace(&mut self.#n, MaybeUninit::uninit()), })
-        .collect::<Vec<_>>();
+
     let from = quote! { iter.next().unwrap() };
     let froms = (0..size).into_iter().map(|_| &from);
+
+    let iter_new = ctx.size_lits[0..size].iter().map(|i| quote! { &t.#i });
+    let into_new = ctx.size_lits[0..size]
+        .iter()
+        .map(|i| quote! { MaybeUninit::new(t.#i) });
 
     let derive_iter = if size > 12 {
         quote! {}
     } else {
-        quote! {#[derive(Debug, Clone, Copy)]}
+        quote! {#[derive(Debug, Clone)]}
     };
     let derive_into = if size > 12 {
         quote! {}
@@ -204,23 +328,13 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
         quote! {#[derive(Debug)]}
     };
 
-    let tks = quote! {
+    let iter_ = quote! {
         #derive_iter
-        #[doc(hidden)]
-        pub struct #iter_struct_name<'a, T>(usize, &'a (#(#ts),*));
+        pub struct #iter_struct_name<'a, T>([&'a T; #size_lit], Range<usize>);
         impl<'a, T> #iter_struct_name<'a, T> {
             #[inline]
             pub fn new(t: &'a (#(#ts),*)) -> Self {
-                Self(0, t)
-            }
-        }
-        #derive_into
-        #[doc(hidden)]
-        pub struct #into_iter_struct_name<T>(usize, #(#uts),*);
-        impl<T> #into_iter_struct_name<T> {
-            #[inline]
-            pub fn new(t: (#(#ts),*)) -> Self {
-                Self(0, #(#utts),*)
+                Self([#(#iter_new),*], 0..#size_lit)
             }
         }
 
@@ -229,18 +343,13 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
 
             #[inline]
             fn next(&mut self) -> Option<Self::Item> {
-                let res = match self.0 {
-                    #(#iter_match)*
-                    _ => return None
-                };
-                self.0 += 1;
-                Some(res)
+                self.1.next().map(|idx| unsafe { *self.0.get_unchecked(idx) })
             }
 
             #[inline]
             fn size_hint(&self) -> (usize, Option<usize>) {
-                let exact = self.len();
-                (exact, Some(exact))
+                let len = self.len();
+                (len, Some(len))
             }
 
             #[inline]
@@ -249,33 +358,21 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
 
             #[inline]
-            fn nth(&mut self, n: usize) -> Option<Self::Item> {
-                if n < self.0 { return None }
-                let res = match self.0 {
-                    #(#iter_match)*
-                    _ => return None
-                };
-                self.0 = min(n + 1, #size_lit);
-                Some(res)
+            fn last(mut self) -> Option<Self::Item> {
+                self.next_back()
             }
-
+        }
+        impl<'a, T> DoubleEndedIterator for #iter_struct_name<'a, T> {
             #[inline]
-            fn last(self) -> Option<Self::Item> {
-                if self.len() == 0 { return None }
-                Some(&self.1 .#last_lit)
+            fn next_back(&mut self) -> Option<Self::Item> {
+                self.1.next_back().map(|idx| unsafe { *self.0.get_unchecked(idx) })
             }
         }
         impl<'a, T> ExactSizeIterator for #iter_struct_name<'a, T> {
             #[inline]
-            fn len(&self) -> usize { #size_lit - self.0 }
+            fn len(&self) -> usize { self.1.end - self.1.start }
         }
         impl<'a, T> FusedIterator for #iter_struct_name<'a, T> { }
-        impl<'a, T> AsRef<(#(#ts),*)> for #iter_struct_name<'a, T> {
-            #[inline]
-            fn as_ref(&self) -> &(#(#ts),*) {
-                self.1
-            }
-        }
         impl<'a, T: 'a> TupleIter<'a> for (#(#ts),*) {
             type Iter = #iter_struct_name<'a, T>;
 
@@ -284,24 +381,31 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
                 #iter_struct_name::new(self)
             }
         }
+    };
 
+    let into_ = quote! {
+        #derive_into
+        pub struct #into_iter_struct_name<T>([MaybeUninit<T>; #size_lit], Range<usize>);
+        impl<T> #into_iter_struct_name<T> {
+            #[inline]
+            pub fn new(t: (#(#ts),*)) -> Self {
+                Self([#(#into_new),*], 0..#size_lit)
+            }
+        }
         impl<T> Iterator for #into_iter_struct_name<T> {
             type Item = T;
 
             #[inline]
             fn next(&mut self) -> Option<Self::Item> {
-                let res = match self.0 {
-                    #(#into_match)*
-                    _ => return None
-                };
-                self.0 += 1;
-                Some(unsafe { res.assume_init() })
+                self.1.next().map(|idx| unsafe {
+                    core::mem::replace(self.0.get_unchecked_mut(idx), MaybeUninit::uninit()).assume_init()
+                })
             }
 
             #[inline]
             fn size_hint(&self) -> (usize, Option<usize>) {
-                let exact = self.len();
-                (exact, Some(exact))
+                let len = self.len();
+                (len, Some(len))
             }
 
             #[inline]
@@ -310,25 +414,20 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
 
             #[inline]
-            fn nth(&mut self, n: usize) -> Option<Self::Item> {
-                if n < self.0 { return None }
-                let res = match self.0 {
-                    #(#into_match)*
-                    _ => return None
-                };
-                self.0 = min(n + 1, #size_lit);
-                Some(unsafe { res.assume_init() })
+            fn last(mut self) -> Option<Self::Item> {
+                self.next_back()
             }
-
-            #[inline]
-            fn last(self) -> Option<Self::Item> {
-                if self.len() == 0 { return None }
-                Some(unsafe { self.#size_lit.assume_init() })
+        }
+        impl<T> DoubleEndedIterator for #into_iter_struct_name<T> {
+            fn next_back(&mut self) -> Option<Self::Item> {
+                self.1.next_back().map(|idx| unsafe {
+                    core::mem::replace(self.0.get_unchecked_mut(idx), MaybeUninit::uninit()).assume_init()
+                })
             }
         }
         impl<T> ExactSizeIterator for #into_iter_struct_name<T> {
             #[inline]
-            fn len(&self) -> usize { #size_lit - self.0 }
+            fn len(&self) -> usize { self.1.end - self.1.start }
         }
         impl<T> FusedIterator for #into_iter_struct_name<T> { }
         impl<T> TupleIntoIter for (#(#ts),*) {
@@ -339,6 +438,18 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
                 #into_iter_struct_name::new(self)
             }
         }
+        impl<T> Drop for #into_iter_struct_name<T> {
+            fn drop(&mut self) {
+                let slice = unsafe { self.0.get_unchecked_mut(self.1.clone()) };
+                let slice = unsafe { &mut *(slice as *mut [MaybeUninit<T>] as *mut [T]) };
+                unsafe { core::ptr::drop_in_place(slice) }
+            }
+        }
+    };
+
+    let tks = quote! {
+        #iter_
+        #into_
 
         impl<T> TupleFromIter<T> for (#(#ts),*) {
             fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
