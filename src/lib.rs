@@ -1,3 +1,5 @@
+#![no_std]
+
 /// AsRef for Tuple
 pub trait TupleAsRef<'a> {
     type OutTuple: 'a;
