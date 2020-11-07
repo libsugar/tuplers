@@ -90,3 +90,8 @@ pub use tuple_iter::*;
 pub mod tuple_map;
 #[cfg(all(feature = "tuple_map", feature = "re-exports"))]
 pub use tuple_map::*;
+
+#[cfg(feature = "combin")]
+pub mod combin;
+#[cfg(all(feature = "combin", feature = "re-exports"))]
+pub use combin::*;

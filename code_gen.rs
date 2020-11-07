@@ -3,6 +3,10 @@ use quote::{format_ident, quote};
 use std::{ffi::OsString, fs, path::Path};
 use syn::LitInt;
 
+macro_rules! tif {
+    { $c:expr => $t:expr ; $e:expr } => { if $c { $t } else { $e } };
+}
+
 pub fn code_gen(out_dir: OsString) {
     let t = format_ident!("T");
     let u = format_ident!("U");
@@ -16,6 +20,8 @@ pub fn code_gen(out_dir: OsString) {
     gen_tuple_iter(&ctx, &out_dir);
     #[cfg(feature = "tuple_map")]
     gen_tuple_map(&ctx, &out_dir);
+    #[cfg(feature = "combin")]
+    gen_combin(&ctx, &out_dir)
 }
 
 struct Ctx<'a> {
@@ -189,7 +195,7 @@ fn gen_tuple_alias_macro(ctx: &Ctx, out_dir: &OsString) {
         /// Convenient shorthand
         ///
         /// # Syntax
-        /// 
+        ///
         /// - `tuple![<type>; <repeat times>]`
         /// - `tuple![<expr>; <repeat times>]`
         /// - `tuple![<tuple size>; <type>, <type> ...]`
@@ -293,7 +299,9 @@ fn gen_tuple_alias_macro_size_n(
 
 #[cfg(feature = "tuple_iter")]
 fn gen_tuple_iter(ctx: &Ctx, out_dir: &OsString) {
-    let items = (2..33usize).into_iter().map(|i| gen_tuple_iter_size(ctx, i));
+    let items = (2..33usize)
+        .into_iter()
+        .map(|i| gen_tuple_iter_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
     let dest_path = Path::new(out_dir).join("tuple_iter.rs");
@@ -543,6 +551,90 @@ fn gen_tuple_map_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
         impl<#(#rts),*> #map_n_name<#(#rts),*> for (#(#rts),*) {
             fn #map_n<U>(self, f: impl FnOnce(#t) -> U) -> (#(#ts),*) {
                 (#(#impls),*)
+            }
+        }
+    };
+    tks
+}
+
+#[cfg(feature = "combin")]
+fn gen_combin(ctx: &Ctx, out_dir: &OsString) {
+    let self_impl = ctx
+        .size_lits
+        .iter()
+        .map(|i| quote! { self.#i })
+        .collect::<Vec<_>>();
+    let target_impl = ctx
+        .size_lits
+        .iter()
+        .map(|i| quote! { target.#i })
+        .collect::<Vec<_>>();
+    let items = (2..33usize)
+        .into_iter()
+        .map(|i| gen_combin_size(ctx, i, &self_impl));
+    let concats = (0..17usize).into_iter().flat_map(|a| {
+        let self_impl = &self_impl;
+        let target_impl = &target_impl;
+        (0..17usize)
+            .into_iter()
+            .map(move |b| gen_combin_concat_size(ctx, a, b, &self_impl, &target_impl))
+    });
+    let tks = quote! {
+        #(#items)*
+        #(#concats)*
+    };
+    let code = tks.to_string();
+    let dest_path = Path::new(out_dir).join("combin.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+#[cfg(feature = "combin")]
+fn gen_combin_size(ctx: &Ctx, size: usize, self_impl: &[TokenStream]) -> TokenStream {
+    let ts = &ctx.nts[0..size];
+    let self_impl = &self_impl[0..size];
+
+    let tks = quote! {
+        impl<T, #(#ts),*> CombinLeft<T> for (#(#ts),*) {
+            type Out = (T, #(#ts),*);
+
+            fn left(self, target: T) -> Self::Out {
+                (target, #(#self_impl),*)
+            }
+        }
+        impl<T, #(#ts),*> CombinRight<T> for ( #(#ts),*) {
+            type Out = ( #(#ts),*, T);
+
+            fn push(self, target: T) -> Self::Out {
+                (#(#self_impl),*, target)
+            }
+        }
+    };
+    tks
+}
+
+fn gen_combin_concat_size(
+    ctx: &Ctx,
+    sizea: usize,
+    sizeb: usize,
+    self_impl: &[TokenStream],
+    target_impl: &[TokenStream],
+) -> TokenStream {
+    let ants = &ctx.nts[0..sizea];
+    let bnts = &ctx.nts[sizea..sizea + sizeb];
+    let gnts = &ctx.nts[0..sizea + sizeb];
+    let atc = tif! { ants.len() == 1 => quote! { , } ; quote! { } };
+    let btc = tif! { bnts.len() == 1 => quote! { , } ; quote! { } };
+    let gtc = tif! { gnts.len() == 1 => quote! { , } ; quote! { } };
+    let impls = self_impl[0..sizea]
+        .iter()
+        .chain(target_impl[0..sizeb].iter());
+    let tks = quote! {
+        impl<#(#gnts),*> CombinConcat<(#(#bnts),*#btc)> for (#(#ants),*#atc) {
+            type Out = (#(#gnts),*#gtc);
+
+            #[allow(unused_variables)]
+            fn concat(self, target: (#(#bnts),*#btc)) -> Self::Out {
+                (#(#impls),*#gtc)
             }
         }
     };
