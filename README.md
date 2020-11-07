@@ -9,6 +9,10 @@ Provides many useful tools related to tuples
 
 - AsRef
 - AsMut
+- AsOption
+- AsResult
+- Transpose
+- Combin
 - Mapping
 - Iter
 - IntoIter
@@ -54,4 +58,13 @@ Provides many useful tools related to tuples
         .collect_tuple::<tuple![3;]>();
     let b: (i32, i32, i32) = (3, 6, 9);
     assert_eq!(a, b);
+    ```
+- transpose
+    ```rust
+    let a = Some((1, 2, 3)).transpose();
+    assert_eq!(a, (Some(1), Some(2), Some(3)));
+    ```
+    ```rust
+    let b = (Some(1), Some(2), Some(3)).transpose();
+    assert_eq!(b, Some((1, 2, 3)));
     ```

@@ -26,7 +26,9 @@ pub fn code_gen(out_dir: OsString) {
     #[cfg(feature = "tuple_map")]
     gen_tuple_map(&ctx, &out_dir);
     #[cfg(feature = "combin")]
-    gen_combin(&ctx, &out_dir)
+    gen_combin(&ctx, &out_dir);
+    #[cfg(feature = "transpose")]
+    gen_transpose(&ctx, &out_dir);
 }
 
 struct Ctx<'a> {
@@ -36,6 +38,7 @@ struct Ctx<'a> {
     pub ts: Vec<&'a Ident>,
     pub us: Vec<&'a Ident>,
     pub nts: Vec<Ident>,
+    pub nvs: Vec<Ident>,
     pub ants: Vec<TokenStream>,
 }
 
@@ -50,6 +53,10 @@ fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
         .into_iter()
         .map(|i| format_ident!("T{}", i))
         .collect::<Vec<_>>();
+    let nvs = (0..max + 1)
+        .into_iter()
+        .map(|i| format_ident!("v{}", i))
+        .collect::<Vec<_>>();
     let ants = nts[0..max + 1]
         .iter()
         .map(|i| quote! { #i: 'a })
@@ -61,6 +68,7 @@ fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
         ts,
         us,
         nts,
+        nvs,
         ants,
     };
     ctx
@@ -698,6 +706,61 @@ fn gen_combin_concat_size(
             #[allow(unused_variables)]
             fn concat(self, target: (#(#bnts),*#btc)) -> Self::Out {
                 (#(#impls),*#gtc)
+            }
+        }
+    };
+    tks
+}
+
+fn gen_transpose(ctx: &Ctx, out_dir: &OsString) {
+    let none_impl = ctx
+        .size_lits
+        .iter()
+        .map(|_| quote! { None })
+        .collect::<Vec<_>>();
+    let items_1 = (2..33usize)
+        .into_iter()
+        .map(|i| gen_transpose_size_option_1(ctx, i, &none_impl[0..i]));
+    let items_2 = (2..33usize)
+        .into_iter()
+        .map(|i| gen_transpose_size_option_2(ctx, i));
+
+    let tks = quote! { #(#items_1)* #(#items_2)* };
+    let code = tks.to_string();
+    let dest_path = Path::new(out_dir).join("transpose.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_transpose_size_option_1(ctx: &Ctx, size: usize, none_impl: &[TokenStream]) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let i = &ctx.size_lits[0..size];
+    let tks = quote! {
+        impl<#(#nts,)*> TupleTranspose for Option<(#(#nts,)*)> {
+            type OutTuple = (#(Option<#nts>),*);
+
+            fn transpose(self) -> Self::OutTuple {
+                match self {
+                    Some(v) => (#(Some(v.#i)),*),
+                    None => (#(#none_impl),*),
+                }
+            }
+        }
+    };
+    tks
+}
+
+fn gen_transpose_size_option_2(ctx: &Ctx, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let nvs = &ctx.nvs[0..size];
+    let tks = quote! {
+        impl<#(#nts),*> TupleTranspose for (#(Option<#nts>),*) {
+            type OutTuple = Option<(#(#nts),*)>;
+
+            fn transpose(self) -> Self::OutTuple {
+                match self {
+                    (#(Some(#nvs)),*) => Some((#(#nvs),*)),
+                    _ => None,
+                }
             }
         }
     };
