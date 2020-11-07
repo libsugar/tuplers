@@ -15,11 +15,14 @@ readme = "README.md"
 [dependencies]
 
 [features]
-default = ["combin", "tuple_iter", "tuple_map", "re-exports"]
+default = ["combin", "tuple_iter", "tuple_map", "transpose", "tuple_as", "tuple_meta", "re-exports"]
 re-exports = []
 tuple_iter = []
 tuple_map = []
 combin = []
+transpose = []
+tuple_as = []
+tuple_meta = []
 
 [build-dependencies]
 syn = "1.0"

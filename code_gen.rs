@@ -13,9 +13,13 @@ pub fn code_gen(out_dir: OsString) {
 
     let ctx = init(33, &t, &u);
 
+    #[cfg(feature = "tuple_meta")]
     gen_tuple_impl(&ctx, &out_dir);
+    #[cfg(feature = "tuple_meta")]
     gen_tuple_n_impl(&ctx, &out_dir);
     gen_tuple_alias_macro(&ctx, &out_dir);
+    #[cfg(feature = "tuple_as")]
+    gen_tuple_as(&ctx, &out_dir);
     #[cfg(feature = "tuple_iter")]
     gen_tuple_iter(&ctx, &out_dir);
     #[cfg(feature = "tuple_map")]
@@ -31,6 +35,7 @@ struct Ctx<'a> {
     pub ts: Vec<&'a Ident>,
     pub us: Vec<&'a Ident>,
     pub nts: Vec<Ident>,
+    pub ants: Vec<TokenStream>,
 }
 
 fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
@@ -44,6 +49,10 @@ fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
         .into_iter()
         .map(|i| format_ident!("T{}", i))
         .collect::<Vec<_>>();
+    let ants = nts[0..max + 1]
+        .iter()
+        .map(|i| quote! { #i: 'a })
+        .collect::<Vec<_>>();
     let ctx = Ctx {
         t,
         u,
@@ -51,6 +60,7 @@ fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
         ts,
         us,
         nts,
+        ants,
     };
     ctx
 }
@@ -71,49 +81,6 @@ fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
     let ts = &ctx.ts[0..size];
 
     let nts = &ctx.nts[0..size];
-    let ants = nts[0..size]
-        .iter()
-        .map(|i| quote! { #i: 'a })
-        .collect::<Vec<_>>();
-    let ref_nts = nts[0..size]
-        .iter()
-        .map(|id| quote! { &'a #id })
-        .collect::<Vec<_>>();
-    let mut_nts = nts[0..size]
-        .iter()
-        .map(|id| quote! { &'a mut #id })
-        .collect::<Vec<_>>();
-    let option_nts = nts[0..size]
-        .iter()
-        .map(|id| quote! { Option<#id> })
-        .collect::<Vec<_>>();
-    let ok_nts = nts[0..size]
-        .iter()
-        .map(|id| quote! { Result<#id, E> })
-        .collect::<Vec<_>>();
-    let err_nts = nts[0..size]
-        .iter()
-        .map(|id| quote! { Result<O, #id> })
-        .collect::<Vec<_>>();
-
-    let ref_impl = ctx.size_lits[0..size].iter().map(|l| {
-        quote! { &self.#l }
-    });
-    let mut_impl = ctx.size_lits[0..size].iter().map(|l| {
-        quote! { &mut self.#l }
-    });
-    let some_impl = ctx.size_lits[0..size].iter().map(|l| {
-        quote! { Some(self.#l) }
-    });
-    let ok_impl = ctx.size_lits[0..size].iter().map(|l| {
-        quote! { Ok(self.#l) }
-    });
-    let err_impl = ctx.size_lits[0..size].iter().map(|l| {
-        quote! { Err(self.#l) }
-    });
-
-    let ref_doc = format!("AsRef for Tuple{}", size);
-    let mut_doc = format!("AsMut for Tuple{}", size);
 
     let tks = quote! {
         impl<T> TupleSame<T> for (#(#ts),*) { }
@@ -121,48 +88,6 @@ fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
         impl<#(#nts),*> Tuple for (#(#nts),*) {
             fn arity(&self) -> usize {
                 #size_lit
-            }
-        }
-
-        impl<'a, #(#ants),*> TupleAsRef<'a> for (#(#nts),*) {
-            type OutTuple = (#(#ref_nts),*);
-
-            #[doc = #ref_doc]
-            fn as_ref(&'a self) -> Self::OutTuple {
-                (#(#ref_impl),*)
-            }
-        }
-
-        impl<'a, #(#ants),*> TupleAsMut<'a> for (#(#nts),*) {
-            type OutTuple = (#(#mut_nts),*);
-
-            #[doc = #mut_doc]
-            fn as_mut(&'a mut self) -> Self::OutTuple {
-                (#(#mut_impl),*)
-            }
-        }
-
-        impl<#(#nts),*> TupleAsOption for (#(#nts),*) {
-            type OutTuple = (#(#option_nts),*);
-
-            fn as_some(self) -> Self::OutTuple {
-                (#(#some_impl),*)
-            }
-        }
-
-        impl<E, #(#nts),*> TupleAsResultOk<E> for (#(#nts),*) {
-            type OutTuple = (#(#ok_nts),*);
-
-            fn as_ok(self) -> Self::OutTuple {
-                (#(#ok_impl),*)
-            }
-        }
-
-        impl<O, #(#nts),*> TupleAsResultErr<O> for (#(#nts),*) {
-            type OutTuple = (#(#err_nts),*);
-
-            fn as_err(self) -> Self::OutTuple {
-                (#(#err_impl),*)
             }
         }
     };
@@ -211,6 +136,155 @@ fn gen_tuple_n_impl_size(
         }
         impl<#(#nts),*> #tuple_name for (#(#nts),*) {
             #(#let_items)*
+        }
+    };
+    tks
+}
+
+fn gen_tuple_as(ctx: &Ctx, out_dir: &OsString) {
+    let ref_nts = ctx
+        .nts
+        .iter()
+        .map(|id| quote! { &'a #id })
+        .collect::<Vec<_>>();
+    let mut_nts = ctx
+        .nts
+        .iter()
+        .map(|id| quote! { &'a mut #id })
+        .collect::<Vec<_>>();
+    let option_nts = ctx
+        .nts
+        .iter()
+        .map(|id| quote! { Option<#id> })
+        .collect::<Vec<_>>();
+    let ok_nts = ctx
+        .nts
+        .iter()
+        .map(|id| quote! { Result<#id, E> })
+        .collect::<Vec<_>>();
+    let err_nts = ctx
+        .nts
+        .iter()
+        .map(|id| quote! { Result<O, #id> })
+        .collect::<Vec<_>>();
+    let ref_impl = ctx
+        .size_lits
+        .iter()
+        .map(|l| {
+            quote! { &self.#l }
+        })
+        .collect::<Vec<_>>();
+    let mut_impl = ctx
+        .size_lits
+        .iter()
+        .map(|l| {
+            quote! { &mut self.#l }
+        })
+        .collect::<Vec<_>>();
+    let some_impl = ctx
+        .size_lits
+        .iter()
+        .map(|l| {
+            quote! { Some(self.#l) }
+        })
+        .collect::<Vec<_>>();
+    let ok_impl = ctx
+        .size_lits
+        .iter()
+        .map(|l| {
+            quote! { Ok(self.#l) }
+        })
+        .collect::<Vec<_>>();
+    let err_impl = ctx
+        .size_lits
+        .iter()
+        .map(|l| {
+            quote! { Err(self.#l) }
+        })
+        .collect::<Vec<_>>();
+    let items = (2..33usize).into_iter().map(|i| {
+        gen_tuple_as_size(
+            ctx,
+            i,
+            &ref_nts[0..i],
+            &mut_nts[0..i],
+            &option_nts[0..i],
+            &ok_nts[0..i],
+            &err_nts[0..i],
+            &ref_impl[0..i],
+            &mut_impl[0..i],
+            &some_impl[0..i],
+            &ok_impl[0..i],
+            &err_impl[0..i],
+        )
+    });
+    let tks = quote! { #(#items)* };
+    let code = tks.to_string();
+    let dest_path = Path::new(out_dir).join("tuple_as.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_tuple_as_size(
+    ctx: &Ctx,
+    size: usize,
+    ref_nts: &[TokenStream],
+    mut_nts: &[TokenStream],
+    option_nts: &[TokenStream],
+    ok_nts: &[TokenStream],
+    err_nts: &[TokenStream],
+    ref_impl: &[TokenStream],
+    mut_impl: &[TokenStream],
+    some_impl: &[TokenStream],
+    ok_impl: &[TokenStream],
+    err_impl: &[TokenStream],
+) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let ants = &ctx.ants[0..size];
+
+    let ref_doc = format!("AsRef for Tuple{}", size);
+    let mut_doc = format!("AsMut for Tuple{}", size);
+
+    let tks = quote! {
+        impl<'a, #(#ants),*> TupleAsRef<'a> for (#(#nts),*) {
+            type OutTuple = (#(#ref_nts),*);
+
+            #[doc = #ref_doc]
+            fn as_ref(&'a self) -> Self::OutTuple {
+                (#(#ref_impl),*)
+            }
+        }
+
+        impl<'a, #(#ants),*> TupleAsMut<'a> for (#(#nts),*) {
+            type OutTuple = (#(#mut_nts),*);
+
+            #[doc = #mut_doc]
+            fn as_mut(&'a mut self) -> Self::OutTuple {
+                (#(#mut_impl),*)
+            }
+        }
+
+        impl<#(#nts),*> TupleAsOption for (#(#nts),*) {
+            type OutTuple = (#(#option_nts),*);
+
+            fn as_some(self) -> Self::OutTuple {
+                (#(#some_impl),*)
+            }
+        }
+
+        impl<E, #(#nts),*> TupleAsResultOk<E> for (#(#nts),*) {
+            type OutTuple = (#(#ok_nts),*);
+
+            fn as_ok(self) -> Self::OutTuple {
+                (#(#ok_impl),*)
+            }
+        }
+
+        impl<O, #(#nts),*> TupleAsResultErr<O> for (#(#nts),*) {
+            type OutTuple = (#(#err_nts),*);
+
+            fn as_err(self) -> Self::OutTuple {
+                (#(#err_impl),*)
+            }
         }
     };
     tks

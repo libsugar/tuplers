@@ -1,114 +1,40 @@
 #![no_std]
 
-/// AsRef for Tuple
-pub trait TupleAsRef<'a> {
-    type OutTuple: 'a;
-
-    /// AsRef for Tuple
-    fn as_ref(&'a self) -> Self::OutTuple;
-}
-
-impl<'a, T: 'a> TupleAsRef<'a> for (T,) {
-    type OutTuple = (&'a T,);
-
-    fn as_ref(&'a self) -> Self::OutTuple {
-        (&self.0,)
+#[cfg(feature = "tuple_meta")]
+mod meta {
+    /// Tuple meta
+    pub trait Tuple {
+        /// Get arity of the tuple
+        fn arity(&self) -> usize;
     }
-}
 
-/// AsMut for Tuple
-pub trait TupleAsMut<'a> {
-    type OutTuple: 'a;
-
-    /// AsMut for Tuple
-    fn as_mut(&'a mut self) -> Self::OutTuple;
-}
-
-impl<'a, T: 'a> TupleAsMut<'a> for (T,) {
-    type OutTuple = (&'a mut T,);
-
-    fn as_mut(&'a mut self) -> Self::OutTuple {
-        (&mut self.0,)
+    impl Tuple for () {
+        fn arity(&self) -> usize {
+            0
+        }
     }
-}
 
-/// Mapping item to `Option` for Tuple
-pub trait TupleAsOption {
-    type OutTuple;
-
-    /// Mapping item to `Option::Some` for Tuple
-    fn as_some(self) -> Self::OutTuple;
-}
-
-impl<T> TupleAsOption for (T,) {
-    type OutTuple = (Option<T>,);
-
-    fn as_some(self) -> Self::OutTuple {
-        (Some(self.0),)
+    impl<T> Tuple for (T,) {
+        fn arity(&self) -> usize {
+            1
+        }
     }
+
+    /// Mark traits for all tuples with all item is same type
+    pub trait TupleSame<T>: Tuple {}
+
+    impl<T> TupleSame<T> for () {}
+    impl<T> TupleSame<T> for (T,) {}
+
+    include!(concat!(env!("OUT_DIR"), "/tuple_impl.rs"));
 }
-
-/// Mapping item to `Result` for Tuple
-pub trait TupleAsResultOk<E> {
-    type OutTuple;
-
-    /// Mapping item to `Result::Ok` for Tuple
-    fn as_ok(self) -> Self::OutTuple;
-}
-
-/// Mapping item to `Result` for Tuple
-pub trait TupleAsResultErr<T> {
-    type OutTuple;
-
-    /// Mapping item to `Result::Err` for Tuple
-    fn as_err(self) -> Self::OutTuple;
-}
-
-impl<T, E> TupleAsResultOk<E> for (T,) {
-    type OutTuple = (Result<T, E>,);
-
-    fn as_ok(self) -> Self::OutTuple {
-        (Ok(self.0),)
-    }
-}
-
-impl<T, O> TupleAsResultErr<O> for (T,) {
-    type OutTuple = (Result<O, T>,);
-
-    fn as_err(self) -> Self::OutTuple {
-        (Err(self.0),)
-    }
-}
-
-/// Tuple meta
-pub trait Tuple {
-    /// Get arity of the tuple
-    fn arity(&self) -> usize;
-}
-
-impl Tuple for () {
-    fn arity(&self) -> usize {
-        0
-    }
-}
-
-impl<T> Tuple for (T,) {
-    fn arity(&self) -> usize {
-        1
-    }
-}
-
-/// Mark traits for all tuples with all item is same type
-pub trait TupleSame<T>: Tuple {}
-
-impl<T> TupleSame<T> for () {}
-impl<T> TupleSame<T> for (T,) {}
-
-include!(concat!(env!("OUT_DIR"), "/tuple_impl.rs"));
+#[cfg(feature = "tuple_meta")]
+pub use meta::*;
 
 /// TupleN
+#[cfg(feature = "tuple_meta")]
 pub mod tuple_n {
-    use crate::*;
+    use crate::meta::*;
 
     pub trait Tuple0: Tuple {}
     impl Tuple0 for () {}
@@ -123,11 +49,15 @@ pub mod tuple_n {
 
     include!(concat!(env!("OUT_DIR"), "/tuple_n.rs"));
 }
+#[cfg(all(feature = "tuple_meta", feature = "re-exports"))]
+pub use tuple_n::*;
 
 include!(concat!(env!("OUT_DIR"), "/tuple_alias.rs"));
 
-#[cfg(feature = "re-exports")]
-pub use tuple_n::*;
+#[cfg(feature = "tuple_as")]
+pub mod tuple_as;
+#[cfg(all(feature = "tuple_as", feature = "re-exports"))]
+pub use tuple_as::*;
 
 #[cfg(feature = "tuple_iter")]
 pub mod tuple_iter;
@@ -143,3 +73,8 @@ pub use tuple_map::*;
 pub mod combin;
 #[cfg(all(feature = "combin", feature = "re-exports"))]
 pub use combin::*;
+
+#[cfg(feature = "transpose")]
+pub mod transpose;
+#[cfg(all(feature = "transpose", feature = "re-exports"))]
+pub use transpose::*;
