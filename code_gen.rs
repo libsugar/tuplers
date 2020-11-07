@@ -71,31 +71,45 @@ fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
     let ts = &ctx.ts[0..size];
 
     let nts = &ctx.nts[0..size];
-    let ants = (0..size)
-        .into_iter()
-        .map(|i| &nts[i])
+    let ants = nts[0..size]
+        .iter()
         .map(|i| quote! { #i: 'a })
         .collect::<Vec<_>>();
-    let ref_nts = (0..size)
-        .into_iter()
-        .map(|i| &nts[i])
+    let ref_nts = nts[0..size]
+        .iter()
         .map(|id| quote! { &'a #id })
         .collect::<Vec<_>>();
-    let mut_nts = (0..size)
-        .into_iter()
-        .map(|i| &nts[i])
+    let mut_nts = nts[0..size]
+        .iter()
         .map(|id| quote! { &'a mut #id })
+        .collect::<Vec<_>>();
+    let option_nts = nts[0..size]
+        .iter()
+        .map(|id| quote! { Option<#id> })
+        .collect::<Vec<_>>();
+    let ok_nts = nts[0..size]
+        .iter()
+        .map(|id| quote! { Result<#id, E> })
+        .collect::<Vec<_>>();
+    let err_nts = nts[0..size]
+        .iter()
+        .map(|id| quote! { Result<O, #id> })
         .collect::<Vec<_>>();
 
     let ref_impl = ctx.size_lits[0..size].iter().map(|l| {
-        quote! {
-            &self.#l
-        }
+        quote! { &self.#l }
     });
     let mut_impl = ctx.size_lits[0..size].iter().map(|l| {
-        quote! {
-            &mut self.#l
-        }
+        quote! { &mut self.#l }
+    });
+    let some_impl = ctx.size_lits[0..size].iter().map(|l| {
+        quote! { Some(self.#l) }
+    });
+    let ok_impl = ctx.size_lits[0..size].iter().map(|l| {
+        quote! { Ok(self.#l) }
+    });
+    let err_impl = ctx.size_lits[0..size].iter().map(|l| {
+        quote! { Err(self.#l) }
     });
 
     let ref_doc = format!("AsRef for Tuple{}", size);
@@ -125,6 +139,30 @@ fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
             #[doc = #mut_doc]
             fn as_mut(&'a mut self) -> Self::OutTuple {
                 (#(#mut_impl),*)
+            }
+        }
+
+        impl<#(#nts),*> TupleAsOption for (#(#nts),*) {
+            type OutTuple = (#(#option_nts),*);
+
+            fn as_some(self) -> Self::OutTuple {
+                (#(#some_impl),*)
+            }
+        }
+
+        impl<E, #(#nts),*> TupleAsResultOk<E> for (#(#nts),*) {
+            type OutTuple = (#(#ok_nts),*);
+
+            fn as_ok(self) -> Self::OutTuple {
+                (#(#ok_impl),*)
+            }
+        }
+
+        impl<O, #(#nts),*> TupleAsResultErr<O> for (#(#nts),*) {
+            type OutTuple = (#(#err_nts),*);
+
+            fn as_err(self) -> Self::OutTuple {
+                (#(#err_impl),*)
             }
         }
     };
