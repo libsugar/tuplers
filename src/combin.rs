@@ -60,3 +60,12 @@ impl<T, T0> CombinRight<T> for (T0,) {
 
 include!(concat!(env!("OUT_DIR"), "/combin.rs"));
 
+#[test]
+fn test() {
+    let a = (1, 2).push(3);
+    assert_eq!(a, (1, 2, 3));
+    let b = (2, 1).left(3);
+    assert_eq!(b, (3, 2, 1));
+    let c = (1, 2, 3).concat((4, 5, 6));
+    assert_eq!(c, (1, 2, 3, 4, 5, 6))
+}
