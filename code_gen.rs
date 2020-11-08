@@ -153,148 +153,76 @@ fn gen_tuple_n_impl_size(
 }
 
 fn gen_tuple_as(ctx: &Ctx, out_dir: &OsString) {
-    let ref_nts = ctx
-        .nts
-        .iter()
-        .map(|id| quote! { &'a #id })
-        .collect::<Vec<_>>();
-    let mut_nts = ctx
-        .nts
-        .iter()
-        .map(|id| quote! { &'a mut #id })
-        .collect::<Vec<_>>();
-    let option_nts = ctx
-        .nts
-        .iter()
-        .map(|id| quote! { Option<#id> })
-        .collect::<Vec<_>>();
-    let ok_nts = ctx
-        .nts
-        .iter()
-        .map(|id| quote! { Result<#id, E> })
-        .collect::<Vec<_>>();
-    let err_nts = ctx
-        .nts
-        .iter()
-        .map(|id| quote! { Result<O, #id> })
-        .collect::<Vec<_>>();
-    let ref_impl = ctx
-        .size_lits
-        .iter()
-        .map(|l| {
-            quote! { &self.#l }
-        })
-        .collect::<Vec<_>>();
-    let mut_impl = ctx
-        .size_lits
-        .iter()
-        .map(|l| {
-            quote! { &mut self.#l }
-        })
-        .collect::<Vec<_>>();
-    let some_impl = ctx
-        .size_lits
-        .iter()
-        .map(|l| {
-            quote! { Some(self.#l) }
-        })
-        .collect::<Vec<_>>();
-    let ok_impl = ctx
-        .size_lits
-        .iter()
-        .map(|l| {
-            quote! { Ok(self.#l) }
-        })
-        .collect::<Vec<_>>();
-    let err_impl = ctx
-        .size_lits
-        .iter()
-        .map(|l| {
-            quote! { Err(self.#l) }
-        })
-        .collect::<Vec<_>>();
-    let items = (2..33usize).into_iter().map(|i| {
-        gen_tuple_as_size(
-            ctx,
-            i,
-            &ref_nts[0..i],
-            &mut_nts[0..i],
-            &option_nts[0..i],
-            &ok_nts[0..i],
-            &err_nts[0..i],
-            &ref_impl[0..i],
-            &mut_impl[0..i],
-            &some_impl[0..i],
-            &ok_impl[0..i],
-            &err_impl[0..i],
-        )
-    });
+    let items = (2..33usize).map(|i| gen_tuple_as_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
     let dest_path = Path::new(out_dir).join("tuple_as.rs");
     fs::write(&dest_path, code).unwrap();
 }
 
-fn gen_tuple_as_size(
-    ctx: &Ctx,
-    size: usize,
-    ref_nts: &[TokenStream],
-    mut_nts: &[TokenStream],
-    option_nts: &[TokenStream],
-    ok_nts: &[TokenStream],
-    err_nts: &[TokenStream],
-    ref_impl: &[TokenStream],
-    mut_impl: &[TokenStream],
-    some_impl: &[TokenStream],
-    ok_impl: &[TokenStream],
-    err_impl: &[TokenStream],
-) -> TokenStream {
+fn gen_tuple_as_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let size_lits = &ctx.size_lits[0..size];
     let nts = &ctx.nts[0..size];
-    let ants = &ctx.ants[0..size];
 
     let ref_doc = format!("AsRef for Tuple{}", size);
     let mut_doc = format!("AsMut for Tuple{}", size);
 
     let tks = quote! {
-        impl<'a, #(#ants),*> TupleAsRef<'a> for (#(#nts),*) {
-            type OutTuple = (#(#ref_nts),*);
+        impl<'a, #(#nts: 'a),*> TupleAsRef<'a> for (#(#nts),*) {
+            type OutTuple = (#(&'a #nts),*);
 
             #[doc = #ref_doc]
             fn as_ref(&'a self) -> Self::OutTuple {
-                (#(#ref_impl),*)
+                (#(&self.#size_lits),*)
             }
         }
 
-        impl<'a, #(#ants),*> TupleAsMut<'a> for (#(#nts),*) {
-            type OutTuple = (#(#mut_nts),*);
+        impl<'a, #(#nts: 'a),*> TupleAsMut<'a> for (#(#nts),*) {
+            type OutTuple = (#(&'a mut #nts),*);
 
             #[doc = #mut_doc]
             fn as_mut(&'a mut self) -> Self::OutTuple {
-                (#(#mut_impl),*)
+                (#(&mut self.#size_lits),*)
             }
         }
 
         impl<#(#nts),*> TupleAsOption for (#(#nts),*) {
-            type OutTuple = (#(#option_nts),*);
+            type OutTuple = (#(Option<#nts>),*);
 
             fn as_some(self) -> Self::OutTuple {
-                (#(#some_impl),*)
+                (#(Some(self.#size_lits)),*)
             }
         }
 
         impl<E, #(#nts),*> TupleAsResultOk<E> for (#(#nts),*) {
-            type OutTuple = (#(#ok_nts),*);
+            type OutTuple = (#(Result<#nts, E>),*);
 
             fn as_ok(self) -> Self::OutTuple {
-                (#(#ok_impl),*)
+                (#(Ok(self.#size_lits)),*)
             }
         }
 
         impl<O, #(#nts),*> TupleAsResultErr<O> for (#(#nts),*) {
-            type OutTuple = (#(#err_nts),*);
+            type OutTuple = (#(Result<O, #nts>),*);
 
             fn as_err(self) -> Self::OutTuple {
-                (#(#err_impl),*)
+                (#(Err(self.#size_lits)),*)
+            }
+        }
+
+        impl<'a, #(#nts: 'a + Deref),*> TupleAsDeref<'a> for (#(#nts),*) {
+            type OutTuple = (#(&'a <#nts as Deref>::Target),*);
+
+            fn as_deref(&'a self) -> Self::OutTuple {
+                (#(self.#size_lits.deref()),*)
+            }
+        }
+
+        impl<'a, #(#nts: 'a + DerefMut),*> TupleAsDerefMut<'a> for (#(#nts),*) {
+            type OutTuple = (#(&'a mut <#nts as Deref>::Target),*);
+        
+            fn as_deref_mut(&'a mut self) -> Self::OutTuple {
+                (#(self.#size_lits.deref_mut()),*)
             }
         }
     };
@@ -370,7 +298,6 @@ fn gen_tuple_alias_macro_size_n(
     tks
 }
 
-#[cfg(feature = "tuple_iter")]
 fn gen_tuple_iter(ctx: &Ctx, out_dir: &OsString) {
     let items = (2..33usize)
         .into_iter()
@@ -381,7 +308,6 @@ fn gen_tuple_iter(ctx: &Ctx, out_dir: &OsString) {
     fs::write(&dest_path, code).unwrap();
 }
 
-#[cfg(feature = "tuple_iter")]
 fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
     let size_lit = &ctx.size_lits[size];
 
@@ -542,7 +468,6 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
     tks
 }
 
-#[cfg(feature = "tuple_map")]
 fn gen_tuple_map(ctx: &Ctx, out_dir: &OsString) {
     let items = (2..33usize).into_iter().map(|i| gen_tuple_map_size(ctx, i));
     let tks = quote! { #(#items)* };
@@ -551,7 +476,6 @@ fn gen_tuple_map(ctx: &Ctx, out_dir: &OsString) {
     fs::write(&dest_path, code).unwrap();
 }
 
-#[cfg(feature = "tuple_map")]
 fn gen_tuple_map_size(ctx: &Ctx, size: usize) -> TokenStream {
     let items = if size > 16 {
         vec![]
@@ -592,7 +516,6 @@ fn gen_tuple_map_size(ctx: &Ctx, size: usize) -> TokenStream {
     tks
 }
 
-#[cfg(feature = "tuple_map")]
 fn gen_tuple_map_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
     let t = &ctx.nts[n];
     let map_n_name = format_ident!("Tuple{}Map{}", size, n);
@@ -630,7 +553,6 @@ fn gen_tuple_map_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
     tks
 }
 
-#[cfg(feature = "combin")]
 fn gen_combin(ctx: &Ctx, out_dir: &OsString) {
     let self_impl = ctx
         .size_lits
@@ -661,7 +583,6 @@ fn gen_combin(ctx: &Ctx, out_dir: &OsString) {
     fs::write(&dest_path, code).unwrap();
 }
 
-#[cfg(feature = "combin")]
 fn gen_combin_size(ctx: &Ctx, size: usize, self_impl: &[TokenStream]) -> TokenStream {
     let ts = &ctx.nts[0..size];
     let self_impl = &self_impl[0..size];

@@ -1,5 +1,7 @@
 //! As X
 
+use core::ops::{Deref, DerefMut};
+
 include!(concat!(env!("OUT_DIR"), "/tuple_as.rs"));
 
 /// AsRef for Tuple
@@ -79,5 +81,37 @@ impl<T, O> TupleAsResultErr<O> for (T,) {
 
     fn as_err(self) -> Self::OutTuple {
         (Err(self.0),)
+    }
+}
+
+/// AsDeref for Tuple
+pub trait TupleAsDeref<'a> {
+    type OutTuple: 'a;
+
+    /// AsDeref for Tuple
+    fn as_deref(&'a self) -> Self::OutTuple;
+}
+
+impl<'a, T: 'a + Deref> TupleAsDeref<'a> for (T,) {
+    type OutTuple = (&'a <T as Deref>::Target,);
+
+    fn as_deref(&'a self) -> Self::OutTuple {
+        (self.0.deref(),)
+    }
+}
+
+/// AsDerefMut for Tuple
+pub trait TupleAsDerefMut<'a> {
+    type OutTuple: 'a;
+
+    /// AsDerefMut for Tuple
+    fn as_deref_mut(&'a mut self) -> Self::OutTuple;
+}
+
+impl<'a, T: 'a + DerefMut> TupleAsDerefMut<'a> for (T,) {
+    type OutTuple = (&'a mut <T as Deref>::Target,);
+
+    fn as_deref_mut(&'a mut self) -> Self::OutTuple {
+        (self.0.deref_mut(),)
     }
 }
