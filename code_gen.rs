@@ -77,9 +77,7 @@ fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
 }
 
 fn gen_tuple_impl(ctx: &Ctx, out_dir: &OsString) {
-    let items = (2..33usize)
-        .into_iter()
-        .map(|i| gen_tuple_impl_size(ctx, i));
+    let items = (2..33usize).map(|i| gen_tuple_impl_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
     let dest_path = Path::new(out_dir).join("tuple_impl.rs");
@@ -88,9 +86,7 @@ fn gen_tuple_impl(ctx: &Ctx, out_dir: &OsString) {
 
 fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
     let size_lit = &ctx.size_lits[size];
-
     let ts = &ctx.ts[0..size];
-
     let nts = &ctx.nts[0..size];
 
     let tks = quote! {
@@ -110,43 +106,26 @@ fn gen_tuple_n_impl(ctx: &Ctx, out_dir: &OsString) {
         .into_iter()
         .map(|i| format_ident!("Item{}", i))
         .collect::<Vec<_>>();
-    let type_items = item_names
-        .iter()
-        .map(|i| quote! { type #i; })
-        .collect::<Vec<_>>();
-    let let_items = item_names
-        .iter()
-        .zip(ctx.nts.iter())
-        .map(|(i, t)| quote! { type #i = #t; })
-        .collect::<Vec<_>>();
     let items = (2..33usize)
         .into_iter()
-        .map(|i| gen_tuple_n_impl_size(ctx, i, &type_items, &let_items));
+        .map(|i| gen_tuple_n_impl_size(ctx, i, &item_names[0..i]));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
     let dest_path = Path::new(out_dir).join("tuple_n.rs");
     fs::write(&dest_path, code).unwrap();
 }
 
-fn gen_tuple_n_impl_size(
-    ctx: &Ctx,
-    size: usize,
-    type_items: &[TokenStream],
-    let_items: &[TokenStream],
-) -> TokenStream {
+fn gen_tuple_n_impl_size(ctx: &Ctx, size: usize, item_names: &[Ident]) -> TokenStream {
     let tuple_name = format_ident!("Tuple{}", size);
 
     let nts = &ctx.nts[0..size];
 
-    let type_items = &type_items[0..size];
-    let let_items = &let_items[0..size];
-
     let tks = quote! {
         pub trait #tuple_name: Tuple {
-            #(#type_items)*
+            #(type #item_names;)*
         }
         impl<#(#nts),*> #tuple_name for (#(#nts),*) {
-            #(#let_items)*
+            #(type #item_names = #nts;)*
         }
     };
     tks
@@ -220,7 +199,7 @@ fn gen_tuple_as_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<'a, #(#nts: 'a + DerefMut),*> TupleAsDerefMut<'a> for (#(#nts),*) {
             type OutTuple = (#(&'a mut <#nts as Deref>::Target),*);
-        
+
             fn as_deref_mut(&'a mut self) -> Self::OutTuple {
                 (#(self.#size_lits.deref_mut()),*)
             }
@@ -230,9 +209,7 @@ fn gen_tuple_as_size(ctx: &Ctx, size: usize) -> TokenStream {
 }
 
 fn gen_tuple_alias_macro(ctx: &Ctx, out_dir: &OsString) {
-    let items = (2..33usize)
-        .into_iter()
-        .map(|i| gen_tuple_alias_macro_size(ctx, i));
+    let items = (2..33usize).map(|i| gen_tuple_alias_macro_size(ctx, i));
     let tks = quote! {
         #[doc(hidden)]
         #[macro_export(local_inner_macros)]
@@ -256,14 +233,11 @@ fn gen_tuple_alias_macro_size(ctx: &Ctx, size: usize) -> TokenStream {
     let tys = (0..size).into_iter().map(|_| &ty).collect::<Vec<_>>();
 
     let ntys = (0..size + 1)
-        .into_iter()
         .map(|i| format_ident!("t{}", i))
         .map(|i| quote! { $#i })
         .collect::<Vec<_>>();
 
-    let items = (0..size + 1)
-        .into_iter()
-        .map(|i| gen_tuple_alias_macro_size_n(ctx, size, i, &ntys));
+    let items = (0..size + 1).map(|i| gen_tuple_alias_macro_size_n(ctx, size, i, &ntys));
 
     let tks = quote! {
         { $t:ty ; #size_lit } => { (#(#tys),*) };
@@ -282,26 +256,20 @@ fn gen_tuple_alias_macro_size_n(
     let size_lit = &ctx.size_lits[size];
 
     let u = quote! { _ };
-    let dtys = ntys[0..n]
-        .iter()
-        .map(|i| quote! { #i:ty })
-        .collect::<Vec<_>>();
+    let nntys = &ntys[0..n];
     let tys = ntys[0..size]
         .iter()
         .enumerate()
-        .map(|(i, l)| if i < n { l } else { &u })
-        .collect::<Vec<_>>();
+        .map(|(i, l)| if i < n { l } else { &u });
 
     let tks = quote! {
-        { #size_lit; #(#dtys),* } => { (#(#tys),*) };
+        { #size_lit; #(#nntys:ty),* } => { (#(#tys),*) };
     };
     tks
 }
 
 fn gen_tuple_iter(ctx: &Ctx, out_dir: &OsString) {
-    let items = (2..33usize)
-        .into_iter()
-        .map(|i| gen_tuple_iter_size(ctx, i));
+    let items = (2..33usize).map(|i| gen_tuple_iter_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
     let dest_path = Path::new(out_dir).join("tuple_iter.rs");
@@ -310,6 +278,7 @@ fn gen_tuple_iter(ctx: &Ctx, out_dir: &OsString) {
 
 fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
     let size_lit = &ctx.size_lits[size];
+    let size_lits = &ctx.size_lits[0..size];
 
     let iter_struct_name = format_ident!("Tuple{}Iter", size);
     let into_iter_struct_name = format_ident!("Tuple{}IntoIter", size);
@@ -319,21 +288,8 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
     let from = quote! { iter.next().unwrap() };
     let froms = (0..size).into_iter().map(|_| &from);
 
-    let iter_new = ctx.size_lits[0..size].iter().map(|i| quote! { &t.#i });
-    let into_new = ctx.size_lits[0..size]
-        .iter()
-        .map(|i| quote! { MaybeUninit::new(t.#i) });
-
-    let derive_iter = if size > 12 {
-        quote! {}
-    } else {
-        quote! {#[derive(Debug, Clone)]}
-    };
-    let derive_into = if size > 12 {
-        quote! {}
-    } else {
-        quote! {#[derive(Debug)]}
-    };
+    let derive_iter = tif! {size > 12 =>  quote! {} ; quote! {#[derive(Debug, Clone)]} };
+    let derive_into = tif! {size > 12 =>  quote! {} ; quote! {#[derive(Debug)]} };
 
     let iter_ = quote! {
         #derive_iter
@@ -341,7 +297,7 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
         impl<'a, T> #iter_struct_name<'a, T> {
             #[inline]
             pub fn new(t: &'a (#(#ts),*)) -> Self {
-                Self([#(#iter_new),*], 0..#size_lit)
+                Self([#(&t.#size_lits),*], 0..#size_lit)
             }
         }
 
@@ -396,7 +352,7 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
         impl<T> #into_iter_struct_name<T> {
             #[inline]
             pub fn new(t: (#(#ts),*)) -> Self {
-                Self([#(#into_new),*], 0..#size_lit)
+                Self([#(MaybeUninit::new(t.#size_lits)),*], 0..#size_lit)
             }
         }
         impl<T> Iterator for #into_iter_struct_name<T> {
@@ -469,7 +425,7 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
 }
 
 fn gen_tuple_map(ctx: &Ctx, out_dir: &OsString) {
-    let items = (2..33usize).into_iter().map(|i| gen_tuple_map_size(ctx, i));
+    let items = (2..33usize).map(|i| gen_tuple_map_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
     let dest_path = Path::new(out_dir).join("tuple_map.rs");
@@ -481,7 +437,6 @@ fn gen_tuple_map_size(ctx: &Ctx, size: usize) -> TokenStream {
         vec![]
     } else {
         (0..size)
-            .into_iter()
             .map(|n| gen_tuple_map_n_size(ctx, size, n))
             .collect()
     };
@@ -490,12 +445,7 @@ fn gen_tuple_map_size(ctx: &Ctx, size: usize) -> TokenStream {
 
     let ts = &ctx.ts[0..size];
     let us = &ctx.us[0..size];
-
-    let map_impl = ctx.size_lits[0..size].iter().map(|l| {
-        quote! {
-            f(self.#l)
-        }
-    });
+    let size_lits = &ctx.size_lits[0..size];
 
     let map_doc = format!("Mapping for Tuple{}", size);
 
@@ -509,7 +459,7 @@ fn gen_tuple_map_size(ctx: &Ctx, size: usize) -> TokenStream {
         }
         impl<T> #map_name<T> for (#(#ts),*) {
             fn map<U>(self, mut f: impl FnMut(T) -> U) -> (#(#us),*) {
-                (#(#map_impl),*)
+                (#(f(self.#size_lits)),*)
             }
         }
     };
@@ -564,15 +514,11 @@ fn gen_combin(ctx: &Ctx, out_dir: &OsString) {
         .iter()
         .map(|i| quote! { target.#i })
         .collect::<Vec<_>>();
-    let items = (2..33usize)
-        .into_iter()
-        .map(|i| gen_combin_size(ctx, i, &self_impl));
-    let concats = (0..17usize).into_iter().flat_map(|a| {
+    let items = (2..33usize).map(|i| gen_combin_size(ctx, i));
+    let concats = (0..17usize).flat_map(|a| {
         let self_impl = &self_impl;
         let target_impl = &target_impl;
-        (0..17usize)
-            .into_iter()
-            .map(move |b| gen_combin_concat_size(ctx, a, b, &self_impl, &target_impl))
+        (0..17usize).map(move |b| gen_combin_concat_size(ctx, a, b, &self_impl, &target_impl))
     });
     let tks = quote! {
         #(#items)*
@@ -583,23 +529,23 @@ fn gen_combin(ctx: &Ctx, out_dir: &OsString) {
     fs::write(&dest_path, code).unwrap();
 }
 
-fn gen_combin_size(ctx: &Ctx, size: usize, self_impl: &[TokenStream]) -> TokenStream {
+fn gen_combin_size(ctx: &Ctx, size: usize) -> TokenStream {
     let ts = &ctx.nts[0..size];
-    let self_impl = &self_impl[0..size];
+    let size_lits = &ctx.size_lits[0..size];
 
     let tks = quote! {
         impl<T, #(#ts),*> CombinLeft<T> for (#(#ts),*) {
             type Out = (T, #(#ts),*);
 
             fn left(self, target: T) -> Self::Out {
-                (target, #(#self_impl),*)
+                (target, #(self.#size_lits),*)
             }
         }
         impl<T, #(#ts),*> CombinRight<T> for ( #(#ts),*) {
             type Out = ( #(#ts),*, T);
 
             fn push(self, target: T) -> Self::Out {
-                (#(#self_impl),*, target)
+                (#(self.#size_lits),*, target)
             }
         }
     };
@@ -641,12 +587,8 @@ fn gen_transpose(ctx: &Ctx, out_dir: &OsString) {
         .iter()
         .map(|_| quote! { None })
         .collect::<Vec<_>>();
-    let items_1 = (2..33usize)
-        .into_iter()
-        .map(|i| gen_transpose_size_option_1(ctx, i, &none_impl[0..i]));
-    let items_2 = (2..33usize)
-        .into_iter()
-        .map(|i| gen_transpose_size_option_2(ctx, i));
+    let items_1 = (2..33usize).map(|i| gen_transpose_size_option_1(ctx, i, &none_impl[0..i]));
+    let items_2 = (2..33usize).map(|i| gen_transpose_size_option_2(ctx, i));
 
     let tks = quote! { #(#items_1)* #(#items_2)* };
     let code = tks.to_string();
