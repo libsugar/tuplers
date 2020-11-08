@@ -17,7 +17,18 @@ pub trait TupleIntoIter {
 }
 
 pub trait TupleFromIter<T> {
+    /// Like `Iter<T> -> (T, T, T)` with panic on failure
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self;
+}
+
+pub trait TupleTryFromIter<T>: Sized {
+    /// Like `Iter<T> -> Option<(T, T, T)>`
+    fn try_from_iter<I: IntoIterator<Item = T>>(iter: I) -> Option<Self>;
+}
+
+pub trait TupleFromIterTry<T> {
+    /// Like `Iter<T> -> (Option<T>, Option<T>, Option<T>)`
+    fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self;
 }
 
 impl<'a> TupleIter<'a> for () {
@@ -40,6 +51,18 @@ impl TupleIntoIter for () {
 
 impl<T> TupleFromIter<T> for () {
     fn from_iter<I: IntoIterator<Item = T>>(_: I) -> Self {
+        ()
+    }
+}
+
+impl<T> TupleTryFromIter<T> for () {
+    fn try_from_iter<I: IntoIterator<Item = T>>(_: I) -> Option<Self> {
+        Some(())
+    }
+}
+
+impl<T> TupleFromIterTry<T> for () {
+    fn from_iter_try<I: IntoIterator<Item = T>>(_: I) -> Self {
         ()
     }
 }
@@ -69,15 +92,44 @@ impl<T> TupleFromIter<T> for (T,) {
     }
 }
 
+impl<T> TupleTryFromIter<T> for (T,) {
+    fn try_from_iter<I: IntoIterator<Item = T>>(iter: I) -> Option<Self> {
+        let mut iter = iter.into_iter();
+        Some((iter.next()?,))
+    }
+}
+
+impl<T> TupleFromIterTry<T> for (Option<T>,) {
+    fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut iter = iter.into_iter();
+        (iter.next(),)
+    }
+}
+
 include!(concat!(env!("OUT_DIR"), "/tuple_iter.rs"));
 
 pub trait TupleCollect<T> {
+    /// Like `Iter<T> -> (T, T, T)` with panic on failure
     fn collect_tuple<B: TupleFromIter<T>>(self) -> B;
+    /// Like `Iter<T> -> Option<(T, T, T)>`
+    fn try_collect_tuple<B: TupleTryFromIter<T>>(self) -> Option<B>;
+    /// Like `Iter<T> -> (Option<T>, Option<T>, Option<T>)`
+    fn collect_tuple_try<B: TupleFromIterTry<T>>(self) -> B;
 }
 
 impl<I: IntoIterator<Item = T>, T> TupleCollect<T> for I {
     fn collect_tuple<B: TupleFromIter<T>>(self) -> B {
         let iter = self.into_iter();
         B::from_iter(iter)
+    }
+
+    fn try_collect_tuple<B: TupleTryFromIter<T>>(self) -> Option<B> {
+        let iter = self.into_iter();
+        B::try_from_iter(iter)
+    }
+
+    fn collect_tuple_try<B: TupleFromIterTry<T>>(self) -> B {
+        let iter = self.into_iter();
+        B::from_iter_try(iter)
     }
 }

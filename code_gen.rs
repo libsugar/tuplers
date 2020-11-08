@@ -287,8 +287,8 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
 
     let ts = &ctx.ts[0..size];
 
-    let from = quote! { iter.next().unwrap() };
-    let froms = (0..size).into_iter().map(|_| &from);
+    let from = quote! { iter.next() };
+    let froms = (0..size).into_iter().map(|_| &from).collect::<Vec<_>>();
 
     let derive_iter = tif! {size > 12 =>  quote! {} ; quote! {#[derive(Debug, Clone)]} };
     let derive_into = tif! {size > 12 =>  quote! {} ; quote! {#[derive(Debug)]} };
@@ -418,6 +418,20 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<T> TupleFromIter<T> for (#(#ts),*) {
             fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+                let mut iter = iter.into_iter();
+                (#(#froms.unwrap()),*)
+            }
+        }
+
+        impl<T> TupleTryFromIter<T> for (#(#ts),*) {
+            fn try_from_iter<I: IntoIterator<Item = T>>(iter: I) -> Option<Self> {
+                let mut iter = iter.into_iter();
+                Some((#(#froms?),*))
+            }
+        }
+
+        impl<T> TupleFromIterTry<T> for (#(Option<#ts>),*) {
+            fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self {
                 let mut iter = iter.into_iter();
                 (#(#froms),*)
             }
