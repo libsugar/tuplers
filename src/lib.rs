@@ -134,3 +134,8 @@ pub use combin::*;
 pub mod transpose;
 #[cfg(all(feature = "transpose", feature = "re-exports"))]
 pub use transpose::*;
+
+#[cfg(feature = "flatten")]
+pub mod flatten;
+#[cfg(all(feature = "flatten", feature = "re-exports"))]
+pub use flatten::*;

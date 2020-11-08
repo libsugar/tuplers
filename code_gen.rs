@@ -29,6 +29,8 @@ pub fn code_gen(out_dir: OsString) {
     gen_combin(&ctx, &out_dir);
     #[cfg(feature = "transpose")]
     gen_transpose(&ctx, &out_dir);
+    #[cfg(feature = "flatten")]
+    gen_flatten(&ctx, &out_dir);
 }
 
 struct Ctx<'a> {
@@ -761,6 +763,69 @@ fn gen_transpose_size_option_2(ctx: &Ctx, size: usize) -> TokenStream {
                     (#(Some(#nvs)),*) => Some((#(#nvs),*)),
                     _ => None,
                 }
+            }
+        }
+    };
+    tks
+}
+
+fn gen_flatten(ctx: &Ctx, out_dir: &OsString) {
+    let et = quote! { () };
+    let ets = ctx.nts.iter().map(|_| &et).collect::<Vec<_>>();
+
+    let item_0s = (2..33usize).map(|i| gen_flatten_size_0(&ets[0..i]));
+
+    let items = (2..33).map(|i| gen_flatten_size(ctx, i));
+
+    let tks = quote! {
+        #(#item_0s)*
+        #(#items)*
+    };
+    let code = tks.to_string();
+    let dest_path = Path::new(out_dir).join("flatten.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_flatten_size_0(ets: &[&TokenStream]) -> TokenStream {
+    let tks = quote! {
+        impl TupleFlatten for (#(#ets),*) {
+            type OutTuple = ();
+
+            fn flatten(self) -> Self::OutTuple {
+                ()
+            }
+        }
+    };
+    tks
+}
+
+fn gen_flatten_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let max = (32 / size) + 1;
+    let items = (1..33.min(max)).map(|i| gen_flatten_size_n(ctx, size, i));
+    let tks = quote! {
+        #(#items)*
+    };
+    tks
+}
+
+fn gen_flatten_size_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
+    let nct = tif! { n == 1 => quote! { , } ; quote! {} };
+    let nts = &ctx.nts[0..size * n];
+    let nnts = (0..size * n)
+        .step_by(n)
+        .map(|i| &nts[i..i + n])
+        .map(|nts| quote! { (#(#nts),*#nct) });
+    let nnimpl = ctx.size_lits[0..size].iter().flat_map(|i| {
+        ctx.size_lits[0..n]
+            .iter()
+            .map(move |n| quote! { (self.#i).#n })
+    });
+    let tks = quote! {
+        impl<#(#nts),*> TupleFlatten for (#(#nnts),*) {
+            type OutTuple = (#(#nts),*);
+
+            fn flatten(self) -> Self::OutTuple {
+                (#(#nnimpl),*)
             }
         }
     };
