@@ -41,3 +41,10 @@ impl<T> TupleFlatten for (T,) {
 // }
 
 include!(concat!(env!("OUT_DIR"), "/flatten.rs"));
+
+#[test]
+fn test() {
+    let a = ((1, 2, 3), (4, 5, 6), (7, 8, 9));
+    let b = a.flatten();
+    assert_eq!(b, (1, 2, 3, 4, 5, 6, 7, 8, 9));
+}

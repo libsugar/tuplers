@@ -430,8 +430,10 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<T> TupleFromIterTry<T> for (#(Option<#ts>),*) {
-            fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        impl<T> TupleFromIterTry<T> for (#(#ts),*) {
+            type OutTuple = (#(Option<#ts>),*);
+
+            fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self::OutTuple {
                 let mut iter = iter.into_iter();
                 (#(#froms),*)
             }

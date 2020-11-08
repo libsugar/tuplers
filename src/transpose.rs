@@ -73,3 +73,17 @@ fn test() {
     let b = (Some(1), Some(2), Some(3)).transpose();
     assert_eq!(b, Some((1, 2, 3)));
 }
+
+#[test]
+fn test_result() {
+    let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
+    let b: Result<(u8, u8, u8), ()> = a.transpose();
+    assert_eq!(b, Ok((1, 2, 3)));
+}
+
+#[test]
+fn test_result_2() {
+    let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+    let b: Result<(u8, u8, u8), i64> = a.transpose();
+    assert_eq!(b, Err(-1));
+}

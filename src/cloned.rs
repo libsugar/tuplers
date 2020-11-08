@@ -61,3 +61,10 @@ impl<'a, T: Copy> TupleCopied for (&'a mut T,) {
 }
 
 include!(concat!(env!("OUT_DIR"), "/cloned.rs"));
+
+#[test]
+fn test() {
+    let a = (&1, &2, &3);
+    let b = a.cloned();
+    assert_eq!(b, (1, 2, 3))
+}

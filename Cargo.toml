@@ -1,6 +1,6 @@
 [package]
 name = "tuples"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["BatchOperator", "2A5F <u2a5f@outlook.com>"]
 edition = "2018"
 description = "Provides many useful tools related to tuples"

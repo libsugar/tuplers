@@ -11,12 +11,19 @@ Provides many useful tools related to tuples
 - AsMut
 - AsOption
 - AsResult
-- Transpose
+- AsDeref
+- AsDerefMut
+- Transpose Option
+- Transpose Result
+- Cloned
+- Copied
+- Flatten
 - Combin
 - Mapping
 - Iter
 - IntoIter
 - FromIter
+- Collect
 - Meta Trait
 - Shorthand Macro
 
@@ -42,6 +49,18 @@ Provides many useful tools related to tuples
     assert_eq!(*b, 6);
     assert_eq!(*c, 7);
     ```
+- cloned
+    ```rust
+    let a = (&1, &2, &3);
+    let b = a.cloned();
+    assert_eq!(b, (1, 2, 3))
+    ```
+- flatten
+    ```rust
+    let a = ((1, 2, 3), (4, 5, 6), (7, 8, 9));
+    let b = a.flatten();
+    assert_eq!(b, (1, 2, 3, 4, 5, 6, 7, 8, 9));
+    ```
 - meta
     ```rust
     let a = (1, 2, 3, 4, 5);
@@ -59,6 +78,22 @@ Provides many useful tools related to tuples
     let b: (i32, i32, i32) = (3, 6, 9);
     assert_eq!(a, b);
     ```
+    ```rust
+    let a = (1, 2, 3)
+        .into_iter()
+        .map(|v| v * 3)
+        .try_collect_tuple::<tuple![3;]>();
+    let b: Option<(i32, i32, i32)> = Some((3, 6, 9));
+    assert_eq!(a, b);
+    ```
+    ```rust
+    let a = (1, 2, 3)
+        .into_iter()
+        .map(|v| v * 3)
+        .collect_tuple_try::<tuple![3;]>();
+    let b: (Option<i32>, Option<i32>, Option<i32>) = (Some(3), Some(6), Some(9));
+    assert_eq!(a, b);
+    ```
 - transpose
     ```rust
     let a = Some((1, 2, 3)).transpose();
@@ -66,6 +101,16 @@ Provides many useful tools related to tuples
 
     let b = (Some(1), Some(2), Some(3)).transpose();
     assert_eq!(b, Some((1, 2, 3)));
+    ```
+    ```rust
+    let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
+    let b: Result<(u8, u8, u8), ()> = a.transpose();
+    assert_eq!(b, Ok((1, 2, 3)));
+    ```
+    ```rust
+    let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+    let b: Result<(u8, u8, u8), i64> = a.transpose();
+    assert_eq!(b, Err(-1));
     ```
 - combin
     ```rust

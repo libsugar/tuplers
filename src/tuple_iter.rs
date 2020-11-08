@@ -27,8 +27,10 @@ pub trait TupleTryFromIter<T>: Sized {
 }
 
 pub trait TupleFromIterTry<T> {
+    type OutTuple;
+
     /// Like `Iter<T> -> (Option<T>, Option<T>, Option<T>)`
-    fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self;
+    fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self::OutTuple;
 }
 
 impl<'a> TupleIter<'a> for () {
@@ -62,6 +64,8 @@ impl<T> TupleTryFromIter<T> for () {
 }
 
 impl<T> TupleFromIterTry<T> for () {
+    type OutTuple = ();
+
     fn from_iter_try<I: IntoIterator<Item = T>>(_: I) -> Self {
         ()
     }
@@ -99,8 +103,9 @@ impl<T> TupleTryFromIter<T> for (T,) {
     }
 }
 
-impl<T> TupleFromIterTry<T> for (Option<T>,) {
-    fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self {
+impl<T> TupleFromIterTry<T> for (T,) {
+    type OutTuple = (Option<T>,);
+    fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self::OutTuple {
         let mut iter = iter.into_iter();
         (iter.next(),)
     }
@@ -114,7 +119,7 @@ pub trait TupleCollect<T> {
     /// Like `Iter<T> -> Option<(T, T, T)>`
     fn try_collect_tuple<B: TupleTryFromIter<T>>(self) -> Option<B>;
     /// Like `Iter<T> -> (Option<T>, Option<T>, Option<T>)`
-    fn collect_tuple_try<B: TupleFromIterTry<T>>(self) -> B;
+    fn collect_tuple_try<B: TupleFromIterTry<T>>(self) -> B::OutTuple;
 }
 
 impl<I: IntoIterator<Item = T>, T> TupleCollect<T> for I {
@@ -128,7 +133,7 @@ impl<I: IntoIterator<Item = T>, T> TupleCollect<T> for I {
         B::try_from_iter(iter)
     }
 
-    fn collect_tuple_try<B: TupleFromIterTry<T>>(self) -> B {
+    fn collect_tuple_try<B: TupleFromIterTry<T>>(self) -> B::OutTuple {
         let iter = self.into_iter();
         B::from_iter_try(iter)
     }
