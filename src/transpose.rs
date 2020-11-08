@@ -47,6 +47,23 @@ impl<T> TupleTranspose for (Option<T>,) {
     }
 }
 
+/// Transposes for Result
+pub trait TupleTransposeResult<Eo> {
+    type OutTuple;
+
+    /// Transposes for Result
+    fn transpose(self) -> Self::OutTuple;
+}
+
+impl<T, Eo: From<E>, E> TupleTransposeResult<Eo> for (Result<T, E>,) {
+    type OutTuple = Result<(T,), Eo>;
+
+    fn transpose(self) -> Self::OutTuple {
+        let (v0,) = self;
+        Ok((v0?,))
+    }
+}
+
 include!(concat!(env!("OUT_DIR"), "/transpose.rs"));
 
 #[test]

@@ -591,8 +591,9 @@ fn gen_transpose(ctx: &Ctx, out_dir: &OsString) {
         .collect::<Vec<_>>();
     let items_1 = (2..33usize).map(|i| gen_transpose_size_option_1(ctx, i, &none_impl[0..i]));
     let items_2 = (2..33usize).map(|i| gen_transpose_size_option_2(ctx, i));
+    let items_3 = (2..33usize).map(|i| gen_transpose_size_result(ctx, i));
 
-    let tks = quote! { #(#items_1)* #(#items_2)* };
+    let tks = quote! { #(#items_1)* #(#items_2)* #(#items_3)* };
     let code = tks.to_string();
     let dest_path = Path::new(out_dir).join("transpose.rs");
     fs::write(&dest_path, code).unwrap();
@@ -628,6 +629,25 @@ fn gen_transpose_size_option_2(ctx: &Ctx, size: usize) -> TokenStream {
                     (#(Some(#nvs)),*) => Some((#(#nvs),*)),
                     _ => None,
                 }
+            }
+        }
+    };
+    tks
+}
+
+fn gen_transpose_size_result(ctx: &Ctx, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let ents = (0..size)
+        .map(|i| format_ident!("E{}", i))
+        .collect::<Vec<_>>();
+    let nvs = &ctx.nvs[0..size];
+    let tks = quote! {
+        impl<Eo: #(From<#ents>)+*, #(#ents, #nts),*> TupleTransposeResult<Eo> for (#(Result<#nts, #ents>),*) {
+            type OutTuple = Result<(#(#nts),*), Eo>;
+
+            fn transpose(self) -> Self::OutTuple {
+                let (#(#nvs),*) = self;
+                Ok((#(#nvs?),*))
             }
         }
     };
