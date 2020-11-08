@@ -139,3 +139,8 @@ pub use transpose::*;
 pub mod flatten;
 #[cfg(all(feature = "flatten", feature = "re-exports"))]
 pub use flatten::*;
+
+#[cfg(feature = "cloned")]
+pub mod cloned;
+#[cfg(all(feature = "cloned", feature = "re-exports"))]
+pub use cloned::*;

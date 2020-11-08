@@ -31,6 +31,8 @@ pub fn code_gen(out_dir: OsString) {
     gen_transpose(&ctx, &out_dir);
     #[cfg(feature = "flatten")]
     gen_flatten(&ctx, &out_dir);
+    #[cfg(feature = "cloned")]
+    gen_cloned(&ctx, &out_dir)
 }
 
 struct Ctx<'a> {
@@ -689,6 +691,54 @@ fn gen_flatten_size_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
 
             fn flatten(self) -> Self::OutTuple {
                 (#(#nnimpl),*)
+            }
+        }
+    };
+    tks
+}
+
+fn gen_cloned(ctx: &Ctx, out_dir: &OsString) {
+    let items = (2..33usize).map(|i| gen_cloned_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let code = tks.to_string();
+    let dest_path = Path::new(out_dir).join("cloned.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_cloned_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+
+    let tks = quote! {
+        impl<'a, #(#nts: Clone),*> TupleCloned for (#(&'a #nts),*) {
+            type TupleOut = (#(#nts),*);
+
+            fn cloned(self) -> Self::TupleOut {
+                (#(self.#size_lits.clone()),*)
+            }
+        }
+
+        impl<'a, #(#nts: Clone),*> TupleCloned for (#(&'a mut #nts),*) {
+            type TupleOut = (#(#nts),*);
+
+            fn cloned(self) -> Self::TupleOut {
+                (#(self.#size_lits.clone()),*)
+            }
+        }
+
+        impl<'a, #(#nts: Copy),*> TupleCopied for (#(&'a #nts),*) {
+            type TupleOut = (#(#nts),*);
+
+            fn copied(self) -> Self::TupleOut {
+                (#(*self.#size_lits),*)
+            }
+        }
+
+        impl<'a, #(#nts: Copy),*> TupleCopied for (#(&'a mut #nts),*) {
+            type TupleOut = (#(#nts),*);
+
+            fn copied(self) -> Self::TupleOut {
+                (#(*self.#size_lits),*)
             }
         }
     };
