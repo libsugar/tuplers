@@ -9,6 +9,9 @@ license = "MIT"
 keywords = ["tuple", "iterator", "meta"]
 categories = ["rust-patterns", "no-std"]
 readme = "../README.md"
+include = [
+    "./src/**/*.rs"
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
