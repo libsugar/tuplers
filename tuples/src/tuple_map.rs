@@ -1,6 +1,6 @@
 //! Mapping for tuples
 
-include!(concat!(env!("OUT_DIR"), "/tuple_map.rs"));
+include!("./gen/tuple_map.rs");
 
 /// Mapping for Tuple1
 pub trait Tuple1Map<T> {

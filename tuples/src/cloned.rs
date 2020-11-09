@@ -60,7 +60,7 @@ impl<'a, T: Copy> TupleCopied for (&'a mut T,) {
     }
 }
 
-include!(concat!(env!("OUT_DIR"), "/cloned.rs"));
+include!("./gen/cloned.rs");
 
 #[test]
 fn test() {

@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "gen_code",
+			"type": "shell",
+			"command": "./gen_code.sh",
+			"windows": {
+				"command": "./gen_code.ps1"
+			},
+			"group": "build",
+			"problemMatcher": []
+		}
+	]
+}

@@ -1,0 +1,12 @@
+[package]
+name = "code_gen"
+version = "0.0.0"
+authors = ["Package <u2a5f@outlook.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+syn = "1.0"
+quote = "1.0"
+proc-macro2 = "1.0"

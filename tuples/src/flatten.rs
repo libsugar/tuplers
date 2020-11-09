@@ -40,7 +40,7 @@ impl<T> TupleFlatten for (T,) {
 //     }
 // }
 
-include!(concat!(env!("OUT_DIR"), "/flatten.rs"));
+include!("./gen/flatten.rs");
 
 #[test]
 fn test() {

@@ -1,37 +1,27 @@
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};
-use std::{ffi::OsString, fs, path::Path};
+use std::{fs, path::Path};
 use syn::LitInt;
 
 macro_rules! tif {
     { $c:expr => $t:expr ; $e:expr } => { if $c { $t } else { $e } };
 }
 
-pub fn code_gen(out_dir: OsString) {
+pub fn code_gen(out_dir: &Path) {
     let t = format_ident!("T");
     let u = format_ident!("U");
 
     let ctx = init(33, &t, &u);
 
-    #[cfg(feature = "tuple_meta")]
     gen_tuple_impl(&ctx, &out_dir);
-    #[cfg(feature = "tuple_meta")]
     gen_tuple_n_impl(&ctx, &out_dir);
-    #[cfg(feature = "shorthand")]
     gen_tuple_alias_macro(&ctx, &out_dir);
-    #[cfg(feature = "tuple_as")]
     gen_tuple_as(&ctx, &out_dir);
-    #[cfg(feature = "tuple_iter")]
     gen_tuple_iter(&ctx, &out_dir);
-    #[cfg(feature = "tuple_map")]
     gen_tuple_map(&ctx, &out_dir);
-    #[cfg(feature = "combin")]
     gen_combin(&ctx, &out_dir);
-    #[cfg(feature = "transpose")]
     gen_transpose(&ctx, &out_dir);
-    #[cfg(feature = "flatten")]
     gen_flatten(&ctx, &out_dir);
-    #[cfg(feature = "cloned")]
     gen_cloned(&ctx, &out_dir)
 }
 
@@ -78,7 +68,7 @@ fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
     ctx
 }
 
-fn gen_tuple_impl(ctx: &Ctx, out_dir: &OsString) {
+fn gen_tuple_impl(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_impl_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
@@ -103,7 +93,7 @@ fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
     tks
 }
 
-fn gen_tuple_n_impl(ctx: &Ctx, out_dir: &OsString) {
+fn gen_tuple_n_impl(ctx: &Ctx, out_dir: &Path) {
     let item_names = (0..34usize)
         .into_iter()
         .map(|i| format_ident!("Item{}", i))
@@ -133,7 +123,7 @@ fn gen_tuple_n_impl_size(ctx: &Ctx, size: usize, item_names: &[Ident]) -> TokenS
     tks
 }
 
-fn gen_tuple_as(ctx: &Ctx, out_dir: &OsString) {
+fn gen_tuple_as(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_as_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
@@ -210,7 +200,7 @@ fn gen_tuple_as_size(ctx: &Ctx, size: usize) -> TokenStream {
     tks
 }
 
-fn gen_tuple_alias_macro(ctx: &Ctx, out_dir: &OsString) {
+fn gen_tuple_alias_macro(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_alias_macro_size(ctx, i));
     let tks = quote! {
         #[doc(hidden)]
@@ -270,7 +260,7 @@ fn gen_tuple_alias_macro_size_n(
     tks
 }
 
-fn gen_tuple_iter(ctx: &Ctx, out_dir: &OsString) {
+fn gen_tuple_iter(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_iter_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
@@ -442,7 +432,7 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
     tks
 }
 
-fn gen_tuple_map(ctx: &Ctx, out_dir: &OsString) {
+fn gen_tuple_map(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_map_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
@@ -521,7 +511,7 @@ fn gen_tuple_map_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
     tks
 }
 
-fn gen_combin(ctx: &Ctx, out_dir: &OsString) {
+fn gen_combin(ctx: &Ctx, out_dir: &Path) {
     let self_impl = ctx
         .size_lits
         .iter()
@@ -599,7 +589,7 @@ fn gen_combin_concat_size(
     tks
 }
 
-fn gen_transpose(ctx: &Ctx, out_dir: &OsString) {
+fn gen_transpose(ctx: &Ctx, out_dir: &Path) {
     let none_impl = ctx
         .size_lits
         .iter()
@@ -670,7 +660,7 @@ fn gen_transpose_size_result(ctx: &Ctx, size: usize) -> TokenStream {
     tks
 }
 
-fn gen_flatten(ctx: &Ctx, out_dir: &OsString) {
+fn gen_flatten(ctx: &Ctx, out_dir: &Path) {
     let et = quote! { () };
     let ets = ctx.nts.iter().map(|_| &et).collect::<Vec<_>>();
 
@@ -733,7 +723,7 @@ fn gen_flatten_size_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
     tks
 }
 
-fn gen_cloned(ctx: &Ctx, out_dir: &OsString) {
+fn gen_cloned(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_cloned_size(ctx, i));
     let tks = quote! { #(#items)* };
     let code = tks.to_string();
