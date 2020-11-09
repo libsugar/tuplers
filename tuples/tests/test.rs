@@ -8,4 +8,3 @@ fn test_as_ref() {
     assert_eq!(*b, 6);
     assert_eq!(*c, 7);
 }
-
