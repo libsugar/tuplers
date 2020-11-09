@@ -1,3 +1,5 @@
+// This file is by code gen, do not modify
+
 impl<T0, T1> TupleTranspose for Option<(T0, T1)> {
     type OutTuple = (Option<T0>, Option<T1>);
     fn transpose(self) -> Self::OutTuple {

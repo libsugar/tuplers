@@ -1,3 +1,5 @@
+// This file is by code gen, do not modify
+
 impl<'a, T0: Clone, T1: Clone> TupleCloned for (&'a T0, &'a T1) {
     type TupleOut = (T0, T1);
     fn cloned(self) -> Self::TupleOut {

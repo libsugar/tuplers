@@ -50,7 +50,8 @@ fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
 fn gen_tuple_impl(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_impl_size(ctx, i));
     let tks = quote! { #(#items)* };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("tuple_impl.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -76,7 +77,8 @@ fn gen_tuple_n_impl(ctx: &Ctx, out_dir: &Path) {
     let item_names = (0..34usize).into_iter().map(|i| format_ident!("Item{}", i)).collect::<Vec<_>>();
     let items = (2..33usize).into_iter().map(|i| gen_tuple_n_impl_size(ctx, i, &item_names[0..i]));
     let tks = quote! { #(#items)* };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("tuple_n.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -100,7 +102,8 @@ fn gen_tuple_n_impl_size(ctx: &Ctx, size: usize, item_names: &[Ident]) -> TokenS
 fn gen_tuple_as(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_as_size(ctx, i));
     let tks = quote! { #(#items)* };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("tuple_as.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -187,7 +190,8 @@ fn gen_tuple_alias_macro(ctx: &Ctx, out_dir: &Path) {
             #(#items)*
         }
     };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("tuple_alias.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -226,7 +230,8 @@ fn gen_tuple_alias_macro_size_n(ctx: &Ctx, size: usize, n: usize, ntys: &[TokenS
 fn gen_tuple_iter(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_iter_size(ctx, i));
     let tks = quote! { #(#items)* };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("tuple_iter.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -398,7 +403,8 @@ fn gen_tuple_iter_size(ctx: &Ctx, size: usize) -> TokenStream {
 fn gen_tuple_map(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_map_size(ctx, i));
     let tks = quote! { #(#items)* };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("tuple_map.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -477,7 +483,8 @@ fn gen_combin(ctx: &Ctx, out_dir: &Path) {
         #(#items)*
         #(#concats)*
     };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("combin.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -533,7 +540,8 @@ fn gen_transpose(ctx: &Ctx, out_dir: &Path) {
     let items_3 = (2..33usize).map(|i| gen_transpose_size_result(ctx, i));
 
     let tks = quote! { #(#items_1)* #(#items_2)* #(#items_3)* };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("transpose.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -603,7 +611,8 @@ fn gen_flatten(ctx: &Ctx, out_dir: &Path) {
         #(#item_0s)*
         #(#items)*
     };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("flatten.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -650,7 +659,8 @@ fn gen_flatten_size_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
 fn gen_cloned(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_cloned_size(ctx, i));
     let tks = quote! { #(#items)* };
-    let code = tks.to_string();
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
     let dest_path = Path::new(out_dir).join("cloned.rs");
     fs::write(&dest_path, code).unwrap();
 }

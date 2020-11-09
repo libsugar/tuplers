@@ -1,3 +1,5 @@
+// This file is by code gen, do not modify
+
 #[derive(Debug, Clone)]
 pub struct Tuple2Iter<'a, T>([&'a T; 2], Range<usize>);
 impl<'a, T> Tuple2Iter<'a, T> {

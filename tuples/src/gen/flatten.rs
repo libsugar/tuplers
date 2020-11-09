@@ -1,3 +1,5 @@
+// This file is by code gen, do not modify
+
 impl TupleFlatten for ((), ()) {
     type OutTuple = ();
     fn flatten(self) -> Self::OutTuple {

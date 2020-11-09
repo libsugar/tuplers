@@ -1,3 +1,5 @@
+// This file is by code gen, do not modify
+
 pub trait Tuple2: Tuple {
     type Item0;
     type Item1;

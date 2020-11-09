@@ -1,3 +1,5 @@
+// This file is by code gen, do not modify
+
 impl<'a, T0: 'a, T1: 'a> TupleAsRef<'a> for (T0, T1) {
     type OutTuple = (&'a T0, &'a T1);
     #[doc = "AsRef for Tuple2"]
