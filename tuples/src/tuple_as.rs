@@ -2,7 +2,7 @@
 
 use core::ops::{Deref, DerefMut};
 
-include!(concat!(env!("OUT_DIR"), "/tuple_as.rs"));
+include!("./gen/tuple_as.rs");
 
 /// AsRef for Tuple
 pub trait TupleAsRef<'a> {

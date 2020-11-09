@@ -58,7 +58,7 @@ impl<T, T0> CombinRight<T> for (T0,) {
     }
 }
 
-include!(concat!(env!("OUT_DIR"), "/combin.rs"));
+include!("./gen/combin.rs");
 
 #[test]
 fn test() {

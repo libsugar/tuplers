@@ -26,7 +26,7 @@ mod meta {
     impl<T> TupleSame<T> for () {}
     impl<T> TupleSame<T> for (T,) {}
 
-    include!(concat!(env!("OUT_DIR"), "/tuple_impl.rs"));
+    include!("./gen/tuple_impl.rs");
 }
 #[cfg(feature = "tuple_meta")]
 pub use meta::*;
@@ -47,14 +47,14 @@ pub mod tuple_n {
         type Item0 = T;
     }
 
-    include!(concat!(env!("OUT_DIR"), "/tuple_n.rs"));
+    include!("./gen/tuple_n.rs");
 }
 #[cfg(all(feature = "tuple_meta", feature = "re-exports"))]
 pub use tuple_n::*;
 
 #[cfg(feature = "shorthand")]
 mod shorthand {
-    include!(concat!(env!("OUT_DIR"), "/tuple_alias.rs"));
+    include!("./gen/tuple_alias.rs");
 
     /// Convenient shorthand
     ///

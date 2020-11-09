@@ -16,10 +16,7 @@ fn test2() {
 
 #[test]
 fn test3() {
-    let a = (1, 2, 3)
-        .into_iter()
-        .map(|v| v * 3)
-        .collect_tuple::<tuple![3;]>();
+    let a = (1, 2, 3).into_iter().map(|v| v * 3).collect_tuple::<tuple![3;]>();
     let b: (i32, i32, i32) = (3, 6, 9);
     assert_eq!(a, b);
 }

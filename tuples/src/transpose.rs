@@ -64,7 +64,7 @@ impl<T, Eo: From<E>, E> TupleTransposeResult<Eo> for (Result<T, E>,) {
     }
 }
 
-include!(concat!(env!("OUT_DIR"), "/transpose.rs"));
+include!("./gen/transpose.rs");
 
 #[test]
 fn test() {

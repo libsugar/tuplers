@@ -111,7 +111,7 @@ impl<T> TupleFromIterTry<T> for (T,) {
     }
 }
 
-include!(concat!(env!("OUT_DIR"), "/tuple_iter.rs"));
+include!("./gen/tuple_iter.rs");
 
 pub trait TupleCollect<T> {
     /// Like `Iter<T> -> (T, T, T)` with panic on failure

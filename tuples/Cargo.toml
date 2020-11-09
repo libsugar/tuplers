@@ -1,0 +1,28 @@
+[package]
+name = "tuples"
+version = "1.3.0"
+authors = ["BatchOperator", "2A5F <u2a5f@outlook.com>"]
+edition = "2018"
+description = "Provides many useful tools related to tuples"
+repository = "https://github.com/BatchOperator/tuples"
+license = "MIT"
+keywords = ["tuple", "iterator", "meta"]
+categories = ["rust-patterns", "no-std"]
+readme = "../README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[features]
+default = ["combin", "tuple_iter", "tuple_map", "transpose", "tuple_as", "tuple_meta", "shorthand", "flatten", "cloned", "re-exports"]
+re-exports = []
+tuple_iter = []
+tuple_map = []
+combin = []
+transpose = []
+tuple_as = []
+tuple_meta = []
+shorthand = []
+flatten = []
+cloned = []
