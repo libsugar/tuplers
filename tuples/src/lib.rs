@@ -144,3 +144,8 @@ pub use flatten::*;
 pub mod cloned;
 #[cfg(all(feature = "cloned", feature = "re-exports"))]
 pub use cloned::*;
+
+#[cfg(feature = "tuple_call")]
+pub mod tuple_call;
+#[cfg(all(feature = "tuple_call", feature = "re-exports"))]
+pub use tuple_call::*;
