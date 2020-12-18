@@ -1,6 +1,6 @@
 # tuples
 
-![Rust](https://github.com/BatchOperator/tuples/workflows/Rust/badge.svg)
+![Rust](https://github.com/libsugar/tuplers/workflows/Rust/badge.svg)
 [![version](https://img.shields.io/crates/v/tuples)](https://crates.io/crates/tuples)
 [![documentation](https://docs.rs/tuples/badge.svg)](https://docs.rs/tuples)
 ![LICENSE](https://img.shields.io/crates/l/tuples)

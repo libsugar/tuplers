@@ -22,7 +22,8 @@ pub fn code_gen(out_dir: &Path) {
     gen_combin(&ctx, &out_dir);
     gen_transpose(&ctx, &out_dir);
     gen_flatten(&ctx, &out_dir);
-    gen_cloned(&ctx, &out_dir)
+    gen_cloned(&ctx, &out_dir);
+    gen_call(&ctx, &out_dir);
 }
 
 struct Ctx<'a> {
@@ -440,6 +441,8 @@ fn gen_tuple_map_size(ctx: &Ctx, size: usize) -> TokenStream {
 fn gen_tuple_map_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
     let t = &ctx.nts[n];
     let map_n_name = format_ident!("Tuple{}Map{}", size, n);
+    let map_n_option_name = format_ident!("Tuple{}Map{}Option", size, n);
+    let map_n_option_result = format_ident!("Tuple{}Map{}Result", size, n);
     let map_n = format_ident!("map{}", n);
 
     let rts = &ctx.nts[0..size];
@@ -464,6 +467,34 @@ fn gen_tuple_map_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
         impl<#(#rts),*> #map_n_name<#(#rts),*> for (#(#rts),*) {
             fn #map_n<U>(self, f: impl FnOnce(#t) -> U) -> (#(#ts),*) {
                 (#(#impls),*)
+            }
+        }
+
+        #[doc=#doc]
+        pub trait #map_n_option_name<#(#rts),*> {
+            #[doc=#doc]
+            fn #map_n<U>(self, f: impl FnOnce(#t) -> U) -> Option<(#(#ts),*)>;
+        }
+        impl<#(#rts),*> #map_n_option_name<#(#rts),*> for Option<(#(#rts),*)> {
+            fn #map_n<U>(self, f: impl FnOnce(#t) -> U) -> Option<(#(#ts),*)> {
+                match self {
+                    Some(v) => Some(v.#map_n(f)),
+                    None => None
+                }
+            }
+        }
+
+        #[doc=#doc]
+        pub trait #map_n_option_result<E, #(#rts),*> {
+            #[doc=#doc]
+            fn #map_n<U>(self, f: impl FnOnce(#t) -> U) -> Result<(#(#ts),*), E>;
+        }
+        impl<E, #(#rts),*> #map_n_option_result<E, #(#rts),*> for Result<(#(#rts),*), E> {
+            fn #map_n<U>(self, f: impl FnOnce(#t) -> U) -> Result<(#(#ts),*), E> {
+                match self {
+                    Ok(v) => Ok(v.#map_n(f)),
+                    Err(e) => Err(e)
+                }
             }
         }
     };
@@ -699,6 +730,33 @@ fn gen_cloned_size(ctx: &Ctx, size: usize) -> TokenStream {
 
             fn copied(self) -> Self::TupleOut {
                 (#(*self.#size_lits),*)
+            }
+        }
+    };
+    tks
+}
+
+fn gen_call(ctx: &Ctx, out_dir: &Path) {
+    let items = (2..33usize).map(|i| gen_call_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("tuple_call.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_call_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let name = format_ident!("Tuple{}Call", size);
+    let nts = &ctx.nts[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+
+    let tks = quote! {
+        pub trait #name<#(#nts),*> {
+            fn call<F: FnOnce(#(#nts),*) -> O, O>(self, f: F) -> O;
+        }
+        impl<#(#nts),*> #name<#(#nts),*> for (#(#nts),*) {
+            fn call<F: FnOnce(#(#nts),*) -> O, O>(self, f: F) -> O {
+                f(#(self.#size_lits),*)
             }
         }
     };
