@@ -41,6 +41,12 @@ Provides many useful tools related to tuples
     let b = a.map3(|v| v * 5);
     assert_eq!(b, (1, 2, 3, 20, 5));
     ```
+- map_all
+    ```rust
+    let a = (1, 2, 3);
+    let b = a.map_all(|v| v * 10, |v| v * 100, |v| v * 1000);
+    assert_eq!(b, (10, 200, 3000));
+    ```
 - as_ref
     ```rust
     let t = (5, 6, 7);
