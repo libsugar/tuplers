@@ -1,7 +1,7 @@
 [package]
 name = "tuples"
-version = "1.4.1"
-authors = ["BatchOperator", "2A5F <u2a5f@outlook.com>"]
+version = "1.5.0"
+authors = ["LibSugar", "2A5F <u2a5f@outlook.com>"]
 edition = "2018"
 description = "Provides many useful tools related to tuples"
 repository = "https://github.com/libsugar/tuplers"

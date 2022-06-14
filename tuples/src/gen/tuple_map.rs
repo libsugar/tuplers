@@ -82,6 +82,16 @@ impl<T> Tuple2Map<T> for (T, T) {
         (f(self.0), f(self.1))
     }
 }
+#[doc = "Mapping all item for Tuple2"]
+pub trait Tuple2MapAll<T0, T1> {
+    #[doc = "Mapping all item for Tuple2"]
+    fn map_all<U0, U1>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1) -> (U0, U1);
+}
+impl<T0, T1> Tuple2MapAll<T0, T1> for (T0, T1) {
+    fn map_all<U0, U1>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1) -> (U0, U1) {
+        (f0(self.0), f1(self.1))
+    }
+}
 #[doc = "Mapping `.0` for Tuple3"]
 pub trait Tuple3Map0<T0, T1, T2> {
     #[doc = "Mapping `.0` for Tuple3"]
@@ -198,6 +208,16 @@ pub trait Tuple3Map<T> {
 impl<T> Tuple3Map<T> for (T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U) {
         (f(self.0), f(self.1), f(self.2))
+    }
+}
+#[doc = "Mapping all item for Tuple3"]
+pub trait Tuple3MapAll<T0, T1, T2> {
+    #[doc = "Mapping all item for Tuple3"]
+    fn map_all<U0, U1, U2>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2) -> (U0, U1, U2);
+}
+impl<T0, T1, T2> Tuple3MapAll<T0, T1, T2> for (T0, T1, T2) {
+    fn map_all<U0, U1, U2>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2) -> (U0, U1, U2) {
+        (f0(self.0), f1(self.1), f2(self.2))
     }
 }
 #[doc = "Mapping `.0` for Tuple4"]
@@ -352,6 +372,16 @@ pub trait Tuple4Map<T> {
 impl<T> Tuple4Map<T> for (T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3))
+    }
+}
+#[doc = "Mapping all item for Tuple4"]
+pub trait Tuple4MapAll<T0, T1, T2, T3> {
+    #[doc = "Mapping all item for Tuple4"]
+    fn map_all<U0, U1, U2, U3>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3) -> (U0, U1, U2, U3);
+}
+impl<T0, T1, T2, T3> Tuple4MapAll<T0, T1, T2, T3> for (T0, T1, T2, T3) {
+    fn map_all<U0, U1, U2, U3>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3) -> (U0, U1, U2, U3) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3))
     }
 }
 #[doc = "Mapping `.0` for Tuple5"]
@@ -542,6 +572,16 @@ pub trait Tuple5Map<T> {
 impl<T> Tuple5Map<T> for (T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4))
+    }
+}
+#[doc = "Mapping all item for Tuple5"]
+pub trait Tuple5MapAll<T0, T1, T2, T3, T4> {
+    #[doc = "Mapping all item for Tuple5"]
+    fn map_all<U0, U1, U2, U3, U4>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4) -> (U0, U1, U2, U3, U4);
+}
+impl<T0, T1, T2, T3, T4> Tuple5MapAll<T0, T1, T2, T3, T4> for (T0, T1, T2, T3, T4) {
+    fn map_all<U0, U1, U2, U3, U4>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4) -> (U0, U1, U2, U3, U4) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4))
     }
 }
 #[doc = "Mapping `.0` for Tuple6"]
@@ -768,6 +808,16 @@ pub trait Tuple6Map<T> {
 impl<T> Tuple6Map<T> for (T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5))
+    }
+}
+#[doc = "Mapping all item for Tuple6"]
+pub trait Tuple6MapAll<T0, T1, T2, T3, T4, T5> {
+    #[doc = "Mapping all item for Tuple6"]
+    fn map_all<U0, U1, U2, U3, U4, U5>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5) -> (U0, U1, U2, U3, U4, U5);
+}
+impl<T0, T1, T2, T3, T4, T5> Tuple6MapAll<T0, T1, T2, T3, T4, T5> for (T0, T1, T2, T3, T4, T5) {
+    fn map_all<U0, U1, U2, U3, U4, U5>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5) -> (U0, U1, U2, U3, U4, U5) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5))
     }
 }
 #[doc = "Mapping `.0` for Tuple7"]
@@ -1030,6 +1080,16 @@ pub trait Tuple7Map<T> {
 impl<T> Tuple7Map<T> for (T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6))
+    }
+}
+#[doc = "Mapping all item for Tuple7"]
+pub trait Tuple7MapAll<T0, T1, T2, T3, T4, T5, T6> {
+    #[doc = "Mapping all item for Tuple7"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6) -> (U0, U1, U2, U3, U4, U5, U6);
+}
+impl<T0, T1, T2, T3, T4, T5, T6> Tuple7MapAll<T0, T1, T2, T3, T4, T5, T6> for (T0, T1, T2, T3, T4, T5, T6) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6) -> (U0, U1, U2, U3, U4, U5, U6) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6))
     }
 }
 #[doc = "Mapping `.0` for Tuple8"]
@@ -1328,6 +1388,16 @@ pub trait Tuple8Map<T> {
 impl<T> Tuple8Map<T> for (T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7))
+    }
+}
+#[doc = "Mapping all item for Tuple8"]
+pub trait Tuple8MapAll<T0, T1, T2, T3, T4, T5, T6, T7> {
+    #[doc = "Mapping all item for Tuple8"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7) -> (U0, U1, U2, U3, U4, U5, U6, U7);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7> Tuple8MapAll<T0, T1, T2, T3, T4, T5, T6, T7> for (T0, T1, T2, T3, T4, T5, T6, T7) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7) -> (U0, U1, U2, U3, U4, U5, U6, U7) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7))
     }
 }
 #[doc = "Mapping `.0` for Tuple9"]
@@ -1662,6 +1732,16 @@ pub trait Tuple9Map<T> {
 impl<T> Tuple9Map<T> for (T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8))
+    }
+}
+#[doc = "Mapping all item for Tuple9"]
+pub trait Tuple9MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8> {
+    #[doc = "Mapping all item for Tuple9"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8> Tuple9MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8> for (T0, T1, T2, T3, T4, T5, T6, T7, T8) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8))
     }
 }
 #[doc = "Mapping `.0` for Tuple10"]
@@ -2032,6 +2112,16 @@ pub trait Tuple10Map<T> {
 impl<T> Tuple10Map<T> for (T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9))
+    }
+}
+#[doc = "Mapping all item for Tuple10"]
+pub trait Tuple10MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+    #[doc = "Mapping all item for Tuple10"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> Tuple10MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9))
     }
 }
 #[doc = "Mapping `.0` for Tuple11"]
@@ -2438,6 +2528,16 @@ pub trait Tuple11Map<T> {
 impl<T> Tuple11Map<T> for (T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10))
+    }
+}
+#[doc = "Mapping all item for Tuple11"]
+pub trait Tuple11MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> {
+    #[doc = "Mapping all item for Tuple11"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> Tuple11MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10))
     }
 }
 #[doc = "Mapping `.0` for Tuple12"]
@@ -2880,6 +2980,16 @@ pub trait Tuple12Map<T> {
 impl<T> Tuple12Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11))
+    }
+}
+#[doc = "Mapping all item for Tuple12"]
+pub trait Tuple12MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> {
+    #[doc = "Mapping all item for Tuple12"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> Tuple12MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11))
     }
 }
 #[doc = "Mapping `.0` for Tuple13"]
@@ -3358,6 +3468,16 @@ pub trait Tuple13Map<T> {
 impl<T> Tuple13Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12))
+    }
+}
+#[doc = "Mapping all item for Tuple13"]
+pub trait Tuple13MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> {
+    #[doc = "Mapping all item for Tuple13"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> Tuple13MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12))
     }
 }
 #[doc = "Mapping `.0` for Tuple14"]
@@ -3872,6 +3992,16 @@ pub trait Tuple14Map<T> {
 impl<T> Tuple14Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13))
+    }
+}
+#[doc = "Mapping all item for Tuple14"]
+pub trait Tuple14MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> {
+    #[doc = "Mapping all item for Tuple14"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> Tuple14MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13))
     }
 }
 #[doc = "Mapping `.0` for Tuple15"]
@@ -4422,6 +4552,16 @@ pub trait Tuple15Map<T> {
 impl<T> Tuple15Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14))
+    }
+}
+#[doc = "Mapping all item for Tuple15"]
+pub trait Tuple15MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> {
+    #[doc = "Mapping all item for Tuple15"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> Tuple15MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14))
     }
 }
 #[doc = "Mapping `.0` for Tuple16"]
@@ -5010,6 +5150,16 @@ impl<T> Tuple16Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15))
     }
 }
+#[doc = "Mapping all item for Tuple16"]
+pub trait Tuple16MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> {
+    #[doc = "Mapping all item for Tuple16"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> Tuple16MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15))
+    }
+}
 #[doc = "Mapping for Tuple17"]
 pub trait Tuple17Map<T> {
     #[doc = "Mapping for Tuple17"]
@@ -5018,6 +5168,16 @@ pub trait Tuple17Map<T> {
 impl<T> Tuple17Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16))
+    }
+}
+#[doc = "Mapping all item for Tuple17"]
+pub trait Tuple17MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> {
+    #[doc = "Mapping all item for Tuple17"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> Tuple17MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16))
     }
 }
 #[doc = "Mapping for Tuple18"]
@@ -5030,6 +5190,16 @@ impl<T> Tuple18Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T)
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17))
     }
 }
+#[doc = "Mapping all item for Tuple18"]
+pub trait Tuple18MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> {
+    #[doc = "Mapping all item for Tuple18"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> Tuple18MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17))
+    }
+}
 #[doc = "Mapping for Tuple19"]
 pub trait Tuple19Map<T> {
     #[doc = "Mapping for Tuple19"]
@@ -5038,6 +5208,16 @@ pub trait Tuple19Map<T> {
 impl<T> Tuple19Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18))
+    }
+}
+#[doc = "Mapping all item for Tuple19"]
+pub trait Tuple19MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> {
+    #[doc = "Mapping all item for Tuple19"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> Tuple19MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18))
     }
 }
 #[doc = "Mapping for Tuple20"]
@@ -5050,6 +5230,16 @@ impl<T> Tuple20Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19))
     }
 }
+#[doc = "Mapping all item for Tuple20"]
+pub trait Tuple20MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> {
+    #[doc = "Mapping all item for Tuple20"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> Tuple20MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19))
+    }
+}
 #[doc = "Mapping for Tuple21"]
 pub trait Tuple21Map<T> {
     #[doc = "Mapping for Tuple21"]
@@ -5058,6 +5248,16 @@ pub trait Tuple21Map<T> {
 impl<T> Tuple21Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20))
+    }
+}
+#[doc = "Mapping all item for Tuple21"]
+pub trait Tuple21MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> {
+    #[doc = "Mapping all item for Tuple21"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> Tuple21MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20))
     }
 }
 #[doc = "Mapping for Tuple22"]
@@ -5070,6 +5270,16 @@ impl<T> Tuple22Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21))
     }
 }
+#[doc = "Mapping all item for Tuple22"]
+pub trait Tuple22MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> {
+    #[doc = "Mapping all item for Tuple22"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> Tuple22MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21))
+    }
+}
 #[doc = "Mapping for Tuple23"]
 pub trait Tuple23Map<T> {
     #[doc = "Mapping for Tuple23"]
@@ -5078,6 +5288,16 @@ pub trait Tuple23Map<T> {
 impl<T> Tuple23Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22))
+    }
+}
+#[doc = "Mapping all item for Tuple23"]
+pub trait Tuple23MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> {
+    #[doc = "Mapping all item for Tuple23"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> Tuple23MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22))
     }
 }
 #[doc = "Mapping for Tuple24"]
@@ -5090,6 +5310,16 @@ impl<T> Tuple24Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22), f(self.23))
     }
 }
+#[doc = "Mapping all item for Tuple24"]
+pub trait Tuple24MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> {
+    #[doc = "Mapping all item for Tuple24"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22, f23: impl FnMut(T23) -> U23) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> Tuple24MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22, mut f23: impl FnMut(T23) -> U23) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22), f23(self.23))
+    }
+}
 #[doc = "Mapping for Tuple25"]
 pub trait Tuple25Map<T> {
     #[doc = "Mapping for Tuple25"]
@@ -5098,6 +5328,16 @@ pub trait Tuple25Map<T> {
 impl<T> Tuple25Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22), f(self.23), f(self.24))
+    }
+}
+#[doc = "Mapping all item for Tuple25"]
+pub trait Tuple25MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> {
+    #[doc = "Mapping all item for Tuple25"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22, f23: impl FnMut(T23) -> U23, f24: impl FnMut(T24) -> U24) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> Tuple25MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22, mut f23: impl FnMut(T23) -> U23, mut f24: impl FnMut(T24) -> U24) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22), f23(self.23), f24(self.24))
     }
 }
 #[doc = "Mapping for Tuple26"]
@@ -5110,6 +5350,16 @@ impl<T> Tuple26Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22), f(self.23), f(self.24), f(self.25))
     }
 }
+#[doc = "Mapping all item for Tuple26"]
+pub trait Tuple26MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> {
+    #[doc = "Mapping all item for Tuple26"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22, f23: impl FnMut(T23) -> U23, f24: impl FnMut(T24) -> U24, f25: impl FnMut(T25) -> U25) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> Tuple26MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22, mut f23: impl FnMut(T23) -> U23, mut f24: impl FnMut(T24) -> U24, mut f25: impl FnMut(T25) -> U25) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22), f23(self.23), f24(self.24), f25(self.25))
+    }
+}
 #[doc = "Mapping for Tuple27"]
 pub trait Tuple27Map<T> {
     #[doc = "Mapping for Tuple27"]
@@ -5118,6 +5368,16 @@ pub trait Tuple27Map<T> {
 impl<T> Tuple27Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22), f(self.23), f(self.24), f(self.25), f(self.26))
+    }
+}
+#[doc = "Mapping all item for Tuple27"]
+pub trait Tuple27MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> {
+    #[doc = "Mapping all item for Tuple27"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22, f23: impl FnMut(T23) -> U23, f24: impl FnMut(T24) -> U24, f25: impl FnMut(T25) -> U25, f26: impl FnMut(T26) -> U26) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> Tuple27MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22, mut f23: impl FnMut(T23) -> U23, mut f24: impl FnMut(T24) -> U24, mut f25: impl FnMut(T25) -> U25, mut f26: impl FnMut(T26) -> U26) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22), f23(self.23), f24(self.24), f25(self.25), f26(self.26))
     }
 }
 #[doc = "Mapping for Tuple28"]
@@ -5130,6 +5390,16 @@ impl<T> Tuple28Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22), f(self.23), f(self.24), f(self.25), f(self.26), f(self.27))
     }
 }
+#[doc = "Mapping all item for Tuple28"]
+pub trait Tuple28MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> {
+    #[doc = "Mapping all item for Tuple28"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22, f23: impl FnMut(T23) -> U23, f24: impl FnMut(T24) -> U24, f25: impl FnMut(T25) -> U25, f26: impl FnMut(T26) -> U26, f27: impl FnMut(T27) -> U27) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> Tuple28MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22, mut f23: impl FnMut(T23) -> U23, mut f24: impl FnMut(T24) -> U24, mut f25: impl FnMut(T25) -> U25, mut f26: impl FnMut(T26) -> U26, mut f27: impl FnMut(T27) -> U27) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22), f23(self.23), f24(self.24), f25(self.25), f26(self.26), f27(self.27))
+    }
+}
 #[doc = "Mapping for Tuple29"]
 pub trait Tuple29Map<T> {
     #[doc = "Mapping for Tuple29"]
@@ -5138,6 +5408,16 @@ pub trait Tuple29Map<T> {
 impl<T> Tuple29Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22), f(self.23), f(self.24), f(self.25), f(self.26), f(self.27), f(self.28))
+    }
+}
+#[doc = "Mapping all item for Tuple29"]
+pub trait Tuple29MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> {
+    #[doc = "Mapping all item for Tuple29"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22, f23: impl FnMut(T23) -> U23, f24: impl FnMut(T24) -> U24, f25: impl FnMut(T25) -> U25, f26: impl FnMut(T26) -> U26, f27: impl FnMut(T27) -> U27, f28: impl FnMut(T28) -> U28) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> Tuple29MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22, mut f23: impl FnMut(T23) -> U23, mut f24: impl FnMut(T24) -> U24, mut f25: impl FnMut(T25) -> U25, mut f26: impl FnMut(T26) -> U26, mut f27: impl FnMut(T27) -> U27, mut f28: impl FnMut(T28) -> U28) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22), f23(self.23), f24(self.24), f25(self.25), f26(self.26), f27(self.27), f28(self.28))
     }
 }
 #[doc = "Mapping for Tuple30"]
@@ -5150,6 +5430,16 @@ impl<T> Tuple30Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22), f(self.23), f(self.24), f(self.25), f(self.26), f(self.27), f(self.28), f(self.29))
     }
 }
+#[doc = "Mapping all item for Tuple30"]
+pub trait Tuple30MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> {
+    #[doc = "Mapping all item for Tuple30"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22, f23: impl FnMut(T23) -> U23, f24: impl FnMut(T24) -> U24, f25: impl FnMut(T25) -> U25, f26: impl FnMut(T26) -> U26, f27: impl FnMut(T27) -> U27, f28: impl FnMut(T28) -> U28, f29: impl FnMut(T29) -> U29) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> Tuple30MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22, mut f23: impl FnMut(T23) -> U23, mut f24: impl FnMut(T24) -> U24, mut f25: impl FnMut(T25) -> U25, mut f26: impl FnMut(T26) -> U26, mut f27: impl FnMut(T27) -> U27, mut f28: impl FnMut(T28) -> U28, mut f29: impl FnMut(T29) -> U29) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22), f23(self.23), f24(self.24), f25(self.25), f26(self.26), f27(self.27), f28(self.28), f29(self.29))
+    }
+}
 #[doc = "Mapping for Tuple31"]
 pub trait Tuple31Map<T> {
     #[doc = "Mapping for Tuple31"]
@@ -5160,6 +5450,16 @@ impl<T> Tuple31Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22), f(self.23), f(self.24), f(self.25), f(self.26), f(self.27), f(self.28), f(self.29), f(self.30))
     }
 }
+#[doc = "Mapping all item for Tuple31"]
+pub trait Tuple31MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> {
+    #[doc = "Mapping all item for Tuple31"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22, f23: impl FnMut(T23) -> U23, f24: impl FnMut(T24) -> U24, f25: impl FnMut(T25) -> U25, f26: impl FnMut(T26) -> U26, f27: impl FnMut(T27) -> U27, f28: impl FnMut(T28) -> U28, f29: impl FnMut(T29) -> U29, f30: impl FnMut(T30) -> U30) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> Tuple31MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22, mut f23: impl FnMut(T23) -> U23, mut f24: impl FnMut(T24) -> U24, mut f25: impl FnMut(T25) -> U25, mut f26: impl FnMut(T26) -> U26, mut f27: impl FnMut(T27) -> U27, mut f28: impl FnMut(T28) -> U28, mut f29: impl FnMut(T29) -> U29, mut f30: impl FnMut(T30) -> U30) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22), f23(self.23), f24(self.24), f25(self.25), f26(self.26), f27(self.27), f28(self.28), f29(self.29), f30(self.30))
+    }
+}
 #[doc = "Mapping for Tuple32"]
 pub trait Tuple32Map<T> {
     #[doc = "Mapping for Tuple32"]
@@ -5168,5 +5468,15 @@ pub trait Tuple32Map<T> {
 impl<T> Tuple32Map<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     fn map<U>(self, mut f: impl FnMut(T) -> U) -> (U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U) {
         (f(self.0), f(self.1), f(self.2), f(self.3), f(self.4), f(self.5), f(self.6), f(self.7), f(self.8), f(self.9), f(self.10), f(self.11), f(self.12), f(self.13), f(self.14), f(self.15), f(self.16), f(self.17), f(self.18), f(self.19), f(self.20), f(self.21), f(self.22), f(self.23), f(self.24), f(self.25), f(self.26), f(self.27), f(self.28), f(self.29), f(self.30), f(self.31))
+    }
+}
+#[doc = "Mapping all item for Tuple32"]
+pub trait Tuple32MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> {
+    #[doc = "Mapping all item for Tuple32"]
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31>(self, f0: impl FnMut(T0) -> U0, f1: impl FnMut(T1) -> U1, f2: impl FnMut(T2) -> U2, f3: impl FnMut(T3) -> U3, f4: impl FnMut(T4) -> U4, f5: impl FnMut(T5) -> U5, f6: impl FnMut(T6) -> U6, f7: impl FnMut(T7) -> U7, f8: impl FnMut(T8) -> U8, f9: impl FnMut(T9) -> U9, f10: impl FnMut(T10) -> U10, f11: impl FnMut(T11) -> U11, f12: impl FnMut(T12) -> U12, f13: impl FnMut(T13) -> U13, f14: impl FnMut(T14) -> U14, f15: impl FnMut(T15) -> U15, f16: impl FnMut(T16) -> U16, f17: impl FnMut(T17) -> U17, f18: impl FnMut(T18) -> U18, f19: impl FnMut(T19) -> U19, f20: impl FnMut(T20) -> U20, f21: impl FnMut(T21) -> U21, f22: impl FnMut(T22) -> U22, f23: impl FnMut(T23) -> U23, f24: impl FnMut(T24) -> U24, f25: impl FnMut(T25) -> U25, f26: impl FnMut(T26) -> U26, f27: impl FnMut(T27) -> U27, f28: impl FnMut(T28) -> U28, f29: impl FnMut(T29) -> U29, f30: impl FnMut(T30) -> U30, f31: impl FnMut(T31) -> U31) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31);
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> Tuple32MapAll<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) {
+    fn map_all<U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31>(self, mut f0: impl FnMut(T0) -> U0, mut f1: impl FnMut(T1) -> U1, mut f2: impl FnMut(T2) -> U2, mut f3: impl FnMut(T3) -> U3, mut f4: impl FnMut(T4) -> U4, mut f5: impl FnMut(T5) -> U5, mut f6: impl FnMut(T6) -> U6, mut f7: impl FnMut(T7) -> U7, mut f8: impl FnMut(T8) -> U8, mut f9: impl FnMut(T9) -> U9, mut f10: impl FnMut(T10) -> U10, mut f11: impl FnMut(T11) -> U11, mut f12: impl FnMut(T12) -> U12, mut f13: impl FnMut(T13) -> U13, mut f14: impl FnMut(T14) -> U14, mut f15: impl FnMut(T15) -> U15, mut f16: impl FnMut(T16) -> U16, mut f17: impl FnMut(T17) -> U17, mut f18: impl FnMut(T18) -> U18, mut f19: impl FnMut(T19) -> U19, mut f20: impl FnMut(T20) -> U20, mut f21: impl FnMut(T21) -> U21, mut f22: impl FnMut(T22) -> U22, mut f23: impl FnMut(T23) -> U23, mut f24: impl FnMut(T24) -> U24, mut f25: impl FnMut(T25) -> U25, mut f26: impl FnMut(T26) -> U26, mut f27: impl FnMut(T27) -> U27, mut f28: impl FnMut(T28) -> U28, mut f29: impl FnMut(T29) -> U29, mut f30: impl FnMut(T30) -> U30, mut f31: impl FnMut(T31) -> U31) -> (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31) {
+        (f0(self.0), f1(self.1), f2(self.2), f3(self.3), f4(self.4), f5(self.5), f6(self.6), f7(self.7), f8(self.8), f9(self.9), f10(self.10), f11(self.11), f12(self.12), f13(self.13), f14(self.14), f15(self.15), f16(self.16), f17(self.17), f18(self.18), f19(self.19), f20(self.20), f21(self.21), f22(self.22), f23(self.23), f24(self.24), f25(self.25), f26(self.26), f27(self.27), f28(self.28), f29(self.29), f30(self.30), f31(self.31))
     }
 }

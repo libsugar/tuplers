@@ -26,6 +26,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_call(&ctx, &out_dir);
 }
 
+#[allow(dead_code)]
 struct Ctx<'a> {
     pub t: &'a Ident,
     pub u: &'a Ident,
@@ -33,7 +34,9 @@ struct Ctx<'a> {
     pub ts: Vec<&'a Ident>,
     pub us: Vec<&'a Ident>,
     pub nts: Vec<Ident>,
+    pub nus: Vec<Ident>,
     pub nvs: Vec<Ident>,
+    pub nfs: Vec<Ident>,
     pub ants: Vec<TokenStream>,
 }
 
@@ -42,9 +45,11 @@ fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
     let ts = (0..max + 1).into_iter().map(|_| t).collect::<Vec<_>>();
     let us = (0..max + 1).into_iter().map(|_| u).collect::<Vec<_>>();
     let nts = (0..max + 1).into_iter().map(|i| format_ident!("T{}", i)).collect::<Vec<_>>();
+    let nus = (0..max + 1).into_iter().map(|i| format_ident!("U{}", i)).collect::<Vec<_>>();
     let nvs = (0..max + 1).into_iter().map(|i| format_ident!("v{}", i)).collect::<Vec<_>>();
+    let nfs = (0..max + 1).into_iter().map(|i| format_ident!("f{}", i)).collect::<Vec<_>>();
     let ants = nts[0..max + 1].iter().map(|i| quote! { #i: 'a }).collect::<Vec<_>>();
-    let ctx = Ctx { t, u, size_lits, ts, us, nts, nvs, ants };
+    let ctx = Ctx { t, u, size_lits, ts, us, nts, nus, nvs, nfs, ants };
     ctx
 }
 
@@ -411,7 +416,7 @@ fn gen_tuple_map(ctx: &Ctx, out_dir: &Path) {
 }
 
 fn gen_tuple_map_size(ctx: &Ctx, size: usize) -> TokenStream {
-    let items = if size > 16 { vec![] } else { (0..size).map(|n| gen_tuple_map_n_size(ctx, size, n)).collect() };
+    let tuple_n = if size > 16 { vec![] } else { (0..size).map(|n| gen_tuple_map_n_size(ctx, size, n)).collect() };
 
     let map_name = format_ident!("Tuple{}Map", size);
 
@@ -421,8 +426,51 @@ fn gen_tuple_map_size(ctx: &Ctx, size: usize) -> TokenStream {
 
     let map_doc = format!("Mapping for Tuple{}", size);
 
+    //#region map_all
+
+    let nts = &ctx.nts[0..size];
+    let nus = &ctx.nus[0..size];
+    let nfs = &ctx.nfs[0..size];
+
+    let map_all_name = format_ident!("Tuple{}MapAll", size);
+    let map_all_doc = format!("Mapping all item for Tuple{}", size);
+
+    let map_all_fns = nts
+        .iter()
+        .zip(nus.iter())
+        .zip(nfs.iter())
+        .map(|((t, u), f)| {
+            quote! { #f: impl FnMut(#t) -> #u }
+        })
+        .collect::<Vec<_>>();
+
+    let map_all_impls = nfs
+        .iter()
+        .enumerate()
+        .map(|(n, f)| {
+            let lit = &ctx.size_lits[n];
+
+            quote! { #f(self.#lit) }
+        })
+        .collect::<Vec<_>>();
+
+    let map_all = quote! {
+        #[doc = #map_all_doc]
+        pub trait #map_all_name<#(#nts),*> {
+            #[doc = #map_all_doc]
+            fn map_all<#(#nus),*>(self, #(#map_all_fns),*) -> (#(#nus),*);
+        }
+        impl<#(#nts),*> #map_all_name<#(#nts),*> for (#(#nts),*) {
+            fn map_all<#(#nus),*>(self, #(mut #map_all_fns),*) -> (#(#nus),*) {
+                (#(#map_all_impls),*)
+            }
+        }
+    };
+
+    //#endregion
+
     let tks = quote! {
-        #(#items)*
+        #(#tuple_n)*
 
         #[doc = #map_doc]
         pub trait #map_name<T> {
@@ -434,6 +482,8 @@ fn gen_tuple_map_size(ctx: &Ctx, size: usize) -> TokenStream {
                 (#(f(self.#size_lits)),*)
             }
         }
+
+        #map_all
     };
     tks
 }
