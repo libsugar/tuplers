@@ -120,10 +120,10 @@ Provides many useful tools related to tuples
     ```
 - combin
     ```rust
-    let a = (1, 2).push(3);
+    let a = (1, 2).push_right(3);
     assert_eq!(a, (1, 2, 3));
 
-    let b = (2, 1).left(3);
+    let b = (2, 1).push_left(3);
     assert_eq!(b, (3, 2, 1));
 
     let c = (1, 2, 3).concat((4, 5, 6));

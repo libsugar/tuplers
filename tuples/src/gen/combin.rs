@@ -3,372 +3,558 @@
 impl<T, T0, T1> CombinLeft<T> for (T0, T1) {
     type Out = (T, T0, T1);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1)
     }
 }
 impl<T, T0, T1> CombinRight<T> for (T0, T1) {
     type Out = (T0, T1, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, target)
     }
 }
 impl<T, T0, T1, T2> CombinLeft<T> for (T0, T1, T2) {
     type Out = (T, T0, T1, T2);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2)
     }
 }
 impl<T, T0, T1, T2> CombinRight<T> for (T0, T1, T2) {
     type Out = (T0, T1, T2, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, target)
     }
 }
 impl<T, T0, T1, T2, T3> CombinLeft<T> for (T0, T1, T2, T3) {
     type Out = (T, T0, T1, T2, T3);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3)
     }
 }
 impl<T, T0, T1, T2, T3> CombinRight<T> for (T0, T1, T2, T3) {
     type Out = (T0, T1, T2, T3, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4> CombinLeft<T> for (T0, T1, T2, T3, T4) {
     type Out = (T, T0, T1, T2, T3, T4);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4)
     }
 }
 impl<T, T0, T1, T2, T3, T4> CombinRight<T> for (T0, T1, T2, T3, T4) {
     type Out = (T0, T1, T2, T3, T4, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5> CombinLeft<T> for (T0, T1, T2, T3, T4, T5) {
     type Out = (T, T0, T1, T2, T3, T4, T5);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5> CombinRight<T> for (T0, T1, T2, T3, T4, T5) {
     type Out = (T0, T1, T2, T3, T4, T5, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, target)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> CombinLeft<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) {
     type Out = (T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn left(self, target: T) -> Self::Out {
+        self.push_left(target)
+    }
+    fn push_left(self, target: T) -> Self::Out {
         (target, self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> CombinRight<T> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) {
     type Out = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T);
     fn push(self, target: T) -> Self::Out {
+        self.push_right(target)
+    }
+    fn push_right(self, target: T) -> Self::Out {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31, target)
     }
 }

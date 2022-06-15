@@ -579,6 +579,9 @@ fn gen_combin_size(ctx: &Ctx, size: usize) -> TokenStream {
             type Out = (T, #(#ts),*);
 
             fn left(self, target: T) -> Self::Out {
+                self.push_left(target)
+            }
+            fn push_left(self, target: T) -> Self::Out {
                 (target, #(self.#size_lits),*)
             }
         }
@@ -586,6 +589,9 @@ fn gen_combin_size(ctx: &Ctx, size: usize) -> TokenStream {
             type Out = ( #(#ts),*, T);
 
             fn push(self, target: T) -> Self::Out {
+                self.push_right(target)
+            }
+            fn push_right(self, target: T) -> Self::Out {
                 (#(self.#size_lits),*, target)
             }
         }
