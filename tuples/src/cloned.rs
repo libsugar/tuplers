@@ -12,6 +12,22 @@ pub trait TupleCopied {
     fn copied(self) -> Self::TupleOut;
 }
 
+impl<T: Clone> TupleCloned for &T {
+    type TupleOut = T;
+
+    fn cloned(self) -> Self::TupleOut {
+        self.clone()
+    }
+}
+
+impl<T: Copy + Clone> TupleCopied for &T {
+    type TupleOut = T;
+
+    fn copied(self) -> Self::TupleOut {
+        *self
+    }
+}
+
 impl TupleCloned for () {
     type TupleOut = ();
 
@@ -67,4 +83,18 @@ fn test() {
     let a = (&1, &2, &3);
     let b = a.cloned();
     assert_eq!(b, (1, 2, 3))
+}
+
+#[test]
+fn test2() {
+    let a = 1;
+    let b = a.cloned();
+    assert_eq!(a, b)
+}
+
+#[test]
+fn test3() {
+    let a = &mut 1;
+    let b = a.cloned();
+    assert_eq!(*a, b)
 }
