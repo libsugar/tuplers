@@ -130,6 +130,37 @@ pub mod combin;
 #[cfg(all(feature = "combin", feature = "re-exports"))]
 pub use combin::*;
 
+/// Split tuples
+#[cfg(any(feature = "split_by", feature = "split_to_tuple_by", feature = "split_at", feature = "split_to_tuple_at"))]
+pub mod split {
+    #[cfg(feature = "split_parts")]
+    pub mod split_parts;
+    #[cfg(all(feature = "split_parts", feature = "re-exports"))]
+    pub use split_parts::*;
+
+    #[cfg(feature = "split_by")]
+    pub mod split_by;
+    #[cfg(all(feature = "split_by", feature = "re-exports"))]
+    pub use split_by::*;
+
+    #[cfg(feature = "split_to_tuple_by")]
+    pub mod split_to_tuple_by;
+    #[cfg(all(feature = "split_to_tuple_by", feature = "re-exports"))]
+    pub use split_to_tuple_by::*;
+
+    #[cfg(feature = "split_at")]
+    pub mod split_at;
+    #[cfg(all(feature = "split_at", feature = "re-exports"))]
+    pub use split_at::*;
+
+    #[cfg(feature = "split_to_tuple_at")]
+    pub mod split_to_tuple_at;
+    #[cfg(all(feature = "split_to_tuple_at", feature = "re-exports"))]
+    pub use split_to_tuple_at::*;
+}
+#[cfg(all(any(feature = "split_by", feature = "split_to_tuple_by", feature = "split_at", feature = "split_to_tuple_at"), feature = "re-exports"))]
+pub use split::*;
+
 #[cfg(feature = "transpose")]
 pub mod transpose;
 #[cfg(all(feature = "transpose", feature = "re-exports"))]

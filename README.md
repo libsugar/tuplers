@@ -19,6 +19,7 @@ Provides many useful tools related to tuples
 - Copied
 - Flatten
 - Combin
+- Split
 - Mapping
 - Iter
 - IntoIter
@@ -129,3 +130,86 @@ Provides many useful tools related to tuples
     let c = (1, 2, 3).concat((4, 5, 6));
     assert_eq!(c, (1, 2, 3, 4, 5, 6))
     ```
+- split
+    - split_parts
+        ```rust
+        let t = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+        let a = t.split_2_parts();
+        assert_eq!(a, ((0, 1, 2, 3, 4), (5, 6, 7, 8, 9)));
+
+        let b = t.split_3_parts();
+        assert_eq!(b, ((0, 1, 2, 3), (4, 5, 6), (7, 8, 9)));
+
+        let c = t.split_4_parts();
+        assert_eq!(c, ((0, 1, 2), (3, 4, 5), (6, 7), (8, 9)));
+
+        let d = t.split_5_parts();
+        assert_eq!(d, ((0, 1), (2, 3), (4, 5), (6, 7), (8, 9)));
+        ```
+    - split_at
+        ```rust
+        let t = (1, 2, 3, 4, 5, 6);
+
+        let a = t.split_at_1();
+        assert_eq!(a, (1, (2, 3, 4, 5, 6)));
+
+        let b = t.split_at_3();
+        assert_eq!(b, ((1, 2, 3), (4, 5, 6)));
+
+        let c = t.split_at_5();
+        assert_eq!(c, ((1, 2, 3, 4, 5), 6));
+        ```
+    - split_by
+        ```rust
+        let t = (1, 2, 3, 4, 5, 6);
+        let t2 = (1, 2, 3, 4, 5);
+
+        let a = t.split_by_2();
+        assert_eq!(a, ((1, 2), (3, 4), (5, 6)));
+
+        let b = t2.split_by_2();
+        assert_eq!(b, ((1, 2), (3, 4), 5));
+
+        let c = t.split_by_3();
+        assert_eq!(c, ((1, 2, 3), (4, 5, 6)));
+
+        let d = t2.split_by_3();
+        assert_eq!(d, ((1, 2, 3), (4, 5)));
+        
+        let e = t.split_by_6();
+        assert_eq!(e, ((1, 2, 3, 4, 5, 6)));
+        ```
+    - split_to_tuple_at
+        ```rust
+        let t = (1, 2, 3, 4, 5, 6);
+
+        let a = t.split_to_tuple_at_1();
+        assert_eq!(a, ((1,), (2, 3, 4, 5, 6)));
+
+        let b = t.split_to_tuple_at_3();
+        assert_eq!(b, ((1, 2, 3), (4, 5, 6)));
+
+        let c = t.split_to_tuple_at_5();
+        assert_eq!(c, ((1, 2, 3, 4, 5), (6,)));
+        ```
+    - split_to_tuple_by
+        ```rust
+        let t = (1, 2, 3, 4, 5, 6);
+        let t2 = (1, 2, 3, 4, 5);
+
+        let a = t.split_to_tuple_by_2();
+        assert_eq!(a, ((1, 2), (3, 4), (5, 6)));
+
+        let b = t2.split_to_tuple_by_2();
+        assert_eq!(b, ((1, 2), (3, 4), (5,)));
+
+        let c = t.split_to_tuple_by_3();
+        assert_eq!(c, ((1, 2, 3), (4, 5, 6)));
+
+        let d = t2.split_to_tuple_by_3();
+        assert_eq!(d, ((1, 2, 3), (4, 5)));
+        
+        let e = t.split_to_tuple_by_6();
+        assert_eq!(e, (((1, 2, 3, 4, 5, 6),)));
+        ```
