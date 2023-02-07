@@ -5,6 +5,10 @@ Set-Location ..
 
 rustfmt .\tuples\src\gen\cloned.rs
 rustfmt .\tuples\src\gen\combin.rs
+rustfmt .\tuples\src\gen\split_by.rs
+rustfmt .\tuples\src\gen\split_to_tuple_by.rs
+rustfmt .\tuples\src\gen\split_at.rs
+rustfmt .\tuples\src\gen\split_to_tuple_at.rs
 rustfmt .\tuples\src\gen\flatten.rs
 rustfmt .\tuples\src\gen\transpose.rs
 rustfmt .\tuples\src\gen\tuple_alias.rs

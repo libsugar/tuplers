@@ -20,6 +20,10 @@ pub fn code_gen(out_dir: &Path) {
     gen_tuple_iter(&ctx, &out_dir);
     gen_tuple_map(&ctx, &out_dir);
     gen_combin(&ctx, &out_dir);
+    gen_split_by(&ctx, &out_dir);
+    gen_split_to_tuple_by(&ctx, &out_dir);
+    gen_split_at(&ctx, &out_dir);
+    gen_split_to_tuple_at(&ctx, &out_dir);
     gen_transpose(&ctx, &out_dir);
     gen_flatten(&ctx, &out_dir);
     gen_cloned(&ctx, &out_dir);
@@ -614,6 +618,306 @@ fn gen_combin_concat_size(ctx: &Ctx, sizea: usize, sizeb: usize, self_impl: &[To
             #[allow(unused_variables)]
             fn concat(self, target: (#(#bnts),*#btc)) -> Self::Out {
                 (#(#impls),*#gtc)
+            }
+        }
+    };
+    tks
+}
+
+fn gen_split_by(ctx: &Ctx, out_dir: &Path) {
+    let items = (2..32usize).map(|i| gen_split_by_n(ctx, i));
+    let tks = quote! {
+        #(#items)*
+    };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("split_by.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_split_by_n(ctx: &Ctx, n: usize) -> TokenStream {
+    let trait_name = format_ident!("TupleSplitBy{}", n);
+    let fn_name = format_ident!("split_by_{}", n);
+    let trait_doc = format!("Split by {}", n);
+
+    let impls = (n..33usize).map(|i| gen_split_by_n_impl_size(ctx, &trait_name, &fn_name, n, i));
+
+    let tks = quote! {
+        #[doc = #trait_doc]
+        pub trait #trait_name {
+            type OutTuple;
+
+            #[doc = #trait_doc]
+            fn #fn_name(self) -> Self::OutTuple;
+        }
+
+        #(#impls)*
+    };
+    tks
+}
+
+fn gen_split_by_n_impl_size(ctx: &Ctx, trait_name: &Ident, fn_name: &Ident, n: usize, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+
+    let items_range = 0..size / n + if size % n == 0 { 0 } else { 1 };
+
+    let out_type = items_range
+        .clone()
+        .map(|i| {
+            let start = i * n;
+            let nts = &nts[start..std::cmp::min(start + n, size)];
+            if nts.len() == 1 {
+                quote! { #(#nts),* }
+            } else {
+                quote! { (#(#nts),*) }
+            }
+        })
+        .collect::<Vec<_>>();
+    let out_type = if out_type.len() == 1 {
+        quote! { #(#out_type),* }
+    } else {
+        quote! { (#(#out_type),*) }
+    };
+
+    let out_lit = items_range
+        .map(|i| {
+            let start = i * n;
+            let size_lits = &size_lits[start..std::cmp::min(start + n, size)];
+            if size_lits.len() == 1 {
+                quote! { #(self.#size_lits),* }
+            } else {
+                quote! { (#(self.#size_lits),*) }
+            }
+        })
+        .collect::<Vec<_>>();
+    let out_lit = if out_lit.len() == 1 {
+        quote! { #(#out_lit),* }
+    } else {
+        quote! { (#(#out_lit),*) }
+    };
+
+    let tks = quote! {
+        impl<#(#nts),*> #trait_name for (#(#nts),*) {
+            type OutTuple = #out_type;
+
+            fn #fn_name(self) -> Self::OutTuple {
+                #out_lit
+            }
+        }
+    };
+    tks
+}
+
+fn gen_split_to_tuple_by(ctx: &Ctx, out_dir: &Path) {
+    let items = (2..32usize).map(|i| gen_split_to_tuple_by_n(ctx, i));
+    let tks = quote! {
+        #(#items)*
+    };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("split_to_tuple_by.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_split_to_tuple_by_n(ctx: &Ctx, n: usize) -> TokenStream {
+    let trait_name = format_ident!("TupleSplitToTupleBy{}", n);
+    let fn_name = format_ident!("split_to_tuple_by_{}", n);
+    let trait_doc = format!("Split to tuple by {}", n);
+
+    let impls = (n..33usize).map(|i| gen_split_to_tuple_by_n_impl_size(ctx, &trait_name, &fn_name, n, i));
+
+    let tks = quote! {
+        #[doc = #trait_doc]
+        pub trait #trait_name {
+            type OutTuple;
+
+            #[doc = #trait_doc]
+            fn #fn_name(self) -> Self::OutTuple;
+        }
+
+        #(#impls)*
+    };
+    tks
+}
+
+fn gen_split_to_tuple_by_n_impl_size(ctx: &Ctx, trait_name: &Ident, fn_name: &Ident, n: usize, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+
+    let items_range = 0..size / n + if size % n == 0 { 0 } else { 1 };
+
+    let out_type = items_range
+        .clone()
+        .map(|i| {
+            let start = i * n;
+            let nts = &nts[start..std::cmp::min(start + n, size)];
+            if nts.len() == 1 {
+                quote! { (#(#nts),*,) }
+            } else {
+                quote! { (#(#nts),*) }
+            }
+        })
+        .collect::<Vec<_>>();
+    let out_type = if out_type.len() == 1 {
+        quote! { (#(#out_type),*,) }
+    } else {
+        quote! { (#(#out_type),*) }
+    };
+
+    let out_lit = items_range
+        .map(|i| {
+            let start = i * n;
+            let size_lits = &size_lits[start..std::cmp::min(start + n, size)];
+            if size_lits.len() == 1 {
+                quote! { (#(self.#size_lits),*,) }
+            } else {
+                quote! { (#(self.#size_lits),*) }
+            }
+        })
+        .collect::<Vec<_>>();
+    let out_lit = if out_lit.len() == 1 {
+        quote! { (#(#out_lit),*,) }
+    } else {
+        quote! { (#(#out_lit),*) }
+    };
+
+    let tks = quote! {
+        impl<#(#nts),*> #trait_name for (#(#nts),*) {
+            type OutTuple = #out_type;
+
+            fn #fn_name(self) -> Self::OutTuple {
+                #out_lit
+            }
+        }
+    };
+    tks
+}
+
+fn gen_split_at(ctx: &Ctx, out_dir: &Path) {
+    let items = (1..32usize).map(|i| gen_split_at_n(ctx, i));
+    let tks = quote! {
+        #(#items)*
+    };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("split_at.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_split_at_n(ctx: &Ctx, n: usize) -> TokenStream {
+    let trait_name = format_ident!("TupleSplitAt{}", n);
+    let fn_name = format_ident!("split_at_{}", n);
+    let trait_doc = format!("Split at {}", n);
+
+    let impls = (n..33usize).map(|i| gen_split_at_n_impl_size(ctx, &trait_name, &fn_name, n, i));
+
+    let tks = quote! {
+        #[doc = #trait_doc]
+        pub trait #trait_name {
+            type OutTuple;
+
+            #[doc = #trait_doc]
+            fn #fn_name(self) -> Self::OutTuple;
+        }
+
+        #(#impls)*
+    };
+    tks
+}
+
+fn gen_split_at_n_impl_size(ctx: &Ctx, trait_name: &Ident, fn_name: &Ident, n: usize, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+
+    let tks = match (n, size) {
+        (_, 0) => quote! {},
+        (1, 1) => quote! {},
+        _ if size == n => quote! {},
+        _ => {
+            let l_part = &nts[..n];
+            let r_part = &nts[n..];
+            let l_part = tif! { l_part.len() == 1 => quote! { #(#l_part),* } ; quote! { (#(#l_part),*) } };
+            let r_part = tif! { r_part.len() == 1 => quote! { #(#r_part),* } ; quote! { (#(#r_part),*) } };
+
+            let lit_l_part = &size_lits[..n];
+            let lit_r_part = &size_lits[n..];
+            let lit_l_part = tif! { lit_l_part.len() == 1 => quote! { #(self.#lit_l_part),* } ; quote! { (#(self.#lit_l_part),*) } };
+            let lit_r_part = tif! { lit_r_part.len() == 1 => quote! { #(self.#lit_r_part),* } ; quote! { (#(self.#lit_r_part),*) } };
+
+            quote! {
+                impl<#(#nts),*> #trait_name for (#(#nts),*) {
+                    type OutTuple = (#l_part, #r_part);
+
+                    fn #fn_name(self) -> Self::OutTuple {
+                        (#lit_l_part, #lit_r_part)
+                    }
+                }
+            }
+        }
+    };
+    tks
+}
+
+fn gen_split_to_tuple_at(ctx: &Ctx, out_dir: &Path) {
+    let items = (1..32usize).map(|i| gen_split_to_tuple_at_n(ctx, i));
+    let tks = quote! {
+        #(#items)*
+    };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("split_to_tuple_at.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_split_to_tuple_at_n(ctx: &Ctx, n: usize) -> TokenStream {
+    let trait_name = format_ident!("TupleSplitToTupleAt{}", n);
+    let fn_name = format_ident!("split_to_tuple_at_{}", n);
+    let trait_doc = format!("Split to tuple at {}", n);
+
+    let impls = (n..33usize).map(|i| gen_split_to_tuple_at_n_impl_size(ctx, &trait_name, &fn_name, n, i));
+
+    let tks = quote! {
+        #[doc = #trait_doc]
+        pub trait #trait_name {
+            type OutTuple;
+
+            #[doc = #trait_doc]
+            fn #fn_name(self) -> Self::OutTuple;
+        }
+
+        #(#impls)*
+    };
+    tks
+}
+
+fn gen_split_to_tuple_at_n_impl_size(ctx: &Ctx, trait_name: &Ident, fn_name: &Ident, n: usize, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+
+    let tks = match (n, size) {
+        (_, 0) => quote! {},
+        (1, 1) => quote! {},
+        _ if size == n => quote! {},
+        _ => {
+            let l_part = &nts[..n];
+            let r_part = &nts[n..];
+            let l_part = tif! { l_part.len() == 1 => quote! { (#(#l_part),*,) } ; quote! { (#(#l_part),*) } };
+            let r_part = tif! { r_part.len() == 1 => quote! { (#(#r_part),*,) } ; quote! { (#(#r_part),*) } };
+
+            let lit_l_part = &size_lits[..n];
+            let lit_r_part = &size_lits[n..];
+            let lit_l_part = tif! { lit_l_part.len() == 1 => quote! { (#(self.#lit_l_part),*,) } ; quote! { (#(self.#lit_l_part),*) } };
+            let lit_r_part = tif! { lit_r_part.len() == 1 => quote! { (#(self.#lit_r_part),*,) } ; quote! { (#(self.#lit_r_part),*) } };
+
+            quote! {
+                impl<#(#nts),*> #trait_name for (#(#nts),*) {
+                    type OutTuple = (#l_part, #r_part);
+
+                    fn #fn_name(self) -> Self::OutTuple {
+                        (#lit_l_part, #lit_r_part)
+                    }
+                }
             }
         }
     };
