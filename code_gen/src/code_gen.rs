@@ -20,6 +20,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_tuple_iter(&ctx, &out_dir);
     gen_tuple_map(&ctx, &out_dir);
     gen_combin(&ctx, &out_dir);
+    gen_split_parts(&ctx, &out_dir);
     gen_split_by(&ctx, &out_dir);
     gen_split_to_tuple_by(&ctx, &out_dir);
     gen_split_at(&ctx, &out_dir);
@@ -618,6 +619,73 @@ fn gen_combin_concat_size(ctx: &Ctx, sizea: usize, sizeb: usize, self_impl: &[To
             #[allow(unused_variables)]
             fn concat(self, target: (#(#bnts),*#btc)) -> Self::Out {
                 (#(#impls),*#gtc)
+            }
+        }
+    };
+    tks
+}
+
+fn gen_split_parts(ctx: &Ctx, out_dir: &Path) {
+    let items = (2..16usize).map(|i| gen_split_parts_n(ctx, i));
+    let tks = quote! {
+        #(#items)*
+    };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("split_parts.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_split_parts_n(ctx: &Ctx, n: usize) -> TokenStream {
+    let trait_name = format_ident!("TupleSplit{}Parts", n);
+    let fn_name = format_ident!("split_{}_parts", n);
+    let trait_doc = format!("Split into {} parts", n);
+
+    let impls = (n * 2..33usize).map(|i| gen_split_parts_n_impl_size(ctx, &trait_name, &fn_name, n, i));
+
+    let tks = quote! {
+        #[doc = #trait_doc]
+        pub trait #trait_name {
+            type OutTuple;
+
+            #[doc = #trait_doc]
+            fn #fn_name(self) -> Self::OutTuple;
+        }
+
+        #(#impls)*
+    };
+    tks
+}
+
+fn gen_split_parts_n_impl_size(ctx: &Ctx, trait_name: &Ident, fn_name: &Ident, n: usize, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+
+    let d = size / n;
+    let m = size % n;
+
+    let out_type = (0..n)
+        .map(|i| {
+            let r = i * d + std::cmp::min(i, m)..(i + 1) * d + std::cmp::min(i + 1, m);
+            let nts = &nts[r];
+            quote! { (#(#nts),*) }
+        })
+        .collect::<Vec<_>>();
+
+    let out_lit = (0..n)
+        .map(|i| {
+            let r = i * d + std::cmp::min(i, m)..(i + 1) * d + std::cmp::min(i + 1, m);
+            let size_lits = &size_lits[r];
+            quote! { (#(self.#size_lits),*) }
+        })
+        .collect::<Vec<_>>();
+
+    let tks = quote! {
+        impl<#(#nts),*> #trait_name for (#(#nts),*) {
+            type OutTuple = (#(#out_type),*);
+
+            fn #fn_name(self) -> Self::OutTuple {
+                (#(#out_lit),*)
             }
         }
     };
