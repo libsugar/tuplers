@@ -64,6 +64,23 @@ impl<T, Eo: From<E>, E> TupleTransposeResult<Eo> for (Result<T, E>,) {
     }
 }
 
+/// Transposes for Result
+pub trait TupleTransposeResultSameError {
+    type OutTuple;
+
+    /// Transposes for Result
+    fn transpose_same_error(self) -> Self::OutTuple;
+}
+
+impl<T, E> TupleTransposeResultSameError for (Result<T, E>,) {
+    type OutTuple = Result<(T,), E>;
+
+    fn transpose_same_error(self) -> Self::OutTuple {
+        let (v0,) = self;
+        Ok((v0?,))
+    }
+}
+
 include!("./gen/transpose.rs");
 
 #[test]
@@ -86,4 +103,18 @@ fn test_result_2() {
     let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
     let b: Result<(u8, u8, u8), i64> = a.transpose();
     assert_eq!(b, Err(-1));
+}
+
+#[test]
+fn test_result_same_error() {
+    let a: (Result<u8, i64>, Result<u8, i64>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+    let b: Result<(u8, u8, u8), i64> = a.transpose_same_error();
+    assert_eq!(b, Err(-1));
+}
+
+#[test]
+fn test_result_same_error_2() {
+    let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
+    let b: Result<(u8, u8, u8), ()> = a.transpose_same_error();
+    assert_eq!(b, Ok((1, 2, 3)));
 }

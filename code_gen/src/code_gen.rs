@@ -1054,6 +1054,15 @@ fn gen_transpose_size_result(ctx: &Ctx, size: usize) -> TokenStream {
                 Ok((#(#nvs?),*))
             }
         }
+
+        impl<E, #(#nts),*> TupleTransposeResultSameError for (#(Result<#nts, E>),*) {
+            type OutTuple = Result<(#(#nts),*), E>;
+
+            fn transpose_same_error(self) -> Self::OutTuple {
+                let (#(#nvs),*) = self;
+                Ok((#(#nvs?),*))
+            }
+        }
     };
     tks
 }
