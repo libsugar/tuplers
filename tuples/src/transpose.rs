@@ -166,19 +166,33 @@ fn test_result_gat() {
 }
 
 #[test]
-fn test_result_gat_1() {
+fn test_result_gat_2() {
     let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
     let b: Result<(u8, u8, u8), i64> = a.transpose1();
     assert_eq!(b, Err(-1));
 }
 
 #[test]
-fn test_result_gat_try_1() {
+fn test_result_gat_try() {
     fn f() -> Result<(), i64> {
         let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
         a.transpose1::<i64>()?;
         Ok(())
     }
     let b = f();
+    assert_eq!(b, Err(-1));
+}
+
+#[test]
+fn test_result_map_err() {
+    let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
+    let b: Result<(u8, u8, u8), ()> = a.transpose_map_err(|a| a, |a| a, |a| a);
+    assert_eq!(b, Ok((1, 2, 3)));
+}
+
+#[test]
+fn test_result_map_err_2() {
+    let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+    let b: Result<(u8, u8, u8), i64> = a.transpose_map_err(|a| a.into(), |a| a.into(), |a| a.into());
     assert_eq!(b, Err(-1));
 }
