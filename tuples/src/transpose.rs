@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 //! Transposes
 
 /// Transposes
@@ -52,6 +53,7 @@ pub trait TupleTransposeResult<Eo> {
     type OutTuple;
 
     /// Transposes for Result
+    #[deprecated = "use transpose1"]
     fn transpose(self) -> Self::OutTuple;
 }
 
@@ -78,6 +80,43 @@ impl<T, E> TupleTransposeResultSameError for (Result<T, E>,) {
     fn transpose_same_error(self) -> Self::OutTuple {
         let (v0,) = self;
         Ok((v0?,))
+    }
+}
+
+/// Transposes for Result
+pub trait TupleTransposeResult1_1<E> {
+    type OutTuple<Eo>;
+
+    /// Transposes for Result
+    fn transpose1<Eo: From<E>>(self) -> Self::OutTuple<Eo>;
+}
+
+impl<T, E> TupleTransposeResult1_1<E> for (Result<T, E>,) {
+    type OutTuple<Eo> = Result<(T,), Eo>;
+
+    fn transpose1<Eo: From<E>>(self) -> Self::OutTuple<Eo> {
+        let (v0,) = self;
+        Ok((v0?,))
+    }
+}
+
+/// Transposes for Result
+pub trait TupleTransposeResultMapErr1<E> {
+    type OutTuple<Eo>;
+
+    /// Transposes for Result
+    fn transpose_map_err<Eo>(self, f: impl FnOnce(E) -> Eo) -> Self::OutTuple<Eo>;
+}
+
+impl<T, E> TupleTransposeResultMapErr1<E> for (Result<T, E>,) {
+    type OutTuple<Eo> = Result<(T,), Eo>;
+
+    fn transpose_map_err<Eo>(self, f: impl FnOnce(E) -> Eo) -> Self::OutTuple<Eo> {
+        let (v0,) = self;
+        Ok((match v0 {
+            Ok(v) => v,
+            Err(e) => Err(f(e))?,
+        },))
     }
 }
 
@@ -117,4 +156,29 @@ fn test_result_same_error_2() {
     let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
     let b: Result<(u8, u8, u8), ()> = a.transpose_same_error();
     assert_eq!(b, Ok((1, 2, 3)));
+}
+
+#[test]
+fn test_result_gat() {
+    let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
+    let b: Result<(u8, u8, u8), ()> = a.transpose1();
+    assert_eq!(b, Ok((1, 2, 3)));
+}
+
+#[test]
+fn test_result_gat_1() {
+    let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+    let b: Result<(u8, u8, u8), i64> = a.transpose1();
+    assert_eq!(b, Err(-1));
+}
+
+#[test]
+fn test_result_gat_try_1() {
+    fn f() -> Result<(), i64> {
+        let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+        a.transpose1::<i64>()?;
+        Ok(())
+    }
+    let b = f();
+    assert_eq!(b, Err(-1));
 }

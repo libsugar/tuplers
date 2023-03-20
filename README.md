@@ -119,6 +119,11 @@ Provides many useful tools related to tuples
     let b: Result<(u8, u8, u8), i64> = a.transpose();
     assert_eq!(b, Err(-1));
     ```
+    ```rust
+    let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+    let b = a.transpose1::<i64>();
+    assert_eq!(b, Err(-1));
+    ```
 - combin
     ```rust
     let a = (1, 2).push_right(3);

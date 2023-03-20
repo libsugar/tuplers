@@ -1045,6 +1045,28 @@ fn gen_transpose_size_result(ctx: &Ctx, size: usize) -> TokenStream {
     let nts = &ctx.nts[0..size];
     let ents = (0..size).map(|i| format_ident!("E{}", i)).collect::<Vec<_>>();
     let nvs = &ctx.nvs[0..size];
+    let f_names = (0..size).map(|i| format_ident!("f{}", i)).collect::<Vec<_>>();
+    let gat_impl_trait_name = format_ident!("TupleTransposeResult1_{}", size);
+    let map_err_trait_name = format_ident!("TupleTransposeResultMapErr{}", size);
+    let map_err_params = (0..size)
+        .enumerate()
+        .map(|(i, _)| {
+            let f_name = &f_names[i];
+            let ent = &ents[i];
+            quote! { #f_name: impl FnOnce(#ent) -> Eo }
+        })
+        .collect::<Vec<_>>();
+    let map_err_matchs = (0..size)
+        .enumerate()
+        .map(|(i, _)| {
+            let nv = &nvs[i];
+            let f_name = &f_names[i];
+            quote! { match #nv {
+                Ok(v) => v,
+                Err(e) => Err(#f_name(e))?,
+            } }
+        })
+        .collect::<Vec<_>>();
     let tks = quote! {
         impl<Eo: #(From<#ents>)+*, #(#ents, #nts),*> TupleTransposeResult<Eo> for (#(Result<#nts, #ents>),*) {
             type OutTuple = Result<(#(#nts),*), Eo>;
@@ -1061,6 +1083,40 @@ fn gen_transpose_size_result(ctx: &Ctx, size: usize) -> TokenStream {
             fn transpose_same_error(self) -> Self::OutTuple {
                 let (#(#nvs),*) = self;
                 Ok((#(#nvs?),*))
+            }
+        }
+
+        /// Transposes for Result
+        pub trait #gat_impl_trait_name<#(#ents),*> {
+            type OutTuple<Eo>;
+
+            /// Transposes for Result
+            fn transpose1<Eo: #(From<#ents>)+*>(self) -> Self::OutTuple<Eo>;
+        }
+
+        impl<#(#ents, #nts),*> #gat_impl_trait_name<#(#ents),*> for (#(Result<#nts, #ents>),*) {
+            type OutTuple<Eo> = Result<(#(#nts),*), Eo>;
+
+            fn transpose1<Eo: #(From<#ents>)+*>(self) -> Self::OutTuple<Eo> {
+                let (#(#nvs),*) = self;
+                Ok((#(#nvs?),*))
+            }
+        }
+
+        /// Transposes for Result
+        pub trait #map_err_trait_name<#(#ents),*> {
+            type OutTuple<Eo>;
+
+            /// Transposes for Result
+            fn transpose_map_err<Eo>(self, #(#map_err_params),*) -> Self::OutTuple<Eo>;
+        }
+
+        impl<#(#ents, #nts),*> #map_err_trait_name<#(#ents),*> for (#(Result<#nts, #ents>),*) {
+            type OutTuple<Eo> = Result<(#(#nts),*), Eo>;
+
+            fn transpose_map_err<Eo>(self, #(#map_err_params),*) -> Self::OutTuple<Eo> {
+                let (#(#nvs),*) = self;
+                Ok((#(#map_err_matchs),*))
             }
         }
     };
