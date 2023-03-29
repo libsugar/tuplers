@@ -111,7 +111,7 @@ fn gen_tuple_n_impl_size(ctx: &Ctx, size: usize, item_names: &[Ident]) -> TokenS
 }
 
 fn gen_tuple_as(ctx: &Ctx, out_dir: &Path) {
-    let items = (2..33usize).map(|i| gen_tuple_as_size(ctx, i));
+    let items = (0..33usize).map(|i| gen_tuple_as_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
     code.insert_str(0, "// This file is by code gen, do not modify\n\n");
@@ -127,61 +127,61 @@ fn gen_tuple_as_size(ctx: &Ctx, size: usize) -> TokenStream {
     let mut_doc = format!("AsMut for Tuple{}", size);
 
     let tks = quote! {
-        impl<'a, #(#nts: 'a),*> TupleAsRef<'a> for (#(#nts),*) {
-            type OutTuple = (#(&'a #nts),*);
+        impl<'a, #(#nts: 'a,)*> TupleAsRef<'a> for (#(#nts,)*) {
+            type OutTuple = (#(&'a #nts,)*);
 
             #[doc = #ref_doc]
             fn as_ref(&'a self) -> Self::OutTuple {
-                (#(&self.#size_lits),*)
+                (#(&self.#size_lits,)*)
             }
         }
 
-        impl<'a, #(#nts: 'a),*> TupleAsMut<'a> for (#(#nts),*) {
-            type OutTuple = (#(&'a mut #nts),*);
+        impl<'a, #(#nts: 'a,)*> TupleAsMut<'a> for (#(#nts,)*) {
+            type OutTuple = (#(&'a mut #nts,)*);
 
             #[doc = #mut_doc]
             fn as_mut(&'a mut self) -> Self::OutTuple {
-                (#(&mut self.#size_lits),*)
+                (#(&mut self.#size_lits,)*)
             }
         }
 
-        impl<#(#nts),*> TupleAsOption for (#(#nts),*) {
-            type OutTuple = (#(Option<#nts>),*);
+        impl<#(#nts,)*> TupleAsOption for (#(#nts,)*) {
+            type OutTuple = (#(Option<#nts>,)*);
 
             fn as_some(self) -> Self::OutTuple {
-                (#(Some(self.#size_lits)),*)
+                (#(Some(self.#size_lits),)*)
             }
         }
 
-        impl<E, #(#nts),*> TupleAsResultOk<E> for (#(#nts),*) {
-            type OutTuple = (#(Result<#nts, E>),*);
+        impl<E, #(#nts,)*> TupleAsResultOk<E> for (#(#nts,)*) {
+            type OutTuple = (#(Result<#nts, E>,)*);
 
             fn as_ok(self) -> Self::OutTuple {
-                (#(Ok(self.#size_lits)),*)
+                (#(Ok(self.#size_lits),)*)
             }
         }
 
-        impl<O, #(#nts),*> TupleAsResultErr<O> for (#(#nts),*) {
-            type OutTuple = (#(Result<O, #nts>),*);
+        impl<O, #(#nts,)*> TupleAsResultErr<O> for (#(#nts,)*) {
+            type OutTuple = (#(Result<O, #nts>,)*);
 
             fn as_err(self) -> Self::OutTuple {
-                (#(Err(self.#size_lits)),*)
+                (#(Err(self.#size_lits),)*)
             }
         }
 
-        impl<'a, #(#nts: 'a + Deref),*> TupleAsDeref<'a> for (#(#nts),*) {
-            type OutTuple = (#(&'a <#nts as Deref>::Target),*);
+        impl<'a, #(#nts: 'a + Deref,)*> TupleAsDeref<'a> for (#(#nts,)*) {
+            type OutTuple = (#(&'a <#nts as Deref>::Target,)*);
 
             fn as_deref(&'a self) -> Self::OutTuple {
-                (#(self.#size_lits.deref()),*)
+                (#(self.#size_lits.deref(),)*)
             }
         }
 
-        impl<'a, #(#nts: 'a + DerefMut),*> TupleAsDerefMut<'a> for (#(#nts),*) {
-            type OutTuple = (#(&'a mut <#nts as Deref>::Target),*);
+        impl<'a, #(#nts: 'a + DerefMut,)*> TupleAsDerefMut<'a> for (#(#nts,)*) {
+            type OutTuple = (#(&'a mut <#nts as Deref>::Target,)*);
 
             fn as_deref_mut(&'a mut self) -> Self::OutTuple {
-                (#(self.#size_lits.deref_mut()),*)
+                (#(self.#size_lits.deref_mut(),)*)
             }
         }
     };

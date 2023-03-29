@@ -1,5 +1,93 @@
 // This file is by code gen, do not modify
 
+impl<'a> TupleAsRef<'a> for () {
+    type OutTuple = ();
+    #[doc = "AsRef for Tuple0"]
+    fn as_ref(&'a self) -> Self::OutTuple {
+        ()
+    }
+}
+impl<'a> TupleAsMut<'a> for () {
+    type OutTuple = ();
+    #[doc = "AsMut for Tuple0"]
+    fn as_mut(&'a mut self) -> Self::OutTuple {
+        ()
+    }
+}
+impl TupleAsOption for () {
+    type OutTuple = ();
+    fn as_some(self) -> Self::OutTuple {
+        ()
+    }
+}
+impl<E> TupleAsResultOk<E> for () {
+    type OutTuple = ();
+    fn as_ok(self) -> Self::OutTuple {
+        ()
+    }
+}
+impl<O> TupleAsResultErr<O> for () {
+    type OutTuple = ();
+    fn as_err(self) -> Self::OutTuple {
+        ()
+    }
+}
+impl<'a> TupleAsDeref<'a> for () {
+    type OutTuple = ();
+    fn as_deref(&'a self) -> Self::OutTuple {
+        ()
+    }
+}
+impl<'a> TupleAsDerefMut<'a> for () {
+    type OutTuple = ();
+    fn as_deref_mut(&'a mut self) -> Self::OutTuple {
+        ()
+    }
+}
+impl<'a, T0: 'a> TupleAsRef<'a> for (T0,) {
+    type OutTuple = (&'a T0,);
+    #[doc = "AsRef for Tuple1"]
+    fn as_ref(&'a self) -> Self::OutTuple {
+        (&self.0,)
+    }
+}
+impl<'a, T0: 'a> TupleAsMut<'a> for (T0,) {
+    type OutTuple = (&'a mut T0,);
+    #[doc = "AsMut for Tuple1"]
+    fn as_mut(&'a mut self) -> Self::OutTuple {
+        (&mut self.0,)
+    }
+}
+impl<T0> TupleAsOption for (T0,) {
+    type OutTuple = (Option<T0>,);
+    fn as_some(self) -> Self::OutTuple {
+        (Some(self.0),)
+    }
+}
+impl<E, T0> TupleAsResultOk<E> for (T0,) {
+    type OutTuple = (Result<T0, E>,);
+    fn as_ok(self) -> Self::OutTuple {
+        (Ok(self.0),)
+    }
+}
+impl<O, T0> TupleAsResultErr<O> for (T0,) {
+    type OutTuple = (Result<O, T0>,);
+    fn as_err(self) -> Self::OutTuple {
+        (Err(self.0),)
+    }
+}
+impl<'a, T0: 'a + Deref> TupleAsDeref<'a> for (T0,) {
+    type OutTuple = (&'a <T0 as Deref>::Target,);
+    fn as_deref(&'a self) -> Self::OutTuple {
+        (self.0.deref(),)
+    }
+}
+impl<'a, T0: 'a + DerefMut> TupleAsDerefMut<'a> for (T0,) {
+    type OutTuple = (&'a mut <T0 as Deref>::Target,);
+    fn as_deref_mut(&'a mut self) -> Self::OutTuple {
+        (self.0.deref_mut(),)
+    }
+}
 impl<'a, T0: 'a, T1: 'a> TupleAsRef<'a> for (T0, T1) {
     type OutTuple = (&'a T0, &'a T1);
     #[doc = "AsRef for Tuple2"]
