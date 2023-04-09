@@ -29,6 +29,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_flatten(&ctx, &out_dir);
     gen_cloned(&ctx, &out_dir);
     gen_call(&ctx, &out_dir);
+    gen_apply_tuple(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -1250,6 +1251,42 @@ fn gen_call_size(ctx: &Ctx, size: usize) -> TokenStream {
         impl<#(#nts),*> #name<#(#nts),*> for (#(#nts),*) {
             fn call<F: FnOnce(#(#nts),*) -> O, O>(self, f: F) -> O {
                 f(#(self.#size_lits),*)
+            }
+        }
+    };
+    tks
+}
+
+fn gen_apply_tuple(ctx: &Ctx, out_dir: &Path) {
+    let items = (0..33usize).map(|i| gen_apply_tuple_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("apply_tuple.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_apply_tuple_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let nvs = &ctx.nvs[0..size];
+    let tks = quote! {
+        impl<F: FnOnce(#(#nts),*) -> R, R, #(#nts),*> ApplyTupleOnce<(#(#nts,)*)> for F {
+            type Output = R;
+
+            fn apply_tuple_once(self, (#(#nvs,)*): (#(#nts,)*)) -> Self::Output {
+                self(#(#nvs),*)
+            }
+        }
+
+        impl<F: FnMut(#(#nts),*) -> R, R, #(#nts),*> ApplyTupleMut<(#(#nts,)*)> for F {
+            fn apply_tuple_mut(&mut self, (#(#nvs,)*): (#(#nts,)*)) -> Self::Output {
+                self(#(#nvs),*)
+            }
+        }
+
+        impl<F: Fn(#(#nts),*) -> R, R, #(#nts),*> ApplyTuple<(#(#nts,)*)> for F {
+            fn apply_tuple(&self, (#(#nvs,)*): (#(#nts,)*)) -> Self::Output {
+                self(#(#nvs),*)
             }
         }
     };

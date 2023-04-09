@@ -180,3 +180,8 @@ pub use cloned::*;
 pub mod tuple_call;
 #[cfg(all(feature = "tuple_call", feature = "re-exports"))]
 pub use tuple_call::*;
+
+#[cfg(feature = "apply_tuple")]
+pub mod apply_tuple;
+#[cfg(all(feature = "apply_tuple", feature = "re-exports"))]
+pub use apply_tuple::*;

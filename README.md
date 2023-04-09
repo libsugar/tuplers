@@ -27,6 +27,8 @@ Provides many useful tools related to tuples
 - Collect
 - Meta Trait
 - Shorthand Macro
+- Call
+- Appply
 
 ## Examples
 
@@ -218,3 +220,17 @@ Provides many useful tools related to tuples
         let e = t.split_to_tuple_by_6();
         assert_eq!(e, (((1, 2, 3, 4, 5, 6),)));
         ```
+- call
+    ```rust
+    let r = (1, 2, 3).call(|a, b, c| a + b + c);
+    assert_eq!(r, 6);
+    ```
+- apply
+    ```rust
+    let a = (1, 2, 3);
+    fn foo(a: i32, b: i32, c: i32) -> i32 {
+        a + b + c
+    }
+    let r = foo.apply_tuple(a);
+    assert_eq!(r, 6)
+    ```
