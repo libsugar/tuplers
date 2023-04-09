@@ -28,7 +28,7 @@ Provides many useful tools related to tuples
 - Meta Trait
 - Shorthand Macro
 - Call
-- Appply
+- Apply
 
 ## Examples
 
