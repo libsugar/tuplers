@@ -1270,6 +1270,13 @@ fn gen_apply_tuple_size(ctx: &Ctx, size: usize) -> TokenStream {
     let nts = &ctx.nts[0..size];
     let nvs = &ctx.nvs[0..size];
     let tks = quote! {
+        #[cfg(feature = "tuple_meta")]
+        impl<R, #(#nts),*> TupleFnMeta<R> for (#(#nts,)*) {
+            type DynFnOnce = dyn FnOnce(#(#nts),*) -> R;
+            type DynFnMut = dyn FnMut(#(#nts),*) -> R;
+            type DynFn = dyn Fn(#(#nts),*) -> R;
+        }
+
         impl<F: FnOnce(#(#nts),*) -> R, R, #(#nts),*> ApplyTupleOnce<(#(#nts,)*)> for F {
             type Output = R;
 

@@ -1,5 +1,13 @@
 //! Apply tuple as args to fns
 
+#[cfg(feature = "tuple_meta")]
+/// Tuple to fn meta
+pub trait TupleFnMeta<R> {
+    type DynFnOnce: ?Sized;
+    type DynFnMut: ?Sized;
+    type DynFn: ?Sized;
+}
+
 /// Apply tuple as args to FnOnce
 pub trait ApplyTupleOnce<Tuple> {
     type Output;
