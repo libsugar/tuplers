@@ -30,6 +30,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_cloned(&ctx, &out_dir);
     gen_call(&ctx, &out_dir);
     gen_apply_tuple(&ctx, &out_dir);
+    gen_capt(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -1275,6 +1276,15 @@ fn gen_apply_tuple_size(ctx: &Ctx, size: usize) -> TokenStream {
             type DynFnOnce = dyn FnOnce(#(#nts),*) -> R;
             type DynFnMut = dyn FnMut(#(#nts),*) -> R;
             type DynFn = dyn Fn(#(#nts),*) -> R;
+            type FnPtr = fn(#(#nts),*) -> R;
+        }
+
+        impl<F: FnOnce(#(#nts),*) -> R, R, #(#nts),*> ApplyTupleMeta<(#(#nts,)*)> for F {
+            type Output = R;
+            type DynFnOnce = dyn FnOnce(#(#nts),*) -> R;
+            type DynFnMut = dyn FnMut(#(#nts),*) -> R;
+            type DynFn = dyn Fn(#(#nts),*) -> R;
+            type FnPtr = fn(#(#nts),*) -> R;
         }
 
         impl<F: FnOnce(#(#nts),*) -> R, R, #(#nts),*> ApplyTupleOnce<(#(#nts,)*)> for F {
@@ -1296,6 +1306,41 @@ fn gen_apply_tuple_size(ctx: &Ctx, size: usize) -> TokenStream {
                 self(#(#nvs),*)
             }
         }
+    };
+    tks
+}
+
+fn gen_capt(ctx: &Ctx, out_dir: &Path) {
+    let items = (1..33usize).map(|i| gen_capt_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("capt.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_capt_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let nvs = &ctx.nvs[0..size];
+    let name = format_ident!("capt_{}", size);
+    let name_mut = format_ident!("capt_mut_{}", size);
+    let name_once = format_ident!("capt_once_{}", size);
+    let tks = quote! {
+        #[doc = "Manually capture the variables required by the closure"]
+        pub fn #name<C, #(#nts),*, R, F: Fn(&C, #(#nts),*) -> R>(c: C, f: F) -> impl Fn(#(#nts),*) -> R {
+            move |#(#nvs,)*| f(&c, #(#nvs,)*)
+        }
+
+        #[doc = "Manually capture the variables required by the closure"]
+        pub fn #name_mut<C, #(#nts),*, R, F: FnMut(&mut C, #(#nts),*) -> R>(mut c: C, mut f: F) -> impl FnMut(#(#nts),*) -> R {
+            move |#(#nvs,)*| f(&mut c, #(#nvs,)*)
+        }
+
+        #[doc = "Manually capture the variables required by the closure"]
+        pub fn #name_once<C, #(#nts),*, R, F: FnOnce(C, #(#nts),*) -> R>(c: C, f: F) -> impl FnOnce(#(#nts),*) -> R {
+            move |#(#nvs,)*| f(c, #(#nvs,)*)
+        }
+
     };
     tks
 }

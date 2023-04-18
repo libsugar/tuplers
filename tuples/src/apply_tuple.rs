@@ -6,6 +6,16 @@ pub trait TupleFnMeta<R> {
     type DynFnOnce: ?Sized;
     type DynFnMut: ?Sized;
     type DynFn: ?Sized;
+    type FnPtr;
+}
+
+/// Apply tuple meta
+pub trait ApplyTupleMeta<Tuple> {
+    type Output;
+    type DynFnOnce: ?Sized;
+    type DynFnMut: ?Sized;
+    type DynFn: ?Sized;
+    type FnPtr;
 }
 
 /// Apply tuple as args to FnOnce

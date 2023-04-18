@@ -185,3 +185,8 @@ pub use tuple_call::*;
 pub mod apply_tuple;
 #[cfg(all(feature = "apply_tuple", feature = "re-exports"))]
 pub use apply_tuple::*;
+
+#[cfg(feature = "capt")]
+pub mod capt;
+#[cfg(all(feature = "capt", feature = "re-exports"))]
+pub use capt::*;
