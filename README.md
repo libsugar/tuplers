@@ -32,6 +32,7 @@ Provides many useful tools related to tuples
 - Shorthand Macro
 - Call
 - Apply
+- Sort
 
 ## Examples
 
@@ -245,3 +246,13 @@ Provides many useful tools related to tuples
     let r = foo.apply_tuple(a);
     assert_eq!(r, 6)
     ```
+- sort  
+    currently implemented
+
+    - selection sort
+
+        ```rust
+        let mut a = (6, 2, 6, 8, 0, 5);
+        a.sort_selection();
+        assert_eq!(a, (0, 2, 5, 6, 6, 8))
+        ```

@@ -8,7 +8,7 @@ license = "MIT"
 name = "tuples"
 readme = "../README.md"
 repository = "https://github.com/libsugar/tuplers"
-version = "1.13.0"
+version = "1.14.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -35,10 +35,12 @@ default = [
   "re-exports",
   "capt",
   "tuple_get",
+  "sort",
 ]
 flatten = []
 re-exports = []
 shorthand = []
+sort = ["tuple_meta", "tuple_get"]
 split = ["split_parts", "split_by", "split_to_tuple_by", "split_at", "split_to_tuple_at"]
 split_at = []
 split_by = []

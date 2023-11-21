@@ -195,3 +195,8 @@ pub use capt::*;
 pub mod tuple_get;
 #[cfg(all(feature = "tuple_get", feature = "re-exports"))]
 pub use tuple_get::*;
+
+#[cfg(all(feature = "sort", feature = "tuple_meta", feature = "tuple_get"))]
+pub mod sort;
+#[cfg(all(feature = "sort", feature = "tuple_meta", feature = "tuple_get", feature = "re-exports"))]
+pub use sort::*;
