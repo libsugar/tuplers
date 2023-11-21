@@ -5,7 +5,7 @@ impl<T> TupleGet for (T,) {
     fn get(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 1usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 1usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -19,7 +19,7 @@ impl<T> TupleGetMut for (T,) {
     fn get_mut(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 1usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 1usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -35,7 +35,7 @@ impl<T> TupleGet for (T, T) {
         match index {
             0 => &self.0,
             1 => &self.1,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 2usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 2usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -51,7 +51,7 @@ impl<T> TupleGetMut for (T, T) {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 2usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 2usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -69,7 +69,7 @@ impl<T> TupleGet for (T, T, T) {
             0 => &self.0,
             1 => &self.1,
             2 => &self.2,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 3usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 3usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -87,7 +87,7 @@ impl<T> TupleGetMut for (T, T, T) {
             0 => &mut self.0,
             1 => &mut self.1,
             2 => &mut self.2,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 3usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 3usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -107,7 +107,7 @@ impl<T> TupleGet for (T, T, T, T) {
             1 => &self.1,
             2 => &self.2,
             3 => &self.3,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 4usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 4usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -127,7 +127,7 @@ impl<T> TupleGetMut for (T, T, T, T) {
             1 => &mut self.1,
             2 => &mut self.2,
             3 => &mut self.3,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 4usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 4usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -149,7 +149,7 @@ impl<T> TupleGet for (T, T, T, T, T) {
             2 => &self.2,
             3 => &self.3,
             4 => &self.4,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 5usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 5usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -171,7 +171,7 @@ impl<T> TupleGetMut for (T, T, T, T, T) {
             2 => &mut self.2,
             3 => &mut self.3,
             4 => &mut self.4,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 5usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 5usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -195,7 +195,7 @@ impl<T> TupleGet for (T, T, T, T, T, T) {
             3 => &self.3,
             4 => &self.4,
             5 => &self.5,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 6usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 6usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -219,7 +219,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T) {
             3 => &mut self.3,
             4 => &mut self.4,
             5 => &mut self.5,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 6usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 6usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -245,7 +245,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T) {
             4 => &self.4,
             5 => &self.5,
             6 => &self.6,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 7usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 7usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -271,7 +271,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T) {
             4 => &mut self.4,
             5 => &mut self.5,
             6 => &mut self.6,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 7usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 7usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -299,7 +299,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T) {
             5 => &self.5,
             6 => &self.6,
             7 => &self.7,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 8usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 8usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -327,7 +327,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T) {
             5 => &mut self.5,
             6 => &mut self.6,
             7 => &mut self.7,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 8usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 8usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -357,7 +357,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T) {
             6 => &self.6,
             7 => &self.7,
             8 => &self.8,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 9usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 9usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -387,7 +387,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T) {
             6 => &mut self.6,
             7 => &mut self.7,
             8 => &mut self.8,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 9usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 9usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -419,7 +419,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T) {
             7 => &self.7,
             8 => &self.8,
             9 => &self.9,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 10usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 10usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -451,7 +451,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T) {
             7 => &mut self.7,
             8 => &mut self.8,
             9 => &mut self.9,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 10usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 10usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -485,7 +485,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T) {
             8 => &self.8,
             9 => &self.9,
             10 => &self.10,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 11usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 11usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -519,7 +519,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T) {
             8 => &mut self.8,
             9 => &mut self.9,
             10 => &mut self.10,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 11usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 11usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -555,7 +555,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T) {
             9 => &self.9,
             10 => &self.10,
             11 => &self.11,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 12usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 12usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -591,7 +591,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T) {
             9 => &mut self.9,
             10 => &mut self.10,
             11 => &mut self.11,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 12usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 12usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -629,7 +629,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
             10 => &self.10,
             11 => &self.11,
             12 => &self.12,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 13usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 13usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -667,7 +667,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
             10 => &mut self.10,
             11 => &mut self.11,
             12 => &mut self.12,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 13usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 13usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -707,7 +707,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             11 => &self.11,
             12 => &self.12,
             13 => &self.13,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 14usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 14usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -747,7 +747,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             11 => &mut self.11,
             12 => &mut self.12,
             13 => &mut self.13,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 14usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 14usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -789,7 +789,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             12 => &self.12,
             13 => &self.13,
             14 => &self.14,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 15usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 15usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -831,7 +831,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             12 => &mut self.12,
             13 => &mut self.13,
             14 => &mut self.14,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 15usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 15usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -875,7 +875,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             13 => &self.13,
             14 => &self.14,
             15 => &self.15,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 16usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 16usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -919,7 +919,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             13 => &mut self.13,
             14 => &mut self.14,
             15 => &mut self.15,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 16usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 16usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -965,7 +965,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             14 => &self.14,
             15 => &self.15,
             16 => &self.16,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 17usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 17usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -1011,7 +1011,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             14 => &mut self.14,
             15 => &mut self.15,
             16 => &mut self.16,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 17usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 17usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -1059,7 +1059,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             15 => &self.15,
             16 => &self.16,
             17 => &self.17,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 18usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 18usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -1107,7 +1107,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             15 => &mut self.15,
             16 => &mut self.16,
             17 => &mut self.17,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 18usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 18usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -1157,7 +1157,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             16 => &self.16,
             17 => &self.17,
             18 => &self.18,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 19usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 19usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -1207,7 +1207,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             16 => &mut self.16,
             17 => &mut self.17,
             18 => &mut self.18,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 19usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 19usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -1259,7 +1259,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             17 => &self.17,
             18 => &self.18,
             19 => &self.19,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 20usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 20usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -1311,7 +1311,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             17 => &mut self.17,
             18 => &mut self.18,
             19 => &mut self.19,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 20usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 20usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -1365,7 +1365,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             18 => &self.18,
             19 => &self.19,
             20 => &self.20,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 21usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 21usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -1419,7 +1419,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             18 => &mut self.18,
             19 => &mut self.19,
             20 => &mut self.20,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 21usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 21usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -1475,7 +1475,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             19 => &self.19,
             20 => &self.20,
             21 => &self.21,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 22usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 22usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -1531,7 +1531,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             19 => &mut self.19,
             20 => &mut self.20,
             21 => &mut self.21,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 22usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 22usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -1589,7 +1589,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             20 => &self.20,
             21 => &self.21,
             22 => &self.22,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 23usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 23usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -1647,7 +1647,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             20 => &mut self.20,
             21 => &mut self.21,
             22 => &mut self.22,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 23usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 23usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -1707,7 +1707,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             21 => &self.21,
             22 => &self.22,
             23 => &self.23,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 24usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 24usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -1767,7 +1767,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             21 => &mut self.21,
             22 => &mut self.22,
             23 => &mut self.23,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 24usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 24usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -1829,7 +1829,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             22 => &self.22,
             23 => &self.23,
             24 => &self.24,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 25usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 25usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -1891,7 +1891,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             22 => &mut self.22,
             23 => &mut self.23,
             24 => &mut self.24,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 25usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 25usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -1955,7 +1955,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             23 => &self.23,
             24 => &self.24,
             25 => &self.25,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 26usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 26usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -2019,7 +2019,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             23 => &mut self.23,
             24 => &mut self.24,
             25 => &mut self.25,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 26usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 26usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -2085,7 +2085,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             24 => &self.24,
             25 => &self.25,
             26 => &self.26,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 27usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 27usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -2151,7 +2151,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             24 => &mut self.24,
             25 => &mut self.25,
             26 => &mut self.26,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 27usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 27usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -2219,7 +2219,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             25 => &self.25,
             26 => &self.26,
             27 => &self.27,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 28usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 28usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -2287,7 +2287,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             25 => &mut self.25,
             26 => &mut self.26,
             27 => &mut self.27,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 28usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 28usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -2357,7 +2357,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             26 => &self.26,
             27 => &self.27,
             28 => &self.28,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 29usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 29usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -2427,7 +2427,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             26 => &mut self.26,
             27 => &mut self.27,
             28 => &mut self.28,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 29usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 29usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -2499,7 +2499,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             27 => &self.27,
             28 => &self.28,
             29 => &self.29,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 30usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 30usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -2571,7 +2571,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             27 => &mut self.27,
             28 => &mut self.28,
             29 => &mut self.29,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 30usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 30usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -2645,7 +2645,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             28 => &self.28,
             29 => &self.29,
             30 => &self.30,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 31usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 31usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -2719,7 +2719,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             28 => &mut self.28,
             29 => &mut self.29,
             30 => &mut self.30,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 31usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 31usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
@@ -2795,7 +2795,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             29 => &self.29,
             30 => &self.30,
             31 => &self.31,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 32usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 32usize, index),
         }
     }
     fn try_get(&self, index: usize) -> Option<&Self::Output> {
@@ -2871,7 +2871,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             29 => &mut self.29,
             30 => &mut self.30,
             31 => &mut self.31,
-            _ => panic!("index out of bounds: the len is {} bug the index is {}", 32usize, index),
+            _ => panic!("index out of bounds: the len is {} but the index is {}", 32usize, index),
         }
     }
     fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {

@@ -1370,7 +1370,7 @@ fn gen_tuple_get_size(ctx: &Ctx, size: usize) -> TokenStream {
             fn get(&self, index: usize) -> &Self::Output {
                 match index {
                     #(#take)*
-                    _ => panic!("index out of bounds: the len is {} bug the index is {}", #size, index),
+                    _ => panic!("index out of bounds: the len is {} but the index is {}", #size, index),
                 }
             }
 
@@ -1388,7 +1388,7 @@ fn gen_tuple_get_size(ctx: &Ctx, size: usize) -> TokenStream {
             fn get_mut(&mut self, index: usize) -> &mut Self::Output {
                 match index {
                     #(#take_mut)*
-                    _ => panic!("index out of bounds: the len is {} bug the index is {}", #size, index),
+                    _ => panic!("index out of bounds: the len is {} but the index is {}", #size, index),
                 }
             }
 
