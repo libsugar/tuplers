@@ -190,3 +190,8 @@ pub use apply_tuple::*;
 pub mod capt;
 #[cfg(all(feature = "capt", feature = "re-exports"))]
 pub use capt::*;
+
+#[cfg(feature = "tuple_get")]
+pub mod tuple_get;
+#[cfg(all(feature = "tuple_get", feature = "re-exports"))]
+pub use tuple_get::*;

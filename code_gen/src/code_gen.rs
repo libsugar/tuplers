@@ -31,6 +31,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_call(&ctx, &out_dir);
     gen_apply_tuple(&ctx, &out_dir);
     gen_capt(&ctx, &out_dir);
+    gen_tuple_get(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -1341,6 +1342,64 @@ fn gen_capt_size(ctx: &Ctx, size: usize) -> TokenStream {
             move |#(#nvs,)*| f(c, #(#nvs,)*)
         }
 
+    };
+    tks
+}
+
+fn gen_tuple_get(ctx: &Ctx, out_dir: &Path) {
+    let items = (1..33usize).map(|i| gen_tuple_get_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("tuple_get.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_tuple_get_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let ts = &ctx.ts[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+    let take: Vec<_> = size_lits.iter().map(|i| quote! { #i => &self.#i, }).collect();
+    let take_some: Vec<_> = size_lits.iter().map(|i| quote! { #i => Some(&self.#i), }).collect();
+    let take_mut: Vec<_> = size_lits.iter().map(|i| quote! { #i => &mut self.#i, }).collect();
+    let take_mut_some: Vec<_> = size_lits.iter().map(|i| quote! { #i => Some(&mut self.#i), }).collect();
+
+    let tks = quote! {
+        impl<T> TupleGet for (#(#ts,)*) {
+            type Output = T;
+
+            fn get(&self, index: usize) -> &Self::Output {
+                match index {
+                    #(#take)*
+                    _ => panic!("index out of bounds: the len is {} bug the index is {}", #size, index),
+                }
+            }
+
+
+            fn try_get(&self, index: usize) -> Option<&Self::Output> {
+                match index {
+                    #(#take_some)*
+                    _ => None,
+                }
+            }
+        }
+
+        impl<T> TupleGetMut for (#(#ts,)*) {
+
+            fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+                match index {
+                    #(#take_mut)*
+                    _ => panic!("index out of bounds: the len is {} bug the index is {}", #size, index),
+                }
+            }
+
+
+            fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+                match index {
+                    #(#take_mut_some)*
+                    _ => None,
+                }
+            }
+        }
     };
     tks
 }

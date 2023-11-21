@@ -7,12 +7,14 @@
 
 Provides many useful tools related to tuples
 
+- Support no-std and wasm
 - AsRef
 - AsMut
 - AsOption
 - AsResult
 - AsDeref
 - AsDerefMut
+- TupleGet
 - Transpose Option
 - Transpose Result
 - Cloned
@@ -77,6 +79,14 @@ Provides many useful tools related to tuples
 
     let b = ();
     assert_eq!(b.arity(), 0);
+    ```
+- get
+    ```rust
+    let a = (1, 2, 3, 4, 5);
+    assert_eq!(*a.get(2), 3);
+
+    let mut a = (1, 2, 3, 4, 5);
+    *a.get_mut(3) = 6;
     ```
 - iter
     ```rust
