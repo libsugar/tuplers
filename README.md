@@ -7,7 +7,8 @@
 
 Provides many useful tools related to tuples
 
-- Support no-std and wasm
+- Support no-std
+- Support wasm
 - AsRef
 - AsMut
 - AsOption
