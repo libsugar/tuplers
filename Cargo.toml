@@ -1,5 +1,6 @@
 [workspace]
 members = [
-    "tuples",
-    "code_gen",
+  "tuples",
+  "code_gen",
 ]
+resolver = "2"
