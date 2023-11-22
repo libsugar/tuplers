@@ -200,3 +200,8 @@ pub use tuple_get::*;
 pub mod sort;
 #[cfg(all(feature = "sort", feature = "tuple_meta", feature = "tuple_get", feature = "re-exports"))]
 pub use sort::*;
+
+#[cfg(any(feature = "tuple_swap_n", test, doc))]
+pub mod tuple_swap_n;
+#[cfg(any(all(feature = "tuple_swap_n", feature = "re-exports"), test, doc))]
+pub use tuple_swap_n::*;

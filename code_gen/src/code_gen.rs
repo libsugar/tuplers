@@ -32,6 +32,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_apply_tuple(&ctx, &out_dir);
     gen_capt(&ctx, &out_dir);
     gen_tuple_get(&ctx, &out_dir);
+    gen_tuple_swap(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -1400,6 +1401,84 @@ fn gen_tuple_get_size(ctx: &Ctx, size: usize) -> TokenStream {
                 }
             }
         }
+
+        impl<T> TupleSwap for (#(#ts,)*) {
+            fn swap(&mut self, a: usize, b: usize) {
+                if a >= #size || b >= #size {
+                    panic!("index out of bounds: the len is {} but the index is {} and {}", #size, a, b);
+                }
+                if a == b {
+                    return;
+                }
+                unsafe {
+                    let this = self as *mut Self;
+                    let a =  (&mut *this).get_mut(a);
+                    let b =  (&mut *this).get_mut(b);
+                    core::mem::swap(a, b);
+                }
+            }
+
+            fn try_swap(&mut self, a: usize, b: usize) -> bool {
+                if a >= #size || b >= #size {
+                    return false;
+                }
+                if a == b {
+                    return true;
+                }
+                unsafe {
+                    let this = self as *mut Self;
+                    let a =  (&mut *this).get_mut(a);
+                    let b =  (&mut *this).get_mut(b);
+                    core::mem::swap(a, b);
+                }
+                true
+            }
+        }
+    };
+    tks
+}
+
+fn gen_tuple_swap(ctx: &Ctx, out_dir: &Path) {
+    let tks = gen_tuple_swap_cart(ctx);
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("tuple_swap_n.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_tuple_swap_cart(ctx: &Ctx) -> TokenStream {
+    let nts = &ctx.nts[0..32usize];
+    let size_lits = &ctx.size_lits[0..32usize];
+    let swap = (0..32usize).flat_map(|a| (a..32usize).map(move |b| (a, b))).filter(|(a, b)| *a != *b).map(|(a, b)| {
+        let trait_name = format_ident!("TupleSwap_{}_{}", a, b);
+        let fn_name = format_ident!("swap_{}_{}", a, b);
+        let fixed_type = format_ident!("T");
+        let min = a.max(b) + 1;
+        let impls = (min..33usize).map(|n| {
+            let in_nts: Vec<_> = (&nts[..n]).iter().enumerate().filter(|(i, _)| *i != a && *i != b).map(|(_, t)| t).collect();
+            let im_nts: Vec<_> = (&nts[..n]).iter().enumerate().map(|(i, t)| if i == a || i == b { &fixed_type } else { t }).collect();
+            let ai = &size_lits[a];
+            let bi = &size_lits[b];
+            quote! {
+                impl<T, #(#in_nts),*> #trait_name for (#(#im_nts),*) {
+                    fn #fn_name(&mut self) {
+                        core::mem::swap(&mut self.#ai, &mut self.#bi);
+                    }
+                }
+            }
+        });
+        quote! {
+            #[doc = "Swaps two elements in the tuple"]
+            pub trait #trait_name {
+                #[doc = "Swaps two elements in the tuple"]
+                fn #fn_name(&mut self);
+            }
+            #(#impls)*
+        }
+    });
+
+    let tks = quote! {
+        #(#swap)*
     };
     tks
 }

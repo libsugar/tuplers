@@ -32,6 +32,7 @@ Provides many useful tools related to tuples
 - Shorthand Macro
 - Call
 - Apply
+- Swap
 - Sort
 
 ## Examples
@@ -245,6 +246,25 @@ Provides many useful tools related to tuples
     }
     let r = foo.apply_tuple(a);
     assert_eq!(r, 6)
+    ```
+- swap
+    ```rust
+    let mut a = (1, 2, 3, 4, 5);
+    a.swap(1, 3);
+    assert_eq!(a, (1, 4, 3, 2, 5));
+    ```
+- swap_n
+
+    **Not enabled by default**
+
+    ```toml
+    features = ["tuple_swap_n"]
+    ```
+
+    ```rust
+    let mut a = (1, 2, 3, 4, 5);
+    a.swap_1_3();
+    assert_eq!(a, (1, 4, 3, 2, 5));
     ```
 - sort  
     currently implemented

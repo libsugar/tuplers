@@ -1,6 +1,6 @@
 //! Sort tuples
 
-use crate::{TupleGetMut, TupleSame};
+use crate::{TupleSame, TupleSwap};
 
 /// Sort tuples using selection sort
 pub trait TupleSortSelection<T> {
@@ -10,7 +10,7 @@ pub trait TupleSortSelection<T> {
     fn sort_selection(&mut self);
 }
 
-impl<T: PartialOrd, S: TupleSame<T> + TupleGetMut<Output = T>> TupleSortSelection<T> for S {
+impl<T: PartialOrd, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortSelection<T> for S {
     #[inline]
     fn sort_selection(&mut self) {
         if sort_base(self, T::lt) {
@@ -20,7 +20,7 @@ impl<T: PartialOrd, S: TupleSame<T> + TupleGetMut<Output = T>> TupleSortSelectio
     }
 }
 
-fn sort_base<T, S: TupleSame<T> + TupleGetMut<Output = T>>(v: &mut S, mut is_less: impl FnMut(&T, &T) -> bool) -> bool {
+fn sort_base<T, S: TupleSame<T> + TupleSwap<Output = T>>(v: &mut S, mut is_less: impl FnMut(&T, &T) -> bool) -> bool {
     if core::mem::size_of::<T>() == 0 {
         return true;
     }
@@ -30,14 +30,13 @@ fn sort_base<T, S: TupleSame<T> + TupleGetMut<Output = T>>(v: &mut S, mut is_les
         return true;
     }
     if len == 2 {
-        let this = v as *mut S;
-        let a = unsafe { (&mut *this).get_mut(0) };
-        let b = unsafe { (&mut *this).get_mut(1) };
+        let a = v.get(0);
+        let b = v.get(1);
 
         if is_less(a, b) {
             return true;
         } else if is_less(b, a) {
-            core::mem::swap(a, b);
+            v.swap(0, 1);
             return true;
         } else {
             return true;
@@ -47,7 +46,7 @@ fn sort_base<T, S: TupleSame<T> + TupleGetMut<Output = T>>(v: &mut S, mut is_les
     false
 }
 
-fn selection_sort<T, S: TupleSame<T> + TupleGetMut<Output = T>>(v: &mut S, mut is_less: impl FnMut(&T, &T) -> bool) {
+fn selection_sort<T, S: TupleSame<T> + TupleSwap<Output = T>>(v: &mut S, mut is_less: impl FnMut(&T, &T) -> bool) {
     let len = v.arity();
     for i in 0..(len - 1) {
         let mut min_index = i;
@@ -59,10 +58,7 @@ fn selection_sort<T, S: TupleSame<T> + TupleGetMut<Output = T>>(v: &mut S, mut i
         }
 
         if min_index != i {
-            let this = v as *mut S;
-            let a = unsafe { (&mut *this).get_mut(i) };
-            let b = unsafe { (&mut *this).get_mut(min_index) };
-            core::mem::swap(a, b);
+            v.swap(i, min_index);
         }
     }
 }

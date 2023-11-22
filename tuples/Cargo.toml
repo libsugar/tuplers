@@ -8,13 +8,14 @@ license = "MIT"
 name = "tuples"
 readme = "../README.md"
 repository = "https://github.com/libsugar/tuplers"
-version = "1.14.0"
+version = "1.15.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 
 [features]
+all = ["default", "tuple_swap_n"]
 apply_tuple = []
 capt = []
 cloned = []
@@ -54,3 +55,7 @@ tuple_get = []
 tuple_iter = []
 tuple_map = []
 tuple_meta = []
+tuple_swap_n = []
+
+[package.metadata.docs.rs]
+all-features = true
