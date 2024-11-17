@@ -2,12 +2,103 @@
 
 use crate::{TupleSame, TupleSwap};
 
+/// Sort tuples, currently use sort_selection
+pub trait TupleSorted<T> {
+    /// Sort tuples, currently use sort_selection
+    fn sorted(self) -> Self;
+}
+
+/// Sort tuples, currently use sort_selection
+pub trait TupleSortedBy<T> {
+    /// Sort tuples, currently use sort_selection
+    fn sorted_by(self, cmp: impl FnMut(&T, &T) -> core::cmp::Ordering) -> Self;
+}
+
+/// Sort tuples, currently use sort_selection
+pub trait TupleSortedByKey<T> {
+    /// Sort tuples, currently use sort_selection
+    fn sorted_by_key<K: PartialOrd>(self, selector: impl FnMut(&T) -> K) -> Self;
+}
+
+impl<T, S: TupleSort<T>> TupleSorted<T> for S {
+    fn sorted(mut self) -> Self {
+        self.sort();
+        self
+    }
+}
+
+impl<T, S: TupleSortBy<T>> TupleSortedBy<T> for S {
+    fn sorted_by(mut self, cmp: impl FnMut(&T, &T) -> core::cmp::Ordering) -> Self {
+        self.sort_by(cmp);
+        self
+    }
+}
+
+impl<T, S: TupleSortByKey<T>> TupleSortedByKey<T> for S {
+    fn sorted_by_key<K: PartialOrd>(mut self, selector: impl FnMut(&T) -> K) -> Self {
+        self.sort_by_key(selector);
+        self
+    }
+}
+
+/// Sort tuples, currently an alias for sort_selection
+pub trait TupleSort<T> {
+    /// Sort tuples, currently an alias for sort_selection
+    fn sort(&mut self);
+}
+
+/// Sort tuples, currently an alias for sort_selection
+pub trait TupleSortBy<T> {
+    /// Sort tuples, currently an alias for sort_selection
+    fn sort_by(&mut self, cmp: impl FnMut(&T, &T) -> core::cmp::Ordering);
+}
+
+/// Sort tuples, currently an alias for sort_selection
+pub trait TupleSortByKey<T> {
+    /// Sort tuples, currently an alias for sort_selection
+    fn sort_by_key<K: PartialOrd>(&mut self, selector: impl FnMut(&T) -> K);
+}
+
+impl<T, S: TupleSortSelection<T>> TupleSort<T> for S {
+    fn sort(&mut self) {
+        self.sort_selection();
+    }
+}
+
+impl<T, S: TupleSortBySelection<T>> TupleSortBy<T> for S {
+    fn sort_by(&mut self, cmp: impl FnMut(&T, &T) -> core::cmp::Ordering) {
+        self.sort_by_selection(cmp);
+    }
+}
+
+impl<T, S: TupleSortByKeySelection<T>> TupleSortByKey<T> for S {
+    fn sort_by_key<K: PartialOrd>(&mut self, selector: impl FnMut(&T) -> K) {
+        self.sort_by_key_selection(selector);
+    }
+}
+
 /// Sort tuples using selection sort
 pub trait TupleSortSelection<T> {
     /// Sort tuples using selection sort
     ///
     /// It has an `O(n2)` time complexity
     fn sort_selection(&mut self);
+}
+
+/// Sort tuples using selection sort
+pub trait TupleSortBySelection<T> {
+    /// Sort tuples using selection sort
+    ///
+    /// It has an `O(n2)` time complexity
+    fn sort_by_selection(&mut self, cmp: impl FnMut(&T, &T) -> core::cmp::Ordering);
+}
+
+/// Sort tuples using selection sort
+pub trait TupleSortByKeySelection<T> {
+    /// Sort tuples using selection sort
+    ///
+    /// It has an `O(n2)` time complexity
+    fn sort_by_key_selection<K: PartialOrd>(&mut self, selector: impl FnMut(&T) -> K);
 }
 
 impl<T: PartialOrd, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortSelection<T> for S {
@@ -17,6 +108,26 @@ impl<T: PartialOrd, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortSelection<
             return;
         }
         selection_sort(self, T::lt)
+    }
+}
+
+impl<T, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortBySelection<T> for S {
+    #[inline]
+    fn sort_by_selection(&mut self, mut cmp: impl FnMut(&T, &T) -> core::cmp::Ordering) {
+        if sort_base(self, |a, b| matches!(cmp(a, b), core::cmp::Ordering::Less)) {
+            return;
+        }
+        selection_sort(self, |a, b| matches!(cmp(a, b), core::cmp::Ordering::Less))
+    }
+}
+
+impl<T, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortByKeySelection<T> for S {
+    #[inline]
+    fn sort_by_key_selection<K: PartialOrd>(&mut self, mut selector: impl FnMut(&T) -> K) {
+        if sort_base(self, |a, b| selector(a) < selector(b)) {
+            return;
+        }
+        selection_sort(self, |a, b| selector(a) < selector(b))
     }
 }
 

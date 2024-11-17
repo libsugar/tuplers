@@ -107,6 +107,7 @@ mod shorthand {
         { $($t:tt)* } => { tuple_! { $($t)* } }
     }
 }
+#[allow(unused_imports)]
 #[cfg(feature = "shorthand")]
 pub use shorthand::*;
 
