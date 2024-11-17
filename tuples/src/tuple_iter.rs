@@ -17,19 +17,19 @@ pub trait TupleIntoIter {
 }
 
 pub trait TupleFromIter<T> {
-    /// Like `Iter<T> -> (T, T, T)` with panic on failure
+    /// Such as `Iter<T> -> (T, T, T)`, panic on failure
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self;
 }
 
 pub trait TupleTryFromIter<T>: Sized {
-    /// Like `Iter<T> -> Option<(T, T, T)>`
+    /// Such as `Iter<T> -> Option<(T, T, T)>`
     fn try_from_iter<I: IntoIterator<Item = T>>(iter: I) -> Option<Self>;
 }
 
 pub trait TupleFromIterTry<T> {
     type OutTuple;
 
-    /// Like `Iter<T> -> (Option<T>, Option<T>, Option<T>)`
+    /// Such as `Iter<T> -> (Option<T>, Option<T>, Option<T>)`
     fn from_iter_try<I: IntoIterator<Item = T>>(iter: I) -> Self::OutTuple;
 }
 
@@ -114,11 +114,11 @@ impl<T> TupleFromIterTry<T> for (T,) {
 include!("./gen/tuple_iter.rs");
 
 pub trait TupleCollect<T> {
-    /// Like `Iter<T> -> (T, T, T)` with panic on failure
+    /// Such as `Iter<T> -> (T, T, T)`, panic on failure
     fn collect_tuple<B: TupleFromIter<T>>(self) -> B;
-    /// Like `Iter<T> -> Option<(T, T, T)>`
+    /// Such as `Iter<T> -> Option<(T, T, T)>`
     fn try_collect_tuple<B: TupleTryFromIter<T>>(self) -> Option<B>;
-    /// Like `Iter<T> -> (Option<T>, Option<T>, Option<T>)`
+    /// Such as `Iter<T> -> (Option<T>, Option<T>, Option<T>)`
     fn collect_tuple_try<B: TupleFromIterTry<T>>(self) -> B::OutTuple;
 }
 
