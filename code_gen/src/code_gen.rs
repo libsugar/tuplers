@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};
 use std::{fs, path::Path};
@@ -33,6 +34,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_capt(&ctx, &out_dir);
     gen_tuple_get(&ctx, &out_dir);
     gen_tuple_swap(&ctx, &out_dir);
+    gen_permutations(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -1479,6 +1481,92 @@ fn gen_tuple_swap_cart(ctx: &Ctx) -> TokenStream {
 
     let tks = quote! {
         #(#swap)*
+    };
+    tks
+}
+
+fn gen_permutations(ctx: &Ctx, out_dir: &Path) {
+    let items = (2..4usize).into_iter().map(|i| gen_permutations_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    let dest_path = Path::new(out_dir).join("permutations.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_permutations_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let trait_name = format_ident!("TuplePermutations{}", size);
+    let fn_name = format_ident!("permutations_{}", size);
+
+    let impls = (size..33usize).into_iter().filter(|i| i.pow(size as u32) - i < 33).map(|i| gen_permutations_impl_n(ctx, size, i, &trait_name, &fn_name));
+
+    let doc = format!("Permutation by {size}");
+
+    let tks = quote! {
+        #[doc = #doc]
+        pub trait #trait_name {
+            type Output;
+
+            #[doc = #doc]
+            fn #fn_name(self) -> Self::Output;
+        }
+
+        #(#impls)*
+    };
+    tks
+}
+
+fn gen_permutations_impl_n(ctx: &Ctx, size: usize, n: usize, trait_name: &Ident, fn_name: &Ident) -> TokenStream {
+    let nts = &ctx.nts[0..n];
+    let size_lits = &ctx.size_lits[0..n];
+
+    let output_types = nts
+        .iter()
+        .permutations(size)
+        .map(|v| {
+            quote! {
+                (#(#v,)*)
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let mut set = std::collections::HashSet::<usize>::new();
+    let output_impls = size_lits
+        .iter()
+        .enumerate()
+        .permutations(size)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .map(|v| {
+            let v = v.into_iter().map(|(i, l)| {
+                if set.contains(&i) {
+                    quote! {
+                        self.#l.clone()
+                    }
+                } else {
+                    set.insert(i);
+                    quote! {
+                        self.#l
+                    }
+                }
+            });
+            quote! {
+                (#(#v,)*)
+            }
+        })
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev();
+
+    let tks = quote! {
+        impl<#(#nts:Clone),*> #trait_name for (#(#nts,)*) {
+            type Output = (#(#output_types,)*);
+
+            fn #fn_name(self) -> Self::Output {
+                (#(#output_impls,)*)
+            }
+        }
     };
     tks
 }

@@ -373,3 +373,11 @@ Provides many useful tools related to tuples
     let a = a.sorted();
     assert_eq!(a, (0, 2, 5, 6, 6, 8))
     ```
+
+- permutations
+
+  ```rust
+  let a = (1, '2', "3");
+  let r = a.permutations_2();
+  assert_eq!(r, ((1, '2'), (1, "3"), ('2', 1), ('2', "3"), ("3", 1), ("3", '2')));
+  ```

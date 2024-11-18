@@ -1,4 +1,5 @@
 #![no_std]
+#![allow(unused_imports)]
 
 #[cfg(feature = "tuple_meta")]
 mod meta {
@@ -107,7 +108,6 @@ mod shorthand {
         { $($t:tt)* } => { tuple_! { $($t)* } }
     }
 }
-#[allow(unused_imports)]
 #[cfg(feature = "shorthand")]
 pub use shorthand::*;
 
@@ -206,3 +206,8 @@ pub use sort::*;
 pub mod tuple_swap_n;
 #[cfg(any(all(feature = "tuple_swap_n", feature = "re-exports"), test, doc))]
 pub use tuple_swap_n::*;
+
+#[cfg(any(feature = "permutations", test, doc))]
+pub mod permutations;
+#[cfg(any(all(feature = "permutations", feature = "re-exports"), test, doc))]
+pub use permutations::*;
