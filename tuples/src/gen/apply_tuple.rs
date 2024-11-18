@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 #[cfg(feature = "tuple_meta")]
 impl<R> TupleFnMeta<R> for () {

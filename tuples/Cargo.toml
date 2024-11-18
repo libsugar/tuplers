@@ -8,7 +8,7 @@ license = "MIT"
 name = "tuples"
 readme = "../README.md"
 repository = "https://github.com/libsugar/tuplers"
-version = "1.15.0"
+version = "1.16.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -20,6 +20,7 @@ apply_tuple = []
 capt = []
 cloned = []
 combin = []
+combinations = []
 default = [
   "apply_tuple",
   "combin",
@@ -37,9 +38,11 @@ default = [
   "capt",
   "tuple_get",
   "sort",
-  "permutations"
+  "permutations",
+  "combinations",
 ]
 flatten = []
+permutations = []
 re-exports = []
 shorthand = []
 sort = ["tuple_meta", "tuple_get"]
@@ -57,7 +60,6 @@ tuple_iter = []
 tuple_map = []
 tuple_meta = []
 tuple_swap_n = []
-permutations = []
 
 [package.metadata.docs.rs]
 all-features = true

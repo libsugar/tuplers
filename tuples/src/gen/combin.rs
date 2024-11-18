@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 impl<T, T0, T1> CombinLeft<T> for (T0, T1) {
     type Out = (T, T0, T1);

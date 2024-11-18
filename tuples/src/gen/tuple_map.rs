@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 #[doc = "Mapping `.0` for Tuple2"]
 pub trait Tuple2Map0<T0, T1> {

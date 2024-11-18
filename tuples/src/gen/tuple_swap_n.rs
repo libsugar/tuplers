@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 #[doc = "Swaps two elements in the tuple"]
 pub trait TupleSwap_0_1 {

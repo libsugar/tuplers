@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 pub trait Tuple2Call<T0, T1> {
     fn call<F: FnOnce(T0, T1) -> O, O>(self, f: F) -> O;

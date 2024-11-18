@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 #[doc = "Split to tuple at 1"]
 pub trait TupleSplitToTupleAt1 {

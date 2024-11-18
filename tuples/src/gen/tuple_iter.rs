@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 #[derive(Debug, Clone)]
 pub struct Tuple2Iter<'a, T>([&'a T; 2], Range<usize>);

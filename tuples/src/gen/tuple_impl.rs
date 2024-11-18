@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 impl<T> TupleSame<T> for (T, T) {}
 impl<T0, T1> Tuple for (T0, T1) {

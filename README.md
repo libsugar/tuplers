@@ -381,3 +381,11 @@ Provides many useful tools related to tuples
   let r = a.permutations_2();
   assert_eq!(r, ((1, '2'), (1, "3"), ('2', 1), ('2', "3"), ("3", 1), ("3", '2')));
   ```
+
+- combinations
+
+  ```rust
+  let a = (1, '2', "3", 4.0);
+  let r = a.combinations_2();
+  assert_eq!(r, ((1, '2'), (1, "3"), (1, 4.0), ('2', "3"), ('2', 4.0), ("3", 4.0)));
+  ```

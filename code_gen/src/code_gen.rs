@@ -4,6 +4,8 @@ use quote::{format_ident, quote};
 use std::{fs, path::Path};
 use syn::LitInt;
 
+const AUTO_GEN_TIP: &'static str = "// auto generated code, do not modify\n\n";
+
 macro_rules! tif {
     { $c:expr => $t:expr ; $e:expr } => { if $c { $t } else { $e } };
 }
@@ -35,6 +37,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_tuple_get(&ctx, &out_dir);
     gen_tuple_swap(&ctx, &out_dir);
     gen_permutations(&ctx, &out_dir);
+    gen_combinations(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -68,7 +71,7 @@ fn gen_tuple_impl(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_impl_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("tuple_impl.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -95,7 +98,7 @@ fn gen_tuple_n_impl(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).into_iter().map(|i| gen_tuple_n_impl_size(ctx, i, &item_names[0..i]));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("tuple_n.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -120,7 +123,7 @@ fn gen_tuple_as(ctx: &Ctx, out_dir: &Path) {
     let items = (0..33usize).map(|i| gen_tuple_as_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("tuple_as.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -208,7 +211,7 @@ fn gen_tuple_alias_macro(ctx: &Ctx, out_dir: &Path) {
         }
     };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("tuple_alias.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -248,7 +251,7 @@ fn gen_tuple_iter(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_iter_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("tuple_iter.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -421,7 +424,7 @@ fn gen_tuple_map(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_tuple_map_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("tuple_map.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -576,7 +579,7 @@ fn gen_combin(ctx: &Ctx, out_dir: &Path) {
         #(#concats)*
     };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("combin.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -637,7 +640,7 @@ fn gen_split_parts(ctx: &Ctx, out_dir: &Path) {
         #(#items)*
     };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("split_parts.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -704,7 +707,7 @@ fn gen_split_by(ctx: &Ctx, out_dir: &Path) {
         #(#items)*
     };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("split_by.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -789,7 +792,7 @@ fn gen_split_to_tuple_by(ctx: &Ctx, out_dir: &Path) {
         #(#items)*
     };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("split_to_tuple_by.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -874,7 +877,7 @@ fn gen_split_at(ctx: &Ctx, out_dir: &Path) {
         #(#items)*
     };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("split_at.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -939,7 +942,7 @@ fn gen_split_to_tuple_at(ctx: &Ctx, out_dir: &Path) {
         #(#items)*
     };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("split_to_tuple_at.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1006,7 +1009,7 @@ fn gen_transpose(ctx: &Ctx, out_dir: &Path) {
 
     let tks = quote! { #(#items_1)* #(#items_2)* #(#items_3)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("transpose.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1142,7 +1145,7 @@ fn gen_flatten(ctx: &Ctx, out_dir: &Path) {
         #(#items)*
     };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("flatten.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1190,7 +1193,7 @@ fn gen_cloned(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_cloned_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("cloned.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1239,7 +1242,7 @@ fn gen_call(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_call_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("tuple_call.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1266,7 +1269,7 @@ fn gen_apply_tuple(ctx: &Ctx, out_dir: &Path) {
     let items = (0..33usize).map(|i| gen_apply_tuple_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("apply_tuple.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1318,7 +1321,7 @@ fn gen_capt(ctx: &Ctx, out_dir: &Path) {
     let items = (1..33usize).map(|i| gen_capt_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("capt.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1353,7 +1356,7 @@ fn gen_tuple_get(ctx: &Ctx, out_dir: &Path) {
     let items = (1..33usize).map(|i| gen_tuple_get_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("tuple_get.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1443,7 +1446,7 @@ fn gen_tuple_get_size(ctx: &Ctx, size: usize) -> TokenStream {
 fn gen_tuple_swap(ctx: &Ctx, out_dir: &Path) {
     let tks = gen_tuple_swap_cart(ctx);
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("tuple_swap_n.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1489,7 +1492,7 @@ fn gen_permutations(ctx: &Ctx, out_dir: &Path) {
     let items = (2..4usize).into_iter().map(|i| gen_permutations_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
-    code.insert_str(0, "// This file is by code gen, do not modify\n\n");
+    code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("permutations.rs");
     fs::write(&dest_path, code).unwrap();
 }
@@ -1569,4 +1572,113 @@ fn gen_permutations_impl_n(ctx: &Ctx, size: usize, n: usize, trait_name: &Ident,
         }
     };
     tks
+}
+
+fn gen_combinations(ctx: &Ctx, out_dir: &Path) {
+    let items = (2..7usize).into_iter().map(|i| gen_combinations_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, AUTO_GEN_TIP);
+    let dest_path = Path::new(out_dir).join("combinations.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_combinations_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let trait_name = format_ident!("TupleCombinations{}", size);
+    let fn_name = format_ident!("combinations_{}", size);
+
+    let impls = (size..13usize)
+        .into_iter()
+        .filter(|n| {
+            let count = count_combinations(*n, size);
+            count < 33 && count > 1
+        })
+        .map(|i| gen_combinations_impl_n(ctx, size, i, &trait_name, &fn_name));
+
+    let doc = format!("Combinations by {size}");
+
+    let tks = quote! {
+        #[doc = #doc]
+        pub trait #trait_name {
+            type Output;
+
+            #[doc = #doc]
+            fn #fn_name(self) -> Self::Output;
+        }
+
+        #(#impls)*
+    };
+    tks
+}
+
+fn gen_combinations_impl_n(ctx: &Ctx, size: usize, n: usize, trait_name: &Ident, fn_name: &Ident) -> TokenStream {
+    let nts = &ctx.nts[0..n];
+    let size_lits = &ctx.size_lits[0..n];
+
+    let output_types = nts
+        .iter()
+        .combinations(size)
+        .map(|v| {
+            quote! {
+                (#(#v,)*)
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let mut set = std::collections::HashSet::<usize>::new();
+    let output_impls = size_lits
+        .iter()
+        .enumerate()
+        .combinations(size)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .map(|v| {
+            let v = v.into_iter().map(|(i, l)| {
+                if set.contains(&i) {
+                    quote! {
+                        self.#l.clone()
+                    }
+                } else {
+                    set.insert(i);
+                    quote! {
+                        self.#l
+                    }
+                }
+            });
+            quote! {
+                (#(#v,)*)
+            }
+        })
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev();
+
+    let tks = quote! {
+        impl<#(#nts:Clone),*> #trait_name for (#(#nts,)*) {
+            type Output = (#(#output_types,)*);
+
+            fn #fn_name(self) -> Self::Output {
+                (#(#output_impls,)*)
+            }
+        }
+    };
+    tks
+}
+
+fn count_combinations(n: usize, k: usize) -> usize {
+    if k > n {
+        return 0;
+    }
+    if k == 0 || k == n {
+        return 1;
+    }
+    let mut dp = vec![0; k + 1];
+    dp[0] = 1;
+    for i in 1..=n {
+        for j in (1..=k.min(i)).rev() {
+            dp[j] += dp[j - 1];
+        }
+    }
+    dp[k]
 }

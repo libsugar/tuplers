@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 #[doc(hidden)]
 #[macro_export(local_inner_macros)]

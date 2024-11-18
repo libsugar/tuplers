@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 impl TupleFlatten for ((), ()) {
     type OutTuple = ();

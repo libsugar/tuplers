@@ -211,3 +211,8 @@ pub use tuple_swap_n::*;
 pub mod permutations;
 #[cfg(any(all(feature = "permutations", feature = "re-exports"), test, doc))]
 pub use permutations::*;
+
+#[cfg(any(feature = "combinations", test, doc))]
+pub mod combinations;
+#[cfg(any(all(feature = "combinations", feature = "re-exports"), test, doc))]
+pub use combinations::*;

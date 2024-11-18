@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 pub trait Tuple2: Tuple {
     type Item0;

@@ -1,4 +1,4 @@
-// This file is by code gen, do not modify
+// auto generated code, do not modify
 
 #[doc = "Manually capture the variables required by the closure"]
 pub fn capt_1<C, T0, R, F: Fn(&C, T0) -> R>(c: C, f: F) -> impl Fn(T0) -> R {
