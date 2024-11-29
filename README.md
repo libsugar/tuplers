@@ -9,6 +9,7 @@ Provides many useful tools related to tuples
 
 - Support no-std
 - Support wasm
+- Pre-generated, faster compilation
 - AsRef
 - AsMut
 - AsOption
@@ -34,6 +35,8 @@ Provides many useful tools related to tuples
 - Apply
 - Swap
 - Sort
+- Permutations
+- Combinations
 
 ## Examples
 
