@@ -1,3 +1,5 @@
+//! Permutations
+
 include!("./gen/permutations.rs");
 
 #[cfg(test)]

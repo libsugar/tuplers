@@ -216,3 +216,6 @@ pub use permutations::*;
 pub mod combinations;
 #[cfg(any(all(feature = "combinations", feature = "re-exports"), test, doc))]
 pub use combinations::*;
+
+#[cfg(any(feature = "afn", test, doc))]
+pub mod afn;

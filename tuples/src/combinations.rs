@@ -1,3 +1,5 @@
+//! Combinations
+
 include!("./gen/combinations.rs");
 
 #[cfg(test)]

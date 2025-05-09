@@ -38,6 +38,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_tuple_swap(&ctx, &out_dir);
     gen_permutations(&ctx, &out_dir);
     gen_combinations(&ctx, &out_dir);
+    gen_afn(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -1681,4 +1682,83 @@ fn count_combinations(n: usize, k: usize) -> usize {
         }
     }
     dp[k]
+}
+
+fn gen_afn(ctx: &Ctx, out_dir: &Path) {
+    let items = (0..33usize).map(|i| gen_afn_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, AUTO_GEN_TIP);
+    let dest_path = Path::new(out_dir).join("afn.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_afn_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let once_name = format_ident!("AFnOnce{}", size);
+    let mut_name = format_ident!("AFnMut{}", size);
+    let fn_name = format_ident!("AFn{}", size);
+
+    let fu_once_name = format_ident!("FuFnOnce{}", size);
+    let fu_mut_name = format_ident!("FuFnMut{}", size);
+    let fu_fn_name = format_ident!("FuFn{}", size);
+
+    let nts = &ctx.nts[0..size];
+
+    let tks = quote! {
+        pub trait #once_name<#(#nts),*> : FnOnce(#(#nts),*) -> Self::Ret {
+            type Ret;
+        }
+        pub trait #mut_name<#(#nts),*> : #once_name<#(#nts),*> + FnMut(#(#nts),*) -> Self::Ret { }
+        pub trait #fn_name<#(#nts),*> : #mut_name<#(#nts),*> + Fn(#(#nts),*) -> Self::Ret { }
+
+        impl<F, R, #(#nts),*> #once_name<#(#nts),*> for F
+        where
+            F: FnOnce(#(#nts),*) -> R,
+        { 
+            type Ret = R;
+        }
+
+        impl<F, R, #(#nts),*> #mut_name<#(#nts),*> for F
+        where
+            F: FnMut(#(#nts),*) -> R,
+        { 
+        }
+
+        impl<F, R, #(#nts),*> #fn_name<#(#nts),*> for F
+        where
+            F: Fn(#(#nts),*) -> R,
+        { 
+        }
+
+        pub trait #fu_once_name<#(#nts),*> : FnOnce(#(#nts),*) -> Self::Future {
+            type Future: Future<Output = Self::Ret>;
+            type Ret;
+        }
+        pub trait #fu_mut_name<#(#nts),*> : #fu_once_name<#(#nts),*> + FnMut(#(#nts),*) -> Self::Future { }
+        pub trait #fu_fn_name<#(#nts),*> : #fu_mut_name<#(#nts),*> + Fn(#(#nts),*) -> Self::Future { }
+
+        impl<F, Fu, R, #(#nts),*> #fu_once_name<#(#nts),*> for F
+        where
+            F: FnOnce(#(#nts),*) -> Fu,
+            Fu: Future<Output = R>,
+        { 
+            type Future = Fu;
+            type Ret = R;
+        }
+
+        impl<F, Fu, R, #(#nts),*> #fu_mut_name<#(#nts),*> for F
+        where
+            F: FnMut(#(#nts),*) -> Fu,
+            Fu: Future<Output = R>,
+        { 
+        }
+
+        impl<F, Fu, R, #(#nts),*> #fu_fn_name<#(#nts),*> for F
+        where
+            F: Fn(#(#nts),*) -> Fu,
+            Fu: Future<Output = R>,
+        { 
+        }
+    };
+    tks
 }
