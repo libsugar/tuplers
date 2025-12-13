@@ -219,3 +219,8 @@ pub use combinations::*;
 
 #[cfg(any(feature = "afn", test, doc))]
 pub mod afn;
+
+#[cfg(any(feature = "uniform_map", test, doc))]
+pub mod uniform_map;
+#[cfg(any(all(feature = "uniform_map", feature = "re-exports"), test, doc))]
+pub use uniform_map::*;
