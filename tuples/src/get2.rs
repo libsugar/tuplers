@@ -100,7 +100,14 @@ include!("./gen/tuple_get_v2.rs");
 
 #[cfg(test)]
 mod tests {
-    use crate::*;
+    use super::*;
+
+    #[test]
+    fn test0() {
+        let a = (1, 2, 3);
+        let r: &i32 = a.get::<1>();
+        assert_eq!(*r, 2);
+    }
 
     #[test]
     fn test1() {

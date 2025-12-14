@@ -305,5 +305,5 @@ mod param;
 
 #[cfg(any(feature = "get2", test, doc))]
 pub mod get2;
-#[cfg(any(all(feature = "get2", feature = "re-exports"), test, doc))]
-pub use get2::*;
+// #[cfg(any(all(feature = "get2", feature = "re-exports"), test, doc))]
+// pub use get2::*;
