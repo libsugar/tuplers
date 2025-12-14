@@ -40,6 +40,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_combinations(&ctx, &out_dir);
     gen_afn(&ctx, &out_dir);
     gen_uniform_map(&ctx, &out_dir);
+    gen_uniform_map_by(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -1783,111 +1784,80 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
     let nts = &ctx.nts[0..size];
     let ntfs = &ctx.ntfs[0..size];
 
-    let tfs_once = ntfs
-        .iter()
-        .enumerate()
-        .map(|(i, ntf)| {
-            let nt = &nts[i];
+    let tfs_once = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
 
-            quote! {
-                #ntf: FnOnce(#nt) -> U
-            }
-        });
+        quote! {
+            #ntf: FnOnce(#nt) -> U
+        }
+    });
 
-    let tfs_mut = ntfs
-        .iter()
-        .enumerate()
-        .map(|(i, ntf)| {
-            let nt = &nts[i];
+    let tfs_mut = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
 
-            quote! {
-                #ntf: FnMut(#nt) -> U
-            }
-        });
+        quote! {
+            #ntf: FnMut(#nt) -> U
+        }
+    });
 
-    let tfs = ntfs
-        .iter()
-        .enumerate()
-        .map(|(i, ntf)| {
-            let nt = &nts[i];
+    let tfs = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
 
-            quote! {
-                #ntf: Fn(#nt) -> U
-            }
-        });
+        quote! {
+            #ntf: Fn(#nt) -> U
+        }
+    });
 
-        
-    let tfs_once_ref = ntfs
-        .iter()
-        .enumerate()
-        .map(|(i, ntf)| {
-            let nt = &nts[i];
+    let tfs_once_ref = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
 
-            quote! {
-                #ntf: FnOnce(&#nt) -> U
-            }
-        });
+        quote! {
+            #ntf: FnOnce(&#nt) -> U
+        }
+    });
 
-    let tfs_mut_ref = ntfs
-        .iter()
-        .enumerate()
-        .map(|(i, ntf)| {
-            let nt = &nts[i];
+    let tfs_mut_ref = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
 
-            quote! {
-                #ntf: FnMut(&#nt) -> U
-            }
-        });
+        quote! {
+            #ntf: FnMut(&#nt) -> U
+        }
+    });
 
-    let tfs_ref = ntfs
-        .iter()
-        .enumerate()
-        .map(|(i, ntf)| {
-            let nt = &nts[i];
+    let tfs_ref = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
 
-            quote! {
-                #ntf: Fn(&#nt) -> U
-            }
-        });
+        quote! {
+            #ntf: Fn(&#nt) -> U
+        }
+    });
 
-        
+    let tfs_once_ref_mut = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
 
-        
-    let tfs_once_ref_mut = ntfs
-        .iter()
-        .enumerate()
-        .map(|(i, ntf)| {
-            let nt = &nts[i];
+        quote! {
+            #ntf: FnOnce(&mut #nt) -> U
+        }
+    });
 
-            quote! {
-                #ntf: FnOnce(&mut #nt) -> U
-            }
-        });
+    let tfs_mut_ref_mut = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
 
-    let tfs_mut_ref_mut = ntfs
-        .iter()
-        .enumerate()
-        .map(|(i, ntf)| {
-            let nt = &nts[i];
+        quote! {
+            #ntf: FnMut(&mut #nt) -> U
+        }
+    });
 
-            quote! {
-                #ntf: FnMut(&mut #nt) -> U
-            }
-        });
+    let tfs_ref_mut = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
 
-    let tfs_ref_mut = ntfs
-        .iter()
-        .enumerate()
-        .map(|(i, ntf)| {
-            let nt = &nts[i];
-
-            quote! {
-                #ntf: Fn(&mut #nt) -> U
-            }
-        });
+        quote! {
+            #ntf: Fn(&mut #nt) -> U
+        }
+    });
 
     let tks = quote! {
-        impl<F: FnMut(T) -> U, U, T> TupleUniformMapper<(#(#ts),*), U> for F {
+        impl<U, T, F: FnMut(T) -> U> TupleUniformMapper<(#(#ts),*), U> for F {
             type Output = (#(#us),*);
 
             fn apply_uniform_map(mut self, input: (#(#ts),*)) -> Self::Output {
@@ -1895,7 +1865,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<F: FnMut(&T) -> U, U, T> TupleUniformMapper<&(#(#ts),*), U> for F {
+        impl<U, T, F: FnMut(&T) -> U> TupleUniformMapper<&(#(#ts),*), U> for F {
             type Output = (#(#us),*);
 
             fn apply_uniform_map(mut self, input: &(#(#ts),*)) -> Self::Output {
@@ -1903,7 +1873,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<F: FnMut(&mut T) -> U, U, T> TupleUniformMapper<&mut (#(#ts),*), U> for F {
+        impl<U, T, F: FnMut(&mut T) -> U> TupleUniformMapper<&mut (#(#ts),*), U> for F {
             type Output = (#(#us),*);
 
             fn apply_uniform_map(mut self, input: &mut (#(#ts),*)) -> Self::Output {
@@ -1911,7 +1881,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<#(#tfs_once),*, U, #(#nts),* > TupleUniformMapper<(#(#nts),*), U> for (#(#ntfs),*)
+        impl<U, #(#nts),*, #(#tfs_once),* > TupleUniformMapper<(#(#nts),*), U> for (#(#ntfs),*)
         {
             type Output = (#(#us),*);
 
@@ -1920,7 +1890,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<#(#tfs_mut),*, U, #(#nts),* > TupleUniformMapper<(#(#nts),*), U> for &mut (#(#ntfs),*)
+        impl<U, #(#nts),*, #(#tfs_mut),* > TupleUniformMapper<(#(#nts),*), U> for &mut (#(#ntfs),*)
         {
             type Output = (#(#us),*);
 
@@ -1929,7 +1899,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<#(#tfs),*, U, #(#nts),* > TupleUniformMapper<(#(#nts),*), U> for &(#(#ntfs),*)
+        impl<U, #(#nts),*, #(#tfs),* > TupleUniformMapper<(#(#nts),*), U> for &(#(#ntfs),*)
         {
             type Output = (#(#us),*);
 
@@ -1938,7 +1908,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<#(#tfs_once_ref),*, U, #(#nts),* > TupleUniformMapper<&(#(#nts),*), U> for (#(#ntfs),*)
+        impl<U, #(#nts),*, #(#tfs_once_ref),* > TupleUniformMapper<&(#(#nts),*), U> for (#(#ntfs),*)
         {
             type Output = (#(#us),*);
 
@@ -1947,7 +1917,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<#(#tfs_mut_ref),*, U, #(#nts),* > TupleUniformMapper<&(#(#nts),*), U> for &mut (#(#ntfs),*)
+        impl<U, #(#nts),*, #(#tfs_mut_ref),* > TupleUniformMapper<&(#(#nts),*), U> for &mut (#(#ntfs),*)
         {
             type Output = (#(#us),*);
 
@@ -1956,7 +1926,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<#(#tfs_ref),*, U, #(#nts),* > TupleUniformMapper<&(#(#nts),*), U> for &(#(#ntfs),*)
+        impl<U, #(#nts),*, #(#tfs_ref),* > TupleUniformMapper<&(#(#nts),*), U> for &(#(#ntfs),*)
         {
             type Output = (#(#us),*);
 
@@ -1965,7 +1935,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<#(#tfs_once_ref_mut),*, U, #(#nts),* > TupleUniformMapper<&mut (#(#nts),*), U> for (#(#ntfs),*)
+        impl<U, #(#nts),*, #(#tfs_once_ref_mut),* > TupleUniformMapper<&mut (#(#nts),*), U> for (#(#ntfs),*)
         {
             type Output = (#(#us),*);
 
@@ -1974,7 +1944,7 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<#(#tfs_mut_ref_mut),*, U, #(#nts),* > TupleUniformMapper<&mut (#(#nts),*), U> for &mut (#(#ntfs),*)
+        impl<U, #(#nts),*, #(#tfs_mut_ref_mut),* > TupleUniformMapper<&mut (#(#nts),*), U> for &mut (#(#ntfs),*)
         {
             type Output = (#(#us),*);
 
@@ -1983,12 +1953,234 @@ fn gen_uniform_map_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<#(#tfs_ref_mut),*, U, #(#nts),* > TupleUniformMapper<&mut (#(#nts),*), U> for &(#(#ntfs),*)
+        impl<U, #(#nts),*, #(#tfs_ref_mut),* > TupleUniformMapper<&mut (#(#nts),*), U> for &(#(#ntfs),*)
         {
             type Output = (#(#us),*);
 
             fn apply_uniform_map(self, input: &mut (#(#nts),*)) -> Self::Output {
                 (#((self.#size_lits)(&mut input.#size_lits)),*)
+            }
+        }
+    };
+    tks
+}
+
+fn gen_uniform_map_by(ctx: &Ctx, out_dir: &Path) {
+    let items = (2..33usize).map(|i| gen_uniform_map_by_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, AUTO_GEN_TIP);
+    let dest_path = Path::new(out_dir).join("uniform_map_by.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let ts = &ctx.ts[0..size];
+    let us = &ctx.us[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+
+    let nts = &ctx.nts[0..size];
+    let ntfs = &ctx.ntfs[0..size];
+
+    let tfs_once = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
+
+        quote! {
+            #ntf: for<'s> FnOnce(<A as Param<'s>>::Target, #nt) -> U
+        }
+    });
+
+    let tfs_mut = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
+
+        quote! {
+            #ntf: for<'s> FnMut(<A as Param<'s>>::Target, #nt) -> U
+        }
+    });
+
+    let tfs = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
+
+        quote! {
+            #ntf: for<'s> Fn(<A as Param<'s>>::Target, #nt) -> U
+        }
+    });
+
+    let tfs_once_ref = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
+
+        quote! {
+            #ntf: for<'s> FnOnce(<A as Param<'s>>::Target, &#nt) -> U
+        }
+    });
+
+    let tfs_mut_ref = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
+
+        quote! {
+            #ntf: for<'s> FnMut(<A as Param<'s>>::Target, &#nt) -> U
+        }
+    });
+
+    let tfs_ref = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
+
+        quote! {
+            #ntf: for<'s> Fn(<A as Param<'s>>::Target, &#nt) -> U
+        }
+    });
+
+    let tfs_once_ref_mut = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
+
+        quote! {
+            #ntf: for<'s> FnOnce(<A as Param<'s>>::Target, &mut #nt) -> U
+        }
+    });
+
+    let tfs_mut_ref_mut = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
+
+        quote! {
+            #ntf: for<'s> FnMut(<A as Param<'s>>::Target, &mut #nt) -> U
+        }
+    });
+
+    let tfs_ref_mut = ntfs.iter().enumerate().map(|(i, ntf)| {
+        let nt = &nts[i];
+
+        quote! {
+            #ntf: for<'s> Fn(<A as Param<'s>>::Target, &mut #nt) -> U
+        }
+    });
+
+    let tks = quote! {
+        impl<A, U, T, F: for<'s> FnMut(<A as Param<'s>>::Target, T) -> U> TupleUniformMapperBy<(#(#ts),*), U, A> for F
+        where
+            A: for<'s> Param<'s>,{
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(mut self, mut arg: A, input: (#(#ts),*)) -> Self::Output {
+                (#((&mut self)(arg.pass(), input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, T, F: for<'s> FnMut(<A as Param<'s>>::Target, &T) -> U> TupleUniformMapperBy<&(#(#ts),*), U, A> for F
+        where
+            A: for<'s> Param<'s>,{
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(mut self, mut arg: A, input: &(#(#ts),*)) -> Self::Output {
+                (#((&mut self)(arg.pass(), &input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, T, F: for<'s> FnMut(<A as Param<'s>>::Target, &mut T) -> U> TupleUniformMapperBy<&mut (#(#ts),*), U, A> for F
+        where
+            A: for<'s> Param<'s>,{
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(mut self, mut arg: A, input: &mut (#(#ts),*)) -> Self::Output {
+                (#((&mut self)(arg.pass(), &mut input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, #(#nts),*, #(#tfs_once),* > TupleUniformMapperBy<(#(#nts),*), U, A> for (#(#ntfs),*)
+        where
+            A: for<'s> Param<'s>,
+        {
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(self, mut arg: A, input: (#(#nts),*)) -> Self::Output {
+                (#((self.#size_lits)(arg.pass(), input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, #(#nts),*, #(#tfs_mut),* > TupleUniformMapperBy<(#(#nts),*), U, A> for &mut (#(#ntfs),*)
+        where
+            A: for<'s> Param<'s>,
+        {
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(self, mut arg: A, input: (#(#nts),*)) -> Self::Output {
+                (#((self.#size_lits)(arg.pass(), input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, #(#nts),*, #(#tfs),* > TupleUniformMapperBy<(#(#nts),*), U, A> for &(#(#ntfs),*)
+        where
+            A: for<'s> Param<'s>,
+        {
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(self, mut arg: A, input: (#(#nts),*)) -> Self::Output {
+                (#((self.#size_lits)(arg.pass(), input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, #(#nts),*, #(#tfs_once_ref),* > TupleUniformMapperBy<&(#(#nts),*), U, A> for (#(#ntfs),*)
+        where
+            A: for<'s> Param<'s>,
+        {
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(self, mut arg: A, input: &(#(#nts),*)) -> Self::Output {
+                (#((self.#size_lits)(arg.pass(), &input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, #(#nts),*, #(#tfs_mut_ref),* > TupleUniformMapperBy<&(#(#nts),*), U, A> for &mut (#(#ntfs),*)
+        where
+            A: for<'s> Param<'s>,
+        {
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(self, mut arg: A, input: &(#(#nts),*)) -> Self::Output {
+                (#((self.#size_lits)(arg.pass(), &input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, #(#nts),*, #(#tfs_ref),* > TupleUniformMapperBy<&(#(#nts),*), U, A> for &(#(#ntfs),*)
+        where
+            A: for<'s> Param<'s>,
+        {
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(self, mut arg: A, input: &(#(#nts),*)) -> Self::Output {
+                (#((self.#size_lits)(arg.pass(), &input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, #(#nts),*, #(#tfs_once_ref_mut),* > TupleUniformMapperBy<&mut (#(#nts),*), U, A> for (#(#ntfs),*)
+        where
+            A: for<'s> Param<'s>,
+        {
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(self, mut arg: A, input: &mut (#(#nts),*)) -> Self::Output {
+                (#((self.#size_lits)(arg.pass(), &mut input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, #(#nts),*, #(#tfs_mut_ref_mut),* > TupleUniformMapperBy<&mut (#(#nts),*), U, A> for &mut (#(#ntfs),*)
+        where
+            A: for<'s> Param<'s>,
+        {
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(self, mut arg: A, input: &mut (#(#nts),*)) -> Self::Output {
+                (#((self.#size_lits)(arg.pass(), &mut input.#size_lits)),*)
+            }
+        }
+
+        impl<A, U, #(#nts),*, #(#tfs_ref_mut),* > TupleUniformMapperBy<&mut (#(#nts),*), U, A> for &(#(#ntfs),*)
+        where
+            A: for<'s> Param<'s>,
+        {
+            type Output = (#(#us),*);
+
+            fn apply_uniform_map_by(self, mut arg: A, input: &mut (#(#nts),*)) -> Self::Output {
+                (#((self.#size_lits)(arg.pass(), &mut input.#size_lits)),*)
             }
         }
     };

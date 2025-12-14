@@ -1,15 +1,15 @@
-//! Map tuples to a single type
-//! 
+//! Map heterogeneous tuples to homogeneous tuples.
+//!
 //! ## Example
-//! 
-//! - 
+//!
+//! -
 //!   ```rust
 //!   # use tuples::*;
 //!   let a = (1, 2, 3);
 //!   let r = a.uniform_map(|a| a > 0);
 //!   assert_eq!(r, (true, true, true))
 //!   ```
-//! - 
+//! -
 //!   ```rust
 //!   # use tuples::*;
 //!   let a = (1, 'c', true);
@@ -23,19 +23,19 @@
 //!   let r = (&a).uniform_map((|a: &i32| *a > 0, |b: &char| b.is_ascii(), |c: &bool| *c));
 //!   assert_eq!(r, (true, true, true))
 //!   ```
-//! 
+//!
 
-/// Map tuples to a single type
+/// Map heterogeneous tuples to homogeneous tuples.
 pub trait TupleUniformMapper<Input, Target> {
     type Output;
 
-    /// Map tuples to a single type
+    /// Map heterogeneous tuples to homogeneous tuples.
     fn apply_uniform_map(self, input: Input) -> Self::Output;
 }
 
-/// Map tuples to a single type
+/// Map heterogeneous tuples to homogeneous tuples.
 pub trait TupleUniformMap<Target, Mapper: TupleUniformMapper<Self, Target>>: Sized {
-    /// Map tuples to a single type
+    /// Map heterogeneous tuples to homogeneous tuples.
     fn uniform_map(self, mapper: Mapper) -> <Mapper as TupleUniformMapper<Self, Target>>::Output;
 }
 
@@ -45,7 +45,7 @@ impl<Tuple, Target, Mapper: TupleUniformMapper<Tuple, Target>> TupleUniformMap<T
     }
 }
 
-impl<F: FnOnce(T) -> U, U, T> TupleUniformMapper<(T,), U> for F {
+impl<U, T, F: FnOnce(T) -> U> TupleUniformMapper<(T,), U> for F {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: (T,)) -> Self::Output {
@@ -53,7 +53,7 @@ impl<F: FnOnce(T) -> U, U, T> TupleUniformMapper<(T,), U> for F {
     }
 }
 
-impl<F: FnOnce(&T) -> U, U, T> TupleUniformMapper<&(T,), U> for F {
+impl<U, T, F: FnOnce(&T) -> U> TupleUniformMapper<&(T,), U> for F {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: &(T,)) -> Self::Output {
@@ -61,7 +61,7 @@ impl<F: FnOnce(&T) -> U, U, T> TupleUniformMapper<&(T,), U> for F {
     }
 }
 
-impl<F: FnOnce(&mut T) -> U, U, T> TupleUniformMapper<&mut (T,), U> for F {
+impl<U, T, F: FnOnce(&mut T) -> U> TupleUniformMapper<&mut (T,), U> for F {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: &mut (T,)) -> Self::Output {
@@ -69,7 +69,7 @@ impl<F: FnOnce(&mut T) -> U, U, T> TupleUniformMapper<&mut (T,), U> for F {
     }
 }
 
-impl<F: FnOnce(T) -> U, U, T> TupleUniformMapper<(T,), U> for (F,) {
+impl<U, T, F: FnOnce(T) -> U> TupleUniformMapper<(T,), U> for (F,) {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: (T,)) -> Self::Output {
@@ -77,7 +77,7 @@ impl<F: FnOnce(T) -> U, U, T> TupleUniformMapper<(T,), U> for (F,) {
     }
 }
 
-impl<F: FnMut(T) -> U, U, T> TupleUniformMapper<(T,), U> for &mut (F,) {
+impl<U, T, F: FnMut(T) -> U> TupleUniformMapper<(T,), U> for &mut (F,) {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: (T,)) -> Self::Output {
@@ -85,7 +85,7 @@ impl<F: FnMut(T) -> U, U, T> TupleUniformMapper<(T,), U> for &mut (F,) {
     }
 }
 
-impl<F: Fn(T) -> U, U, T> TupleUniformMapper<(T,), U> for &(F,) {
+impl<U, T, F: Fn(T) -> U> TupleUniformMapper<(T,), U> for &(F,) {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: (T,)) -> Self::Output {
@@ -93,7 +93,7 @@ impl<F: Fn(T) -> U, U, T> TupleUniformMapper<(T,), U> for &(F,) {
     }
 }
 
-impl<F: FnOnce(&T) -> U, U, T> TupleUniformMapper<&(T,), U> for (F,) {
+impl<U, T, F: FnOnce(&T) -> U> TupleUniformMapper<&(T,), U> for (F,) {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: &(T,)) -> Self::Output {
@@ -101,7 +101,7 @@ impl<F: FnOnce(&T) -> U, U, T> TupleUniformMapper<&(T,), U> for (F,) {
     }
 }
 
-impl<F: FnMut(&T) -> U, U, T> TupleUniformMapper<&(T,), U> for &mut (F,) {
+impl<U, T, F: FnMut(&T) -> U> TupleUniformMapper<&(T,), U> for &mut (F,) {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: &(T,)) -> Self::Output {
@@ -109,7 +109,7 @@ impl<F: FnMut(&T) -> U, U, T> TupleUniformMapper<&(T,), U> for &mut (F,) {
     }
 }
 
-impl<F: Fn(&T) -> U, U, T> TupleUniformMapper<&(T,), U> for &(F,) {
+impl<U, T, F: Fn(&T) -> U> TupleUniformMapper<&(T,), U> for &(F,) {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: &(T,)) -> Self::Output {
@@ -117,7 +117,7 @@ impl<F: Fn(&T) -> U, U, T> TupleUniformMapper<&(T,), U> for &(F,) {
     }
 }
 
-impl<F: FnOnce(&mut T) -> U, U, T> TupleUniformMapper<&mut (T,), U> for (F,) {
+impl<U, T, F: FnOnce(&mut T) -> U> TupleUniformMapper<&mut (T,), U> for (F,) {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: &mut (T,)) -> Self::Output {
@@ -125,7 +125,7 @@ impl<F: FnOnce(&mut T) -> U, U, T> TupleUniformMapper<&mut (T,), U> for (F,) {
     }
 }
 
-impl<F: FnMut(&mut T) -> U, U, T> TupleUniformMapper<&mut (T,), U> for &mut (F,) {
+impl<U, T, F: FnMut(&mut T) -> U> TupleUniformMapper<&mut (T,), U> for &mut (F,) {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: &mut (T,)) -> Self::Output {
@@ -133,7 +133,7 @@ impl<F: FnMut(&mut T) -> U, U, T> TupleUniformMapper<&mut (T,), U> for &mut (F,)
     }
 }
 
-impl<F: Fn(&mut T) -> U, U, T> TupleUniformMapper<&mut (T,), U> for &(F,) {
+impl<U, T, F: Fn(&mut T) -> U> TupleUniformMapper<&mut (T,), U> for &(F,) {
     type Output = (U,);
 
     fn apply_uniform_map(self, input: &mut (T,)) -> Self::Output {
