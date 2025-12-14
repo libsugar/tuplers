@@ -160,10 +160,24 @@ mod shorthand {
 #[cfg(feature = "shorthand")]
 pub use shorthand::*;
 
-#[cfg(feature = "tuple_as")]
-pub mod tuple_as;
-#[cfg(all(feature = "tuple_as", feature = "re-exports"))]
-pub use tuple_as::*;
+pub mod misc;
+
+#[cfg(any(feature = "get", test, doc))]
+pub mod get;
+#[cfg(any(all(feature = "get", feature = "re-exports"), test, doc))]
+pub use get::*;
+
+#[cfg(feature = "clone")]
+pub mod clone;
+#[cfg(all(feature = "clone", feature = "re-exports"))]
+pub use clone::*;
+
+#[cfg(feature = "convert")]
+pub mod convert;
+#[cfg(all(feature = "convert", feature = "re-exports"))]
+pub use convert::*;
+
+/////
 
 #[cfg(feature = "tuple_iter")]
 pub mod tuple_iter;
@@ -221,11 +235,6 @@ pub mod flatten;
 #[cfg(all(feature = "flatten", feature = "re-exports"))]
 pub use flatten::*;
 
-#[cfg(feature = "cloned")]
-pub mod cloned;
-#[cfg(all(feature = "cloned", feature = "re-exports"))]
-pub use cloned::*;
-
 #[cfg(feature = "tuple_call")]
 pub mod tuple_call;
 #[cfg(all(feature = "tuple_call", feature = "re-exports"))]
@@ -256,9 +265,6 @@ pub mod combinations;
 #[cfg(any(all(feature = "combinations", feature = "re-exports"), test, doc))]
 pub use combinations::*;
 
-#[cfg(any(feature = "afn", test, doc))]
-pub mod afn;
-
 #[cfg(any(feature = "uniform_map", test, doc))]
 pub mod uniform_map;
 #[cfg(any(all(feature = "uniform_map", feature = "re-exports"), test, doc))]
@@ -268,11 +274,3 @@ pub use uniform_map::*;
 pub mod uniform_map_by;
 #[cfg(any(all(feature = "uniform_map_by", feature = "re-exports"), test, doc))]
 pub use uniform_map_by::*;
-
-#[cfg(any(feature = "uniform_map_by", test, doc))]
-mod param;
-
-#[cfg(any(feature = "get", test, doc))]
-pub mod get;
-#[cfg(any(all(feature = "get", feature = "re-exports"), test, doc))]
-pub use get::*;

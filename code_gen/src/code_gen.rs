@@ -19,7 +19,11 @@ pub fn code_gen(out_dir: &Path) {
     gen_tuple_impl(&ctx, &out_dir);
     gen_tuple_item_n_impl(&ctx, &out_dir);
     gen_tuple_alias_macro(&ctx, &out_dir);
-    gen_tuple_as(&ctx, &out_dir);
+    gen_clone(&ctx, &out_dir);
+    gen_get_dyn(&ctx, &out_dir);
+    gen_get_const(&ctx, &out_dir);
+    gen_convert(&ctx, &out_dir);
+
     gen_tuple_iter(&ctx, &out_dir);
     gen_tuple_map(&ctx, &out_dir);
     gen_combin(&ctx, &out_dir);
@@ -30,17 +34,13 @@ pub fn code_gen(out_dir: &Path) {
     gen_split_to_tuple_at(&ctx, &out_dir);
     gen_transpose(&ctx, &out_dir);
     gen_flatten(&ctx, &out_dir);
-    gen_cloned(&ctx, &out_dir);
     gen_call(&ctx, &out_dir);
     gen_apply_tuple(&ctx, &out_dir);
     gen_capt(&ctx, &out_dir);
     gen_permutations(&ctx, &out_dir);
     gen_combinations(&ctx, &out_dir);
-    gen_afn(&ctx, &out_dir);
     gen_uniform_map(&ctx, &out_dir);
     gen_uniform_map_by(&ctx, &out_dir);
-    gen_get_dyn(&ctx, &out_dir);
-    gen_get_const(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -137,80 +137,120 @@ fn gen_tuple_item_n_impl_size_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream
     tks
 }
 
-fn gen_tuple_as(ctx: &Ctx, out_dir: &Path) {
-    let items = (0..33usize).map(|i| gen_tuple_as_size(ctx, i));
+fn gen_convert(ctx: &Ctx, out_dir: &Path) {
+    let items = (0..33usize).map(|i| gen_convert_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
     code.insert_str(0, AUTO_GEN_TIP);
-    let dest_path = Path::new(out_dir).join("tuple_as.rs");
+    let dest_path = Path::new(out_dir).join("convert.rs");
     fs::write(&dest_path, code).unwrap();
 }
 
-fn gen_tuple_as_size(ctx: &Ctx, size: usize) -> TokenStream {
+fn gen_convert_size(ctx: &Ctx, size: usize) -> TokenStream {
     let size_lits = &ctx.size_lits[0..size];
     let nts = &ctx.nts[0..size];
+    let nus = &ctx.nus[0..size];
 
-    let ref_doc = format!("AsRef for Tuple{}", size);
-    let mut_doc = format!("AsMut for Tuple{}", size);
+    let into_from = if size == 0 {
+        quote! {}
+    } else {
+        quote! {
+            impl<U, #(#nts),* > TupleAllInto<U> for (#(#nts,)*) where #(#nts: Into<U>,)* { }
+            impl<U, #(#nts),* > TupleAllFrom<U> for (#(#nts,)*) where #(#nts: From<U>,)* { }
+
+            impl<#(#nts),*, #(#nus),*> TupleInto<(#(#nus,)*)> for (#(#nts,)*)
+            where #(#nts: Into<#nus>,)* {
+                fn tuple_into(self) -> (#(#nus,)*)
+                {
+                    (#(self.#size_lits.into(),)*)
+                }
+            }
+            impl<#(#nts),*, #(#nus),*> TupleFrom<(#(#nus,)*)> for (#(#nts,)*)
+            where #(#nts: From<#nus>,)* {
+                fn tuple_from(src: (#(#nus,)*)) -> Self
+                {
+                    (#(src.#size_lits.into(),)*)
+                }
+            }
+            impl<#(#nts),*, #(#nus),*> TupleTryInto<(#(#nus,)*)> for (#(#nts,)*)
+            where #(#nts: TryInto<#nus>,)* {
+                type Output = (#(Result<#nus, #nts::Error>,)*);
+
+                fn tuple_try_into(self) -> Self::Output
+                {
+                    (#(self.#size_lits.try_into(),)*)
+                }
+            }
+            impl<#(#nts),*, #(#nus),*> TupleTryFrom<(#(#nus,)*)> for (#(#nts,)*)
+            where #(#nts: TryFrom<#nus>,)* {
+                type Output = (#(Result<#nts, #nts::Error>,)*);
+
+                fn tuple_try_from(src: (#(#nus,)*)) -> Self::Output
+                {
+                    (#(src.#size_lits.try_into(),)*)
+                }
+            }
+        }
+    };
 
     let tks = quote! {
         impl<'a, #(#nts: 'a,)*> TupleAsRef<'a> for (#(#nts,)*) {
-            type OutTuple = (#(&'a #nts,)*);
+            type Output = (#(&'a #nts,)*);
 
-            #[doc = #ref_doc]
-            fn as_ref(&'a self) -> Self::OutTuple {
+            fn as_ref(&'a self) -> Self::Output {
                 (#(&self.#size_lits,)*)
             }
         }
 
         impl<'a, #(#nts: 'a,)*> TupleAsMut<'a> for (#(#nts,)*) {
-            type OutTuple = (#(&'a mut #nts,)*);
+            type Output = (#(&'a mut #nts,)*);
 
-            #[doc = #mut_doc]
-            fn as_mut(&'a mut self) -> Self::OutTuple {
+            fn as_mut(&'a mut self) -> Self::Output {
                 (#(&mut self.#size_lits,)*)
             }
         }
 
-        impl<#(#nts,)*> TupleAsOption for (#(#nts,)*) {
-            type OutTuple = (#(Option<#nts>,)*);
-
-            fn as_some(self) -> Self::OutTuple {
-                (#(Some(self.#size_lits),)*)
-            }
-        }
-
-        impl<E, #(#nts,)*> TupleAsResultOk<E> for (#(#nts,)*) {
-            type OutTuple = (#(Result<#nts, E>,)*);
-
-            fn as_ok(self) -> Self::OutTuple {
-                (#(Ok(self.#size_lits),)*)
-            }
-        }
-
-        impl<O, #(#nts,)*> TupleAsResultErr<O> for (#(#nts,)*) {
-            type OutTuple = (#(Result<O, #nts>,)*);
-
-            fn as_err(self) -> Self::OutTuple {
-                (#(Err(self.#size_lits),)*)
-            }
-        }
-
         impl<'a, #(#nts: 'a + Deref,)*> TupleAsDeref<'a> for (#(#nts,)*) {
-            type OutTuple = (#(&'a <#nts as Deref>::Target,)*);
+            type Output = (#(&'a <#nts as Deref>::Target,)*);
 
-            fn as_deref(&'a self) -> Self::OutTuple {
+            fn as_deref(&'a self) -> Self::Output {
                 (#(self.#size_lits.deref(),)*)
             }
         }
 
         impl<'a, #(#nts: 'a + DerefMut,)*> TupleAsDerefMut<'a> for (#(#nts,)*) {
-            type OutTuple = (#(&'a mut <#nts as Deref>::Target,)*);
+            type Output = (#(&'a mut <#nts as Deref>::Target,)*);
 
-            fn as_deref_mut(&'a mut self) -> Self::OutTuple {
+            fn as_deref_mut(&'a mut self) -> Self::Output {
                 (#(self.#size_lits.deref_mut(),)*)
             }
         }
+
+        impl<#(#nts,)*> TupleAsOption for (#(#nts,)*) {
+            type Output = (#(Option<#nts>,)*);
+
+            fn as_some(self) -> Self::Output {
+                (#(Some(self.#size_lits),)*)
+            }
+        }
+
+        impl<E, #(#nts,)*> TupleAsResultOk<E> for (#(#nts,)*) {
+            type Output = (#(Result<#nts, E>,)*);
+
+            fn as_ok(self) -> Self::Output {
+                (#(Ok(self.#size_lits),)*)
+            }
+        }
+
+        impl<O, #(#nts,)*> TupleAsResultErr<O> for (#(#nts,)*) {
+            type Output = (#(Result<O, #nts>,)*);
+
+            fn as_err(self) -> Self::Output {
+                (#(Err(self.#size_lits),)*)
+            }
+        }
+
+        #into_from
     };
     tks
 }
@@ -1192,48 +1232,48 @@ fn gen_flatten_size_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
     tks
 }
 
-fn gen_cloned(ctx: &Ctx, out_dir: &Path) {
-    let items = (2..33usize).map(|i| gen_cloned_size(ctx, i));
+fn gen_clone(ctx: &Ctx, out_dir: &Path) {
+    let items = (2..33usize).map(|i| gen_clone_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
     code.insert_str(0, AUTO_GEN_TIP);
-    let dest_path = Path::new(out_dir).join("cloned.rs");
+    let dest_path = Path::new(out_dir).join("clone.rs");
     fs::write(&dest_path, code).unwrap();
 }
 
-fn gen_cloned_size(ctx: &Ctx, size: usize) -> TokenStream {
+fn gen_clone_size(ctx: &Ctx, size: usize) -> TokenStream {
     let nts = &ctx.nts[0..size];
     let size_lits = &ctx.size_lits[0..size];
 
     let tks = quote! {
         impl<'a, #(#nts: Clone),*> TupleCloned for (#(&'a #nts),*) {
-            type TupleOut = (#(#nts),*);
+            type Output = (#(#nts),*);
 
-            fn cloned(self) -> Self::TupleOut {
+            fn cloned(self) -> Self::Output {
                 (#(self.#size_lits.clone()),*)
             }
         }
 
         impl<'a, #(#nts: Clone),*> TupleCloned for (#(&'a mut #nts),*) {
-            type TupleOut = (#(#nts),*);
+            type Output = (#(#nts),*);
 
-            fn cloned(self) -> Self::TupleOut {
+            fn cloned(self) -> Self::Output {
                 (#(self.#size_lits.clone()),*)
             }
         }
 
         impl<'a, #(#nts: Copy),*> TupleCopied for (#(&'a #nts),*) {
-            type TupleOut = (#(#nts),*);
+            type Output = (#(#nts),*);
 
-            fn copied(self) -> Self::TupleOut {
+            fn copied(self) -> Self::Output {
                 (#(*self.#size_lits),*)
             }
         }
 
         impl<'a, #(#nts: Copy),*> TupleCopied for (#(&'a mut #nts),*) {
-            type TupleOut = (#(#nts),*);
+            type Output = (#(#nts),*);
 
-            fn copied(self) -> Self::TupleOut {
+            fn copied(self) -> Self::Output {
                 (#(*self.#size_lits),*)
             }
         }
@@ -1549,85 +1589,6 @@ fn count_combinations(n: usize, k: usize) -> usize {
     dp[k]
 }
 
-fn gen_afn(ctx: &Ctx, out_dir: &Path) {
-    let items = (0..33usize).map(|i| gen_afn_size(ctx, i));
-    let tks = quote! { #(#items)* };
-    let mut code = tks.to_string();
-    code.insert_str(0, AUTO_GEN_TIP);
-    let dest_path = Path::new(out_dir).join("afn.rs");
-    fs::write(&dest_path, code).unwrap();
-}
-
-fn gen_afn_size(ctx: &Ctx, size: usize) -> TokenStream {
-    let once_name = format_ident!("AFnOnce{}", size);
-    let mut_name = format_ident!("AFnMut{}", size);
-    let fn_name = format_ident!("AFn{}", size);
-
-    let fu_once_name = format_ident!("FuFnOnce{}", size);
-    let fu_mut_name = format_ident!("FuFnMut{}", size);
-    let fu_fn_name = format_ident!("FuFn{}", size);
-
-    let nts = &ctx.nts[0..size];
-
-    let tks = quote! {
-        pub trait #once_name<#(#nts),*> : FnOnce(#(#nts),*) -> Self::Ret {
-            type Ret;
-        }
-        pub trait #mut_name<#(#nts),*> : #once_name<#(#nts),*> + FnMut(#(#nts),*) -> Self::Ret { }
-        pub trait #fn_name<#(#nts),*> : #mut_name<#(#nts),*> + Fn(#(#nts),*) -> Self::Ret { }
-
-        impl<F, R, #(#nts),*> #once_name<#(#nts),*> for F
-        where
-            F: FnOnce(#(#nts),*) -> R,
-        {
-            type Ret = R;
-        }
-
-        impl<F, R, #(#nts),*> #mut_name<#(#nts),*> for F
-        where
-            F: FnMut(#(#nts),*) -> R,
-        {
-        }
-
-        impl<F, R, #(#nts),*> #fn_name<#(#nts),*> for F
-        where
-            F: Fn(#(#nts),*) -> R,
-        {
-        }
-
-        pub trait #fu_once_name<#(#nts),*> : FnOnce(#(#nts),*) -> Self::Future {
-            type Future: Future<Output = Self::Ret>;
-            type Ret;
-        }
-        pub trait #fu_mut_name<#(#nts),*> : #fu_once_name<#(#nts),*> + FnMut(#(#nts),*) -> Self::Future { }
-        pub trait #fu_fn_name<#(#nts),*> : #fu_mut_name<#(#nts),*> + Fn(#(#nts),*) -> Self::Future { }
-
-        impl<F, Fu, R, #(#nts),*> #fu_once_name<#(#nts),*> for F
-        where
-            F: FnOnce(#(#nts),*) -> Fu,
-            Fu: Future<Output = R>,
-        {
-            type Future = Fu;
-            type Ret = R;
-        }
-
-        impl<F, Fu, R, #(#nts),*> #fu_mut_name<#(#nts),*> for F
-        where
-            F: FnMut(#(#nts),*) -> Fu,
-            Fu: Future<Output = R>,
-        {
-        }
-
-        impl<F, Fu, R, #(#nts),*> #fu_fn_name<#(#nts),*> for F
-        where
-            F: Fn(#(#nts),*) -> Fu,
-            Fu: Future<Output = R>,
-        {
-        }
-    };
-    tks
-}
-
 fn gen_uniform_map(ctx: &Ctx, out_dir: &Path) {
     let items = (2..33usize).map(|i| gen_uniform_map_size(ctx, i));
     let tks = quote! { #(#items)* };
@@ -1847,7 +1808,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
         let nt = &nts[i];
 
         quote! {
-            #ntf: for<'s> FnOnce(<A as Param<'s>>::Target, #nt) -> U
+            #ntf: for<'s> FnOnce(<A as RefOrMut<'s>>::Target, #nt) -> U
         }
     });
 
@@ -1855,7 +1816,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
         let nt = &nts[i];
 
         quote! {
-            #ntf: for<'s> FnMut(<A as Param<'s>>::Target, #nt) -> U
+            #ntf: for<'s> FnMut(<A as RefOrMut<'s>>::Target, #nt) -> U
         }
     });
 
@@ -1863,7 +1824,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
         let nt = &nts[i];
 
         quote! {
-            #ntf: for<'s> Fn(<A as Param<'s>>::Target, #nt) -> U
+            #ntf: for<'s> Fn(<A as RefOrMut<'s>>::Target, #nt) -> U
         }
     });
 
@@ -1871,7 +1832,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
         let nt = &nts[i];
 
         quote! {
-            #ntf: for<'s> FnOnce(<A as Param<'s>>::Target, &#nt) -> U
+            #ntf: for<'s> FnOnce(<A as RefOrMut<'s>>::Target, &#nt) -> U
         }
     });
 
@@ -1879,7 +1840,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
         let nt = &nts[i];
 
         quote! {
-            #ntf: for<'s> FnMut(<A as Param<'s>>::Target, &#nt) -> U
+            #ntf: for<'s> FnMut(<A as RefOrMut<'s>>::Target, &#nt) -> U
         }
     });
 
@@ -1887,7 +1848,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
         let nt = &nts[i];
 
         quote! {
-            #ntf: for<'s> Fn(<A as Param<'s>>::Target, &#nt) -> U
+            #ntf: for<'s> Fn(<A as RefOrMut<'s>>::Target, &#nt) -> U
         }
     });
 
@@ -1895,7 +1856,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
         let nt = &nts[i];
 
         quote! {
-            #ntf: for<'s> FnOnce(<A as Param<'s>>::Target, &mut #nt) -> U
+            #ntf: for<'s> FnOnce(<A as RefOrMut<'s>>::Target, &mut #nt) -> U
         }
     });
 
@@ -1903,7 +1864,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
         let nt = &nts[i];
 
         quote! {
-            #ntf: for<'s> FnMut(<A as Param<'s>>::Target, &mut #nt) -> U
+            #ntf: for<'s> FnMut(<A as RefOrMut<'s>>::Target, &mut #nt) -> U
         }
     });
 
@@ -1911,14 +1872,14 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
         let nt = &nts[i];
 
         quote! {
-            #ntf: for<'s> Fn(<A as Param<'s>>::Target, &mut #nt) -> U
+            #ntf: for<'s> Fn(<A as RefOrMut<'s>>::Target, &mut #nt) -> U
         }
     });
 
     let tks = quote! {
-        impl<A, U, T, F: for<'s> FnMut(<A as Param<'s>>::Target, T) -> U> TupleUniformMapperBy<(#(#ts),*), U, A> for F
+        impl<A, U, T, F: for<'s> FnMut(<A as RefOrMut<'s>>::Target, T) -> U> TupleUniformMapperBy<(#(#ts),*), U, A> for F
         where
-            A: for<'s> Param<'s>,{
+            A: for<'s> RefOrMut<'s>,{
             type Output = (#(#us),*);
 
             fn apply_uniform_map_by(mut self, mut arg: A, input: (#(#ts),*)) -> Self::Output {
@@ -1926,9 +1887,9 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<A, U, T, F: for<'s> FnMut(<A as Param<'s>>::Target, &T) -> U> TupleUniformMapperBy<&(#(#ts),*), U, A> for F
+        impl<A, U, T, F: for<'s> FnMut(<A as RefOrMut<'s>>::Target, &T) -> U> TupleUniformMapperBy<&(#(#ts),*), U, A> for F
         where
-            A: for<'s> Param<'s>,{
+            A: for<'s> RefOrMut<'s>,{
             type Output = (#(#us),*);
 
             fn apply_uniform_map_by(mut self, mut arg: A, input: &(#(#ts),*)) -> Self::Output {
@@ -1936,9 +1897,9 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<A, U, T, F: for<'s> FnMut(<A as Param<'s>>::Target, &mut T) -> U> TupleUniformMapperBy<&mut (#(#ts),*), U, A> for F
+        impl<A, U, T, F: for<'s> FnMut(<A as RefOrMut<'s>>::Target, &mut T) -> U> TupleUniformMapperBy<&mut (#(#ts),*), U, A> for F
         where
-            A: for<'s> Param<'s>,{
+            A: for<'s> RefOrMut<'s>,{
             type Output = (#(#us),*);
 
             fn apply_uniform_map_by(mut self, mut arg: A, input: &mut (#(#ts),*)) -> Self::Output {
@@ -1948,7 +1909,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<A, U, #(#nts),*, #(#tfs_once),* > TupleUniformMapperBy<(#(#nts),*), U, A> for (#(#ntfs),*)
         where
-            A: for<'s> Param<'s>,
+            A: for<'s> RefOrMut<'s>,
         {
             type Output = (#(#us),*);
 
@@ -1959,7 +1920,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<A, U, #(#nts),*, #(#tfs_mut),* > TupleUniformMapperBy<(#(#nts),*), U, A> for &mut (#(#ntfs),*)
         where
-            A: for<'s> Param<'s>,
+            A: for<'s> RefOrMut<'s>,
         {
             type Output = (#(#us),*);
 
@@ -1970,7 +1931,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<A, U, #(#nts),*, #(#tfs),* > TupleUniformMapperBy<(#(#nts),*), U, A> for &(#(#ntfs),*)
         where
-            A: for<'s> Param<'s>,
+            A: for<'s> RefOrMut<'s>,
         {
             type Output = (#(#us),*);
 
@@ -1981,7 +1942,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<A, U, #(#nts),*, #(#tfs_once_ref),* > TupleUniformMapperBy<&(#(#nts),*), U, A> for (#(#ntfs),*)
         where
-            A: for<'s> Param<'s>,
+            A: for<'s> RefOrMut<'s>,
         {
             type Output = (#(#us),*);
 
@@ -1992,7 +1953,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<A, U, #(#nts),*, #(#tfs_mut_ref),* > TupleUniformMapperBy<&(#(#nts),*), U, A> for &mut (#(#ntfs),*)
         where
-            A: for<'s> Param<'s>,
+            A: for<'s> RefOrMut<'s>,
         {
             type Output = (#(#us),*);
 
@@ -2003,7 +1964,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<A, U, #(#nts),*, #(#tfs_ref),* > TupleUniformMapperBy<&(#(#nts),*), U, A> for &(#(#ntfs),*)
         where
-            A: for<'s> Param<'s>,
+            A: for<'s> RefOrMut<'s>,
         {
             type Output = (#(#us),*);
 
@@ -2014,7 +1975,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<A, U, #(#nts),*, #(#tfs_once_ref_mut),* > TupleUniformMapperBy<&mut (#(#nts),*), U, A> for (#(#ntfs),*)
         where
-            A: for<'s> Param<'s>,
+            A: for<'s> RefOrMut<'s>,
         {
             type Output = (#(#us),*);
 
@@ -2025,7 +1986,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<A, U, #(#nts),*, #(#tfs_mut_ref_mut),* > TupleUniformMapperBy<&mut (#(#nts),*), U, A> for &mut (#(#ntfs),*)
         where
-            A: for<'s> Param<'s>,
+            A: for<'s> RefOrMut<'s>,
         {
             type Output = (#(#us),*);
 
@@ -2036,7 +1997,7 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
         impl<A, U, #(#nts),*, #(#tfs_ref_mut),* > TupleUniformMapperBy<&mut (#(#nts),*), U, A> for &(#(#ntfs),*)
         where
-            A: for<'s> Param<'s>,
+            A: for<'s> RefOrMut<'s>,
         {
             type Output = (#(#us),*);
 

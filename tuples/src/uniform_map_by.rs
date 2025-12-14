@@ -25,7 +25,7 @@
 //!   ```
 //!
 
-use crate::param::Param;
+use crate::misc::RefOrMut;
 
 /// Map heterogeneous tuples to homogeneous tuples by arg
 pub trait TupleUniformMapperBy<Input, Target, Arg> {

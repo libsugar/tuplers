@@ -15,34 +15,33 @@ version = "2.0.0-beta.0"
 [dependencies]
 
 [features]
-afn = []
 all = ["default"]
 apply_tuple = []
 capt = []
-cloned = []
+clone = []
 combin = []
 combinations = []
+convert = []
 default = [
+  "get",
+  "convert",
   "apply_tuple",
   "combin",
   "split",
   "tuple_iter",
   "tuple_map",
   "transpose",
-  "tuple_as",
   "shorthand",
   "flatten",
-  "cloned",
+  "clone",
   "tuple_call",
   "re-exports",
   "capt",
   "sort",
   "permutations",
   "combinations",
-  "afn",
   "uniform_map",
   "uniform_map_by",
-  "get",
 ]
 flatten = []
 get = []
@@ -57,7 +56,6 @@ split_parts = []
 split_to_tuple_at = []
 split_to_tuple_by = []
 transpose = []
-tuple_as = []
 tuple_call = []
 tuple_iter = []
 tuple_map = []

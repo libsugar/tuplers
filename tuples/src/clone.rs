@@ -1,82 +1,82 @@
 //! Cloned & Copied
 
 pub trait TupleCloned {
-    type TupleOut;
+    type Output;
 
-    fn cloned(self) -> Self::TupleOut;
+    fn cloned(self) -> Self::Output;
 }
 
 pub trait TupleCopied {
-    type TupleOut;
+    type Output;
 
-    fn copied(self) -> Self::TupleOut;
+    fn copied(self) -> Self::Output;
 }
 
 impl<T: Clone> TupleCloned for &T {
-    type TupleOut = T;
+    type Output = T;
 
-    fn cloned(self) -> Self::TupleOut {
+    fn cloned(self) -> Self::Output {
         self.clone()
     }
 }
 
 impl<T: Copy + Clone> TupleCopied for &T {
-    type TupleOut = T;
+    type Output = T;
 
-    fn copied(self) -> Self::TupleOut {
+    fn copied(self) -> Self::Output {
         *self
     }
 }
 
 impl TupleCloned for () {
-    type TupleOut = ();
+    type Output = ();
 
-    fn cloned(self) -> Self::TupleOut {
+    fn cloned(self) -> Self::Output {
         ()
     }
 }
 
 impl TupleCopied for () {
-    type TupleOut = ();
+    type Output = ();
 
-    fn copied(self) -> Self::TupleOut {
+    fn copied(self) -> Self::Output {
         ()
     }
 }
 
 impl<'a, T: Clone> TupleCloned for (&'a T,) {
-    type TupleOut = (T,);
+    type Output = (T,);
 
-    fn cloned(self) -> Self::TupleOut {
+    fn cloned(self) -> Self::Output {
         (self.0.clone(),)
     }
 }
 
 impl<'a, T: Clone> TupleCloned for (&'a mut T,) {
-    type TupleOut = (T,);
+    type Output = (T,);
 
-    fn cloned(self) -> Self::TupleOut {
+    fn cloned(self) -> Self::Output {
         (self.0.clone(),)
     }
 }
 
 impl<'a, T: Copy> TupleCopied for (&'a T,) {
-    type TupleOut = (T,);
+    type Output = (T,);
 
-    fn copied(self) -> Self::TupleOut {
+    fn copied(self) -> Self::Output {
         (*self.0,)
     }
 }
 
 impl<'a, T: Copy> TupleCopied for (&'a mut T,) {
-    type TupleOut = (T,);
+    type Output = (T,);
 
-    fn copied(self) -> Self::TupleOut {
+    fn copied(self) -> Self::Output {
         (*self.0,)
     }
 }
 
-include!("./gen/cloned.rs");
+include!("./gen/clone.rs");
 
 #[test]
 fn test() {
