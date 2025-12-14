@@ -17,7 +17,6 @@ pub fn code_gen(out_dir: &Path) {
     let ctx = init(33, &t, &u);
 
     gen_tuple_impl(&ctx, &out_dir);
-    gen_tuple_n_impl(&ctx, &out_dir);
     gen_tuple_item_n_impl(&ctx, &out_dir);
     gen_tuple_alias_macro(&ctx, &out_dir);
     gen_tuple_as(&ctx, &out_dir);
@@ -35,13 +34,13 @@ pub fn code_gen(out_dir: &Path) {
     gen_call(&ctx, &out_dir);
     gen_apply_tuple(&ctx, &out_dir);
     gen_capt(&ctx, &out_dir);
-    gen_tuple_get(&ctx, &out_dir);
     gen_permutations(&ctx, &out_dir);
     gen_combinations(&ctx, &out_dir);
     gen_afn(&ctx, &out_dir);
     gen_uniform_map(&ctx, &out_dir);
     gen_uniform_map_by(&ctx, &out_dir);
-    gen_tuple_get_v2(&ctx, &out_dir);
+    gen_get_dyn(&ctx, &out_dir);
+    gen_get_const(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -101,35 +100,9 @@ fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
             const ARITY: usize = #size_lit;
 
             type Item<const N: usize>
-                = <Self as crate::TupleItemN<N>>::ItemN
+                = <Self as crate::TupleItem<N>>::ItemN
             where
-                Self: crate::TupleItemN<N>;
-        }
-    };
-    tks
-}
-
-fn gen_tuple_n_impl(ctx: &Ctx, out_dir: &Path) {
-    let item_names = (0..34usize).into_iter().map(|i| format_ident!("Item{}", i)).collect::<Vec<_>>();
-    let items = (2..33usize).into_iter().map(|i| gen_tuple_n_impl_size(ctx, i, &item_names[0..i]));
-    let tks = quote! { #(#items)* };
-    let mut code = tks.to_string();
-    code.insert_str(0, AUTO_GEN_TIP);
-    let dest_path = Path::new(out_dir).join("tuple_n.rs");
-    fs::write(&dest_path, code).unwrap();
-}
-
-fn gen_tuple_n_impl_size(ctx: &Ctx, size: usize, item_names: &[Ident]) -> TokenStream {
-    let tuple_name = format_ident!("Tuple{}", size);
-
-    let nts = &ctx.nts[0..size];
-
-    let tks = quote! {
-        pub trait #tuple_name: Tuple {
-            #(type #item_names;)*
-        }
-        impl<#(#nts),*> #tuple_name for (#(#nts),*) {
-            #(type #item_names = #nts;)*
+                Self: crate::TupleItem<N>;
         }
     };
     tks
@@ -155,7 +128,9 @@ fn gen_tuple_item_n_impl_size_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream
     let nt = &ctx.nts[n];
 
     let tks = quote! {
-        impl<#(#nts),*> TupleItemN<#n_lit> for (#(#nts),*,) {
+        impl<#(#nts),*> TupleNthItem<#n_lit, #nt> for (#(#nts),*,) { }
+
+        impl<#(#nts),*> TupleItem<#n_lit> for (#(#nts),*,) {
             type ItemN = #nt;
         }
     };
@@ -1306,7 +1281,6 @@ fn gen_apply_tuple_size(ctx: &Ctx, size: usize) -> TokenStream {
     let nts = &ctx.nts[0..size];
     let nvs = &ctx.nvs[0..size];
     let tks = quote! {
-        #[cfg(feature = "tuple_meta")]
         impl<R, #(#nts),*> TupleFnMeta<R> for (#(#nts,)*) {
             type DynFnOnce = dyn FnOnce(#(#nts),*) -> R;
             type DynFnMut = dyn FnMut(#(#nts),*) -> R;
@@ -1376,97 +1350,6 @@ fn gen_capt_size(ctx: &Ctx, size: usize) -> TokenStream {
             move |#(#nvs,)*| f(c, #(#nvs,)*)
         }
 
-    };
-    tks
-}
-
-fn gen_tuple_get(ctx: &Ctx, out_dir: &Path) {
-    let items = (1..33usize).map(|i| gen_tuple_get_size(ctx, i));
-    let tks = quote! { #(#items)* };
-    let mut code = tks.to_string();
-    code.insert_str(0, AUTO_GEN_TIP);
-    let dest_path = Path::new(out_dir).join("tuple_get.rs");
-    fs::write(&dest_path, code).unwrap();
-}
-
-fn gen_tuple_get_size(ctx: &Ctx, size: usize) -> TokenStream {
-    let ts = &ctx.ts[0..size];
-    let size_lits = &ctx.size_lits[0..size];
-    let take: Vec<_> = size_lits.iter().map(|i| quote! { #i => &self.#i, }).collect();
-    let take_some: Vec<_> = size_lits.iter().map(|i| quote! { #i => Some(&self.#i), }).collect();
-    let take_mut: Vec<_> = size_lits.iter().map(|i| quote! { #i => &mut self.#i, }).collect();
-    let take_mut_some: Vec<_> = size_lits.iter().map(|i| quote! { #i => Some(&mut self.#i), }).collect();
-
-    let tks = quote! {
-        impl<T> TupleGet for (#(#ts,)*) {
-            type Output = T;
-
-            fn get_at(&self, index: usize) -> &Self::Output {
-                match index {
-                    #(#take)*
-                    _ => panic!("index out of bounds: the len is {} but the index is {}", #size, index),
-                }
-            }
-
-
-            fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
-                match index {
-                    #(#take_some)*
-                    _ => None,
-                }
-            }
-        }
-
-        impl<T> TupleGetMut for (#(#ts,)*) {
-
-            fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
-                match index {
-                    #(#take_mut)*
-                    _ => panic!("index out of bounds: the len is {} but the index is {}", #size, index),
-                }
-            }
-
-
-            fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
-                match index {
-                    #(#take_mut_some)*
-                    _ => None,
-                }
-            }
-        }
-
-        impl<T> TupleSwap for (#(#ts,)*) {
-            fn swap_at(&mut self, a: usize, b: usize) {
-                if a >= #size || b >= #size {
-                    panic!("index out of bounds: the len is {} but the index is {} and {}", #size, a, b);
-                }
-                if a == b {
-                    return;
-                }
-                unsafe {
-                    let this = self as *mut Self;
-                    let a =  (&mut *this).get_mut_at(a);
-                    let b =  (&mut *this).get_mut_at(b);
-                    core::mem::swap(a, b);
-                }
-            }
-
-            fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
-                if a >= #size || b >= #size {
-                    return false;
-                }
-                if a == b {
-                    return true;
-                }
-                unsafe {
-                    let this = self as *mut Self;
-                    let a =  (&mut *this).get_mut_at(a);
-                    let b =  (&mut *this).get_mut_at(b);
-                    core::mem::swap(a, b);
-                }
-                true
-            }
-        }
     };
     tks
 }
@@ -2165,29 +2048,85 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
     tks
 }
 
-fn gen_tuple_get_v2(ctx: &Ctx, out_dir: &Path) {
-    let items = (1..33usize).map(|i| gen_tuple_get_size_v2(ctx, i));
+fn gen_get_dyn(ctx: &Ctx, out_dir: &Path) {
+    let items = (1..33usize).map(|i| gen_get_dyn_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
     code.insert_str(0, AUTO_GEN_TIP);
-    let dest_path = Path::new(out_dir).join("tuple_get_v2.rs");
+    let dest_path = Path::new(out_dir).join("get_dyn.rs");
     fs::write(&dest_path, code).unwrap();
 }
 
-fn gen_tuple_get_size_v2(ctx: &Ctx, size: usize) -> TokenStream {
-    let tks = (0..size).into_iter().map(|n| gen_tuple_get_size_v2_n(ctx, size, n));
+fn gen_get_dyn_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let ts = &ctx.ts[0..size];
+    let size_lits = &ctx.size_lits[0..size];
+    let take_some: Vec<_> = size_lits.iter().map(|i| quote! { #i => Some(&self.#i), }).collect();
+    let take_mut_some: Vec<_> = size_lits.iter().map(|i| quote! { #i => Some(&mut self.#i), }).collect();
+
+    let tks = quote! {
+        impl<T> TupleDynamicGet for (#(#ts,)*) {
+            type Output = T;
+
+            fn dyn_get(&self, index: usize) -> Option<&Self::Output> {
+                match index {
+                    #(#take_some)*
+                    _ => None,
+                }
+            }
+        }
+
+        impl<T> TupleDynamicGetMut for (#(#ts,)*) {
+            fn dyn_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+                match index {
+                    #(#take_mut_some)*
+                    _ => None,
+                }
+            }
+        }
+
+        impl<T> TupleDynamicSwap for (#(#ts,)*) {
+            fn dyn_swap(&mut self, a: usize, b: usize) -> bool {
+                if a >= #size || b >= #size {
+                    return false;
+                }
+                if a == b {
+                    return true;
+                }
+                unsafe {
+                    let a =  self.dyn_get_mut(a).unwrap() as *mut _;
+                    let b =  self.dyn_get_mut(b).unwrap() as *mut _;
+                    core::mem::swap(&mut *a, &mut *b);
+                }
+                true
+            }
+        }
+    };
+    tks
+}
+
+fn gen_get_const(ctx: &Ctx, out_dir: &Path) {
+    let items = (1..33usize).map(|i| gen_get_size_const(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, AUTO_GEN_TIP);
+    let dest_path = Path::new(out_dir).join("get_const.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_get_size_const(ctx: &Ctx, size: usize) -> TokenStream {
+    let tks = (0..size).into_iter().map(|n| gen_get_size_const_n(ctx, size, n));
     quote! {
      #(#tks)*
     }
 }
 
-fn gen_tuple_get_size_v2_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
+fn gen_get_size_const_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
     let nts = &ctx.nts[0..size];
     let nt = &ctx.nts[n];
     let n_lit = &ctx.size_lits[n];
 
     let tks = quote! {
-        impl<#(#nts,)*> TupleGetV2N<#n_lit> for (#(#nts),*,) {
+        impl<#(#nts,)*> TupleGetN<#n_lit> for (#(#nts),*,) {
             type Output = #nt;
 
             fn get_n(&self) -> &Self::Output
@@ -2195,7 +2134,7 @@ fn gen_tuple_get_size_v2_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
                 &self.#n_lit
             }
         }
-        impl<#(#nts,)*> TupleGetMutV2N<#n_lit> for (#(#nts),*,) {
+        impl<#(#nts,)*> TupleGetMutN<#n_lit> for (#(#nts),*,) {
             fn get_n_mut(&mut self) -> &mut Self::Output
             {
                 &mut self.#n_lit

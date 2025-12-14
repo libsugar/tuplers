@@ -1,6 +1,5 @@
 //! Apply tuple as args to fns
 
-#[cfg(feature = "tuple_meta")]
 /// Tuple to fn meta
 pub trait TupleFnMeta<R> {
     type DynFnOnce: ?Sized;

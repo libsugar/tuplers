@@ -1,7 +1,7 @@
 #![no_std]
 #![allow(unused_imports)]
 
-#[cfg(feature = "tuple_meta")]
+pub use meta::*;
 mod meta {
     /// Type-erased tuple meta
     pub trait AnyTuple {
@@ -28,25 +28,25 @@ mod meta {
 
         type Item<const N: usize>
         where
-            Self: crate::TupleItemN<N>;
+            Self: crate::TupleItem<N>;
     }
 
     impl Tuple for () {
         const ARITY: usize = 0;
 
         type Item<const N: usize>
-            = <Self as crate::TupleItemN<N>>::ItemN
+            = <Self as crate::TupleItem<N>>::ItemN
         where
-            Self: crate::TupleItemN<N>;
+            Self: crate::TupleItem<N>;
     }
 
     impl<T> Tuple for (T,) {
         const ARITY: usize = 1;
 
         type Item<const N: usize>
-            = <Self as crate::TupleItemN<N>>::ItemN
+            = <Self as crate::TupleItem<N>>::ItemN
         where
-            Self: crate::TupleItemN<N>;
+            Self: crate::TupleItem<N>;
     }
 
     /// Mark traits for all tuples with all item is same type
@@ -85,43 +85,22 @@ mod meta {
         }
     }
 }
-#[cfg(feature = "tuple_meta")]
-pub use meta::*;
 
-/// TupleN
-#[cfg(feature = "tuple_meta")]
-pub mod tuple_n {
+pub use tuple_item_n::*;
+mod tuple_item_n {
     use crate::meta::*;
 
-    pub trait Tuple0: Tuple {}
-    impl Tuple0 for () {}
+    /// Mark nth item type
+    pub trait TupleNthItem<const N: usize, Item>: AnyTuple {}
 
-    pub trait Tuple1: Tuple {
-        type Item0;
-    }
-
-    impl<T> Tuple1 for (T,) {
-        type Item0 = T;
-    }
-
-    include!("./gen/tuple_n.rs");
-}
-#[cfg(all(feature = "tuple_meta", feature = "re-exports"))]
-pub use tuple_n::*;
-
-/// TupleItemN
-#[cfg(feature = "tuple_meta")]
-pub mod tuple_item_n {
-    use crate::meta::*;
-
-    pub trait TupleItemN<const N: usize>: Tuple {
+    /// Provide nth item type
+    pub trait TupleItem<const N: usize>: Tuple + TupleNthItem<N, Self::ItemN> {
+        /// Nth item type
         type ItemN;
     }
 
     include!("./gen/tuple_item_n.rs");
 }
-#[cfg(all(feature = "tuple_meta", feature = "re-exports"))]
-pub use tuple_item_n::*;
 
 #[cfg(feature = "shorthand")]
 mod shorthand {
@@ -262,14 +241,9 @@ pub mod capt;
 #[cfg(all(feature = "capt", feature = "re-exports"))]
 pub use capt::*;
 
-#[cfg(feature = "tuple_get")]
-pub mod tuple_get;
-#[cfg(all(feature = "tuple_get", feature = "re-exports"))]
-pub use tuple_get::*;
-
-#[cfg(all(feature = "sort", feature = "tuple_meta", feature = "tuple_get"))]
+#[cfg(all(feature = "sort", feature = "get"))]
 pub mod sort;
-#[cfg(all(feature = "sort", feature = "tuple_meta", feature = "tuple_get", feature = "re-exports"))]
+#[cfg(all(feature = "sort", feature = "get", feature = "re-exports"))]
 pub use sort::*;
 
 #[cfg(any(feature = "permutations", test, doc))]
@@ -298,7 +272,7 @@ pub use uniform_map_by::*;
 #[cfg(any(feature = "uniform_map_by", test, doc))]
 mod param;
 
-#[cfg(any(feature = "get2", test, doc))]
-pub mod get2;
-#[cfg(any(all(feature = "get2", feature = "re-exports"), test, doc))]
-pub use get2::*;
+#[cfg(any(feature = "get", test, doc))]
+pub mod get;
+#[cfg(any(all(feature = "get", feature = "re-exports"), test, doc))]
+pub use get::*;

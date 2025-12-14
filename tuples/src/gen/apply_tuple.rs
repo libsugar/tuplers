@@ -1,6 +1,5 @@
 // auto generated code, do not modify
 
-#[cfg(feature = "tuple_meta")]
 impl<R> TupleFnMeta<R> for () {
     type DynFnOnce = dyn FnOnce() -> R;
     type DynFnMut = dyn FnMut() -> R;
@@ -30,7 +29,6 @@ impl<F: Fn() -> R, R> ApplyTuple<()> for F {
         self()
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0> TupleFnMeta<R> for (T0,) {
     type DynFnOnce = dyn FnOnce(T0) -> R;
     type DynFnMut = dyn FnMut(T0) -> R;
@@ -60,7 +58,6 @@ impl<F: Fn(T0) -> R, R, T0> ApplyTuple<(T0,)> for F {
         self(v0)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1> TupleFnMeta<R> for (T0, T1) {
     type DynFnOnce = dyn FnOnce(T0, T1) -> R;
     type DynFnMut = dyn FnMut(T0, T1) -> R;
@@ -90,7 +87,6 @@ impl<F: Fn(T0, T1) -> R, R, T0, T1> ApplyTuple<(T0, T1)> for F {
         self(v0, v1)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2> TupleFnMeta<R> for (T0, T1, T2) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2) -> R;
@@ -120,7 +116,6 @@ impl<F: Fn(T0, T1, T2) -> R, R, T0, T1, T2> ApplyTuple<(T0, T1, T2)> for F {
         self(v0, v1, v2)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3> TupleFnMeta<R> for (T0, T1, T2, T3) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3) -> R;
@@ -150,7 +145,6 @@ impl<F: Fn(T0, T1, T2, T3) -> R, R, T0, T1, T2, T3> ApplyTuple<(T0, T1, T2, T3)>
         self(v0, v1, v2, v3)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4> TupleFnMeta<R> for (T0, T1, T2, T3, T4) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4) -> R;
@@ -180,7 +174,6 @@ impl<F: Fn(T0, T1, T2, T3, T4) -> R, R, T0, T1, T2, T3, T4> ApplyTuple<(T0, T1, 
         self(v0, v1, v2, v3, v4)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5) -> R;
@@ -210,7 +203,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5) -> R, R, T0, T1, T2, T3, T4, T5> ApplyTuple<(
         self(v0, v1, v2, v3, v4, v5)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6) -> R;
@@ -240,7 +232,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6) -> R, R, T0, T1, T2, T3, T4, T5, T6> Appl
         self(v0, v1, v2, v3, v4, v5, v6)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7) -> R;
@@ -270,7 +261,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7) -> R, R, T0, T1, T2, T3, T4, T5, T6, 
         self(v0, v1, v2, v3, v4, v5, v6, v7)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8) -> R;
@@ -300,7 +290,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8) -> R, R, T0, T1, T2, T3, T4, T5, 
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) -> R;
@@ -330,7 +319,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) -> R, R, T0, T1, T2, T3, T4, 
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) -> R;
@@ -360,7 +348,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) -> R, R, T0, T1, T2, T3,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) -> R;
@@ -390,7 +377,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) -> R, R, T0, T1, T2
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) -> R;
@@ -420,7 +406,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) -> R, R, T0, T
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) -> R;
@@ -450,7 +435,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) -> R, R, 
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) -> R;
@@ -480,7 +464,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) -> R
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) -> R;
@@ -510,7 +493,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) -> R;
@@ -540,7 +522,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) -> R;
@@ -570,7 +551,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) -> R;
@@ -600,7 +580,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) -> R;
@@ -630,7 +609,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) -> R;
@@ -660,7 +638,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) -> R;
@@ -690,7 +667,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) -> R;
@@ -720,7 +696,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) -> R;
@@ -750,7 +725,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) -> R;
@@ -780,7 +754,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) -> R;
@@ -810,7 +783,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) -> R;
@@ -840,7 +812,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) -> R;
@@ -870,7 +841,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) -> R;
@@ -900,7 +870,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) -> R;
@@ -930,7 +899,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) -> R;
@@ -960,7 +928,6 @@ impl<F: Fn(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
         self(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30)
     }
 }
-#[cfg(feature = "tuple_meta")]
 impl<R, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> TupleFnMeta<R> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) {
     type DynFnOnce = dyn FnOnce(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) -> R;
     type DynFnMut = dyn FnMut(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) -> R;
