@@ -18,6 +18,7 @@ pub fn code_gen(out_dir: &Path) {
 
     gen_tuple_impl(&ctx, &out_dir);
     gen_tuple_n_impl(&ctx, &out_dir);
+    gen_tuple_item_n_impl(&ctx, &out_dir);
     gen_tuple_alias_macro(&ctx, &out_dir);
     gen_tuple_as(&ctx, &out_dir);
     gen_tuple_iter(&ctx, &out_dir);
@@ -41,6 +42,7 @@ pub fn code_gen(out_dir: &Path) {
     gen_afn(&ctx, &out_dir);
     gen_uniform_map(&ctx, &out_dir);
     gen_uniform_map_by(&ctx, &out_dir);
+    gen_tuple_get_v2(&ctx, &out_dir);
 }
 
 #[allow(dead_code)]
@@ -89,10 +91,21 @@ fn gen_tuple_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
     let tks = quote! {
         impl<T> TupleSame<T> for (#(#ts),*) { }
 
+        impl<T> TupleSameV2<T> for (#(#ts),*) { }
+
         impl<#(#nts),*> Tuple for (#(#nts),*) {
             fn arity(&self) -> usize {
                 #size_lit
             }
+        }
+
+        impl<#(#nts),*> TupleV2 for (#(#nts),*) {
+            const ARITY: usize = #size_lit;
+
+            type Item<const N: usize>
+                = <Self as crate::TupleItemN<N>>::ItemN
+            where
+                Self: crate::TupleItemN<N>;
         }
     };
     tks
@@ -119,6 +132,33 @@ fn gen_tuple_n_impl_size(ctx: &Ctx, size: usize, item_names: &[Ident]) -> TokenS
         }
         impl<#(#nts),*> #tuple_name for (#(#nts),*) {
             #(type #item_names = #nts;)*
+        }
+    };
+    tks
+}
+
+fn gen_tuple_item_n_impl(ctx: &Ctx, out_dir: &Path) {
+    let items = (1..33usize).into_iter().map(|i| gen_tuple_item_n_impl_size(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, AUTO_GEN_TIP);
+    let dest_path = Path::new(out_dir).join("tuple_item_n.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_tuple_item_n_impl_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let tks = (0..size).into_iter().map(|n| gen_tuple_item_n_impl_size_n(ctx, size, n));
+    quote! { #(#tks)* }
+}
+
+fn gen_tuple_item_n_impl_size_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
+    let n_lit = &ctx.size_lits[n];
+    let nts = &ctx.nts[0..size];
+    let nt = &ctx.nts[n];
+
+    let tks = quote! {
+        impl<#(#nts),*> TupleItemN<#n_lit> for (#(#nts),*,) {
+            type ItemN = #nt;
         }
     };
     tks
@@ -2181,6 +2221,46 @@ fn gen_uniform_map_by_size(ctx: &Ctx, size: usize) -> TokenStream {
 
             fn apply_uniform_map_by(self, mut arg: A, input: &mut (#(#nts),*)) -> Self::Output {
                 (#((self.#size_lits)(arg.pass(), &mut input.#size_lits)),*)
+            }
+        }
+    };
+    tks
+}
+
+fn gen_tuple_get_v2(ctx: &Ctx, out_dir: &Path) {
+    let items = (1..33usize).map(|i| gen_tuple_get_size_v2(ctx, i));
+    let tks = quote! { #(#items)* };
+    let mut code = tks.to_string();
+    code.insert_str(0, AUTO_GEN_TIP);
+    let dest_path = Path::new(out_dir).join("tuple_get_v2.rs");
+    fs::write(&dest_path, code).unwrap();
+}
+
+fn gen_tuple_get_size_v2(ctx: &Ctx, size: usize) -> TokenStream {
+    let tks = (0..size).into_iter().map(|n| gen_tuple_get_size_v2_n(ctx, size, n));
+    quote! {
+     #(#tks)*
+    }
+}
+
+fn gen_tuple_get_size_v2_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let nt = &ctx.nts[n];
+    let n_lit = &ctx.size_lits[n];
+
+    let tks = quote! {
+        impl<#(#nts,)*> TupleGetV2N<#n_lit> for (#(#nts),*,) {
+            type Output = #nt;
+
+            fn get_n(&self) -> &Self::Output
+            {
+                &self.#n_lit
+            }
+        }
+        impl<#(#nts,)*> TupleGetMutV2N<#n_lit> for (#(#nts),*,) {
+            fn get_n_mut(&mut self) -> &mut Self::Output
+            {
+                &mut self.#n_lit
             }
         }
     };

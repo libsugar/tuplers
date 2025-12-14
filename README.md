@@ -40,7 +40,11 @@ Provides many useful tools related to tuples
 
 ## Examples
 
+For readability, most examples use homogeneous tuples, but in practice they are heterogeneous. Please refer to the documentation for details.
+
 - map
+
+  **Single mapper mapping only supports homogeneous tuples**
 
   ```rust
   let a = (1, 2, 3);
@@ -98,9 +102,27 @@ Provides many useful tools related to tuples
 
   let b = ();
   assert_eq!(b.arity(), 0);
+
+  assert_eq!(<(i32, f64, char) as TupleV2>::ARITY, 3);
+  assert_eq!(<(i32, f64, char)>::ARITY, 3);
+
+  let _: <(i32, f64, char) as TupleV2>::Item<1> = 3.14f64;
   ```
 
-- get
+- const get
+
+  ```rust
+  let a = (1, '2', "3");
+  let r: &char = a.get::<1>();
+  assert_eq!(*r, '2');
+
+  let mut a = (1, '2', "3");
+  *a.get_mut::<1>() = 'c';
+  ```
+
+- dynamic get
+
+  **Dynamic get only supports homogeneous tuples**
 
   ```rust
   let a = (1, 2, 3, 4, 5);
@@ -111,6 +133,8 @@ Provides many useful tools related to tuples
   ```
 
 - iter
+
+  **Iteraotr only supports homogeneous tuples**
 
   ```rust
   let a = (1, 2, 3)
@@ -292,7 +316,19 @@ Provides many useful tools related to tuples
   assert_eq!(r, 6)
   ```
 
-- swap
+- const swap
+
+  **The two items to be swapped must be of the same type**
+
+  ```rust
+  let mut a = (1, '2', "3", 6);
+  a.swap::<0, 3>();
+  assert_eq!(a.0, 6);
+  ```
+
+- dynamic swap
+
+  **Dynamic swap only supports homogeneous tuples**
 
   ```rust
   let mut a = (1, 2, 3, 4, 5);
@@ -303,6 +339,8 @@ Provides many useful tools related to tuples
 - swap_n
 
   **Not enabled by default**
+
+  ***Deprecated***
 
   ```toml
   features = ["tuple_swap_n"]
@@ -315,6 +353,8 @@ Provides many useful tools related to tuples
   ```
 
 - sort
+
+  **Sort only supports homogeneous tuples**
 
   Currently implemented sorting algorithm
 
