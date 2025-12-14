@@ -130,7 +130,7 @@ pub use algorithms::selection::*;
 pub mod algorithms {
     /// Selection sort, it has an `O(n2)` time complexity
     pub mod selection {
-        use crate::{TupleSame, TupleSwap};
+        use crate::{AnyHomogeneousTuple, TupleSwap};
 
         /// Sort tuples using selection sort
         pub trait TupleSortSelection<T> {
@@ -172,7 +172,7 @@ pub mod algorithms {
             fn sort_by_key_desc_selection<K: PartialOrd>(&mut self, selector: impl FnMut(&T) -> K);
         }
 
-        impl<T: PartialOrd, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortSelection<T> for S {
+        impl<T: PartialOrd, S: AnyHomogeneousTuple<T> + TupleSwap<Output = T>> TupleSortSelection<T> for S {
             #[inline]
             fn sort_selection(&mut self) {
                 if sort_base(self, T::lt) {
@@ -182,7 +182,7 @@ pub mod algorithms {
             }
         }
 
-        impl<T: PartialOrd, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortDescSelection<T> for S {
+        impl<T: PartialOrd, S: AnyHomogeneousTuple<T> + TupleSwap<Output = T>> TupleSortDescSelection<T> for S {
             #[inline]
             fn sort_desc_selection(&mut self) {
                 if sort_base(self, T::gt) {
@@ -192,7 +192,7 @@ pub mod algorithms {
             }
         }
 
-        impl<T, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortBySelection<T> for S {
+        impl<T, S: AnyHomogeneousTuple<T> + TupleSwap<Output = T>> TupleSortBySelection<T> for S {
             #[inline]
             fn sort_by_selection(&mut self, mut cmp: impl FnMut(&T, &T) -> core::cmp::Ordering) {
                 if sort_base(self, |a, b| matches!(cmp(a, b), core::cmp::Ordering::Less)) {
@@ -202,7 +202,7 @@ pub mod algorithms {
             }
         }
 
-        impl<T, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortByKeySelection<T> for S {
+        impl<T, S: AnyHomogeneousTuple<T> + TupleSwap<Output = T>> TupleSortByKeySelection<T> for S {
             #[inline]
             fn sort_by_key_selection<K: PartialOrd>(&mut self, mut selector: impl FnMut(&T) -> K) {
                 if sort_base(self, |a, b| selector(a) < selector(b)) {
@@ -212,7 +212,7 @@ pub mod algorithms {
             }
         }
 
-        impl<T, S: TupleSame<T> + TupleSwap<Output = T>> TupleSortByKeyDescSelection<T> for S {
+        impl<T, S: AnyHomogeneousTuple<T> + TupleSwap<Output = T>> TupleSortByKeyDescSelection<T> for S {
             #[inline]
             fn sort_by_key_desc_selection<K: PartialOrd>(&mut self, mut selector: impl FnMut(&T) -> K) {
                 if sort_base(self, |a, b| selector(a) > selector(b)) {
@@ -222,7 +222,7 @@ pub mod algorithms {
             }
         }
 
-        fn sort_base<T, S: TupleSame<T> + TupleSwap<Output = T>>(v: &mut S, mut is_less: impl FnMut(&T, &T) -> bool) -> bool {
+        fn sort_base<T, S: AnyHomogeneousTuple<T> + TupleSwap<Output = T>>(v: &mut S, mut is_less: impl FnMut(&T, &T) -> bool) -> bool {
             if core::mem::size_of::<T>() == 0 {
                 return true;
             }
@@ -232,13 +232,13 @@ pub mod algorithms {
                 return true;
             }
             if len == 2 {
-                let a = v.get(0);
-                let b = v.get(1);
+                let a = v.get_at(0);
+                let b = v.get_at(1);
 
                 if is_less(a, b) {
                     return true;
                 } else if is_less(b, a) {
-                    v.swap(0, 1);
+                    v.swap_at(0, 1);
                     return true;
                 } else {
                     return true;
@@ -248,19 +248,19 @@ pub mod algorithms {
             false
         }
 
-        fn selection_sort<T, S: TupleSame<T> + TupleSwap<Output = T>>(v: &mut S, mut is_less: impl FnMut(&T, &T) -> bool) {
+        fn selection_sort<T, S: AnyHomogeneousTuple<T> + TupleSwap<Output = T>>(v: &mut S, mut is_less: impl FnMut(&T, &T) -> bool) {
             let len = v.arity();
             for i in 0..(len - 1) {
                 let mut min_index = i;
 
                 for j in (i + 1)..len {
-                    if is_less(v.get(j), v.get(min_index)) {
+                    if is_less(v.get_at(j), v.get_at(min_index)) {
                         min_index = j;
                     }
                 }
 
                 if min_index != i {
-                    v.swap(i, min_index);
+                    v.swap_at(i, min_index);
                 }
             }
         }

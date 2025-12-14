@@ -3,26 +3,26 @@
 
 #[cfg(feature = "tuple_meta")]
 mod meta {
-    /// Tuple meta
-    pub trait Tuple {
+    /// Type-erased tuple meta
+    pub trait AnyTuple {
         /// Get arity of the tuple
         fn arity(&self) -> usize;
     }
 
-    impl Tuple for () {
+    impl AnyTuple for () {
         fn arity(&self) -> usize {
             0
         }
     }
 
-    impl<T> Tuple for (T,) {
+    impl<T> AnyTuple for (T,) {
         fn arity(&self) -> usize {
             1
         }
     }
 
     /// Tuple meta
-    pub trait TupleV2: Tuple {
+    pub trait Tuple: AnyTuple {
         /// Get arity of the tuple
         const ARITY: usize;
 
@@ -31,7 +31,7 @@ mod meta {
             Self: crate::TupleItemN<N>;
     }
 
-    impl TupleV2 for () {
+    impl Tuple for () {
         const ARITY: usize = 0;
 
         type Item<const N: usize>
@@ -40,7 +40,7 @@ mod meta {
             Self: crate::TupleItemN<N>;
     }
 
-    impl<T> TupleV2 for (T,) {
+    impl<T> Tuple for (T,) {
         const ARITY: usize = 1;
 
         type Item<const N: usize>
@@ -50,16 +50,16 @@ mod meta {
     }
 
     /// Mark traits for all tuples with all item is same type
-    pub trait TupleSame<T>: Tuple {}
-
-    impl<T> TupleSame<T> for () {}
-    impl<T> TupleSame<T> for (T,) {}
+    pub trait AnyHomogeneousTuple<T>: AnyTuple {}
 
     /// Mark traits for all tuples with all item is same type
-    pub trait TupleSameV2<T>: TupleV2 + TupleSame<T> {}
+    pub trait HomogeneousTuple<T>: Tuple + AnyHomogeneousTuple<T> {}
 
-    impl<T> TupleSameV2<T> for () {}
-    impl<T> TupleSameV2<T> for (T,) {}
+    impl<T> AnyHomogeneousTuple<T> for () {}
+    impl<T> AnyHomogeneousTuple<T> for (T,) {}
+
+    impl<T> HomogeneousTuple<T> for () {}
+    impl<T> HomogeneousTuple<T> for (T,) {}
 
     include!("./gen/tuple_impl.rs");
 
@@ -75,13 +75,13 @@ mod meta {
 
         #[test]
         fn test1() {
-            assert_eq!(<(i32, f64, char) as TupleV2>::ARITY, 3);
+            assert_eq!(<(i32, f64, char) as Tuple>::ARITY, 3);
             assert_eq!(<(i32, f64, char)>::ARITY, 3);
         }
 
         #[test]
         fn test2() {
-            let _: <(i32, f64, char) as TupleV2>::Item<1> = 3.14f64;
+            let _: <(i32, f64, char) as Tuple>::Item<1> = 3.14f64;
         }
     }
 }
@@ -114,7 +114,7 @@ pub use tuple_n::*;
 pub mod tuple_item_n {
     use crate::meta::*;
 
-    pub trait TupleItemN<const N: usize>: TupleV2 {
+    pub trait TupleItemN<const N: usize>: Tuple {
         type ItemN;
     }
 
@@ -272,11 +272,6 @@ pub mod sort;
 #[cfg(all(feature = "sort", feature = "tuple_meta", feature = "tuple_get", feature = "re-exports"))]
 pub use sort::*;
 
-#[cfg(any(feature = "tuple_swap_n", test, doc))]
-pub mod tuple_swap_n;
-#[cfg(any(all(feature = "tuple_swap_n", feature = "re-exports"), test, doc))]
-pub use tuple_swap_n::*;
-
 #[cfg(any(feature = "permutations", test, doc))]
 pub mod permutations;
 #[cfg(any(all(feature = "permutations", feature = "re-exports"), test, doc))]
@@ -305,5 +300,5 @@ mod param;
 
 #[cfg(any(feature = "get2", test, doc))]
 pub mod get2;
-// #[cfg(any(all(feature = "get2", feature = "re-exports"), test, doc))]
-// pub use get2::*;
+#[cfg(any(all(feature = "get2", feature = "re-exports"), test, doc))]
+pub use get2::*;

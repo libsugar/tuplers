@@ -558,13 +558,6 @@ impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, 
         }
     }
 }
-impl<Eo: From<E0> + From<E1>, E0, T0, E1, T1> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>) {
-    type OutTuple = Result<(T0, T1), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1) = self;
-        Ok((v0?, v1?))
-    }
-}
 impl<E, T0, T1> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>) {
     type OutTuple = Result<(T0, T1), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -573,14 +566,14 @@ impl<E, T0, T1> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>)
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_2<E0, E1> {
+pub trait TupleTransposeResult2<E0, E1> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1> TupleTransposeResult1_2<E0, E1> for (Result<T0, E0>, Result<T1, E1>) {
+impl<E0, T0, E1, T1> TupleTransposeResult2<E0, E1> for (Result<T0, E0>, Result<T1, E1>) {
     type OutTuple<Eo> = Result<(T0, T1), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1) = self;
         Ok((v0?, v1?))
     }
@@ -607,13 +600,6 @@ impl<E0, T0, E1, T1> TupleTransposeResultMapErr2<E0, E1> for (Result<T0, E0>, Re
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2>, E0, T0, E1, T1, E2, T2> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>) {
-    type OutTuple = Result<(T0, T1, T2), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2) = self;
-        Ok((v0?, v1?, v2?))
-    }
-}
 impl<E, T0, T1, T2> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>) {
     type OutTuple = Result<(T0, T1, T2), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -622,14 +608,14 @@ impl<E, T0, T1, T2> TupleTransposeResultSameError for (Result<T0, E>, Result<T1,
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_3<E0, E1, E2> {
+pub trait TupleTransposeResult3<E0, E1, E2> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2> TupleTransposeResult1_3<E0, E1, E2> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>) {
+impl<E0, T0, E1, T1, E2, T2> TupleTransposeResult3<E0, E1, E2> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>) {
     type OutTuple<Eo> = Result<(T0, T1, T2), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2) = self;
         Ok((v0?, v1?, v2?))
     }
@@ -660,13 +646,6 @@ impl<E0, T0, E1, T1, E2, T2> TupleTransposeResultMapErr3<E0, E1, E2> for (Result
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3>, E0, T0, E1, T1, E2, T2, E3, T3> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>) {
-    type OutTuple = Result<(T0, T1, T2, T3), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3) = self;
-        Ok((v0?, v1?, v2?, v3?))
-    }
-}
 impl<E, T0, T1, T2, T3> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>) {
     type OutTuple = Result<(T0, T1, T2, T3), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -675,14 +654,14 @@ impl<E, T0, T1, T2, T3> TupleTransposeResultSameError for (Result<T0, E>, Result
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_4<E0, E1, E2, E3> {
+pub trait TupleTransposeResult4<E0, E1, E2, E3> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3> TupleTransposeResult1_4<E0, E1, E2, E3> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3> TupleTransposeResult4<E0, E1, E2, E3> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3) = self;
         Ok((v0?, v1?, v2?, v3?))
     }
@@ -717,13 +696,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3> TupleTransposeResultMapErr4<E0, E1, E2, E3>
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -732,14 +704,14 @@ impl<E, T0, T1, T2, T3, T4> TupleTransposeResultSameError for (Result<T0, E>, Re
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_5<E0, E1, E2, E3, E4> {
+pub trait TupleTransposeResult5<E0, E1, E2, E3, E4> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4> TupleTransposeResult1_5<E0, E1, E2, E3, E4> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4> TupleTransposeResult5<E0, E1, E2, E3, E4> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4) = self;
         Ok((v0?, v1?, v2?, v3?, v4?))
     }
@@ -778,13 +750,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4> TupleTransposeResultMapErr5<E0, E1,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -793,14 +758,14 @@ impl<E, T0, T1, T2, T3, T4, T5> TupleTransposeResultSameError for (Result<T0, E>
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_6<E0, E1, E2, E3, E4, E5> {
+pub trait TupleTransposeResult6<E0, E1, E2, E3, E4, E5> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5> TupleTransposeResult1_6<E0, E1, E2, E3, E4, E5> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5> TupleTransposeResult6<E0, E1, E2, E3, E4, E5> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?))
     }
@@ -843,13 +808,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5> TupleTransposeResultMapErr6
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -858,14 +816,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6> TupleTransposeResultSameError for (Result<T0
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_7<E0, E1, E2, E3, E4, E5, E6> {
+pub trait TupleTransposeResult7<E0, E1, E2, E3, E4, E5, E6> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6> TupleTransposeResult1_7<E0, E1, E2, E3, E4, E5, E6> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6> TupleTransposeResult7<E0, E1, E2, E3, E4, E5, E6> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?))
     }
@@ -912,13 +870,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6> TupleTransposeResul
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -927,14 +878,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7> TupleTransposeResultSameError for (Resul
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_8<E0, E1, E2, E3, E4, E5, E6, E7> {
+pub trait TupleTransposeResult8<E0, E1, E2, E3, E4, E5, E6, E7> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7> TupleTransposeResult1_8<E0, E1, E2, E3, E4, E5, E6, E7> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7> TupleTransposeResult8<E0, E1, E2, E3, E4, E5, E6, E7> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?))
     }
@@ -985,13 +936,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7> TupleTransp
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1000,14 +944,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8> TupleTransposeResultSameError for (R
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_9<E0, E1, E2, E3, E4, E5, E6, E7, E8> {
+pub trait TupleTransposeResult9<E0, E1, E2, E3, E4, E5, E6, E7, E8> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8> TupleTransposeResult1_9<E0, E1, E2, E3, E4, E5, E6, E7, E8> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8> TupleTransposeResult9<E0, E1, E2, E3, E4, E5, E6, E7, E8> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?))
     }
@@ -1062,13 +1006,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8> Tup
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1077,14 +1014,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> TupleTransposeResultSameError fo
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_10<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9> {
+pub trait TupleTransposeResult10<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9> TupleTransposeResult1_10<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9> TupleTransposeResult10<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?))
     }
@@ -1143,13 +1080,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1158,14 +1088,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> TupleTransposeResultSameErr
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_11<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10> {
+pub trait TupleTransposeResult11<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10> TupleTransposeResult1_11<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10> TupleTransposeResult11<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?))
     }
@@ -1228,13 +1158,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1243,14 +1166,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> TupleTransposeResultSa
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_12<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11> {
+pub trait TupleTransposeResult12<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11> TupleTransposeResult1_12<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11> TupleTransposeResult12<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?))
     }
@@ -1317,13 +1240,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1332,14 +1248,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> TupleTransposeRes
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_13<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12> {
+pub trait TupleTransposeResult13<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12> TupleTransposeResult1_13<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12> TupleTransposeResult13<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?))
     }
@@ -1410,13 +1326,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1425,14 +1334,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> TupleTranspo
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_14<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13> {
+pub trait TupleTransposeResult14<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13> TupleTransposeResult1_14<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13> TupleTransposeResult14<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?))
     }
@@ -1507,13 +1416,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1522,14 +1424,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> TupleTr
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_15<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14> {
+pub trait TupleTransposeResult15<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14> TupleTransposeResult1_15<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14> TupleTransposeResult15<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?))
     }
@@ -1608,13 +1510,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1623,14 +1518,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> Tu
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_16<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15> {
+pub trait TupleTransposeResult16<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15> TupleTransposeResult1_16<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15> TupleTransposeResult16<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?))
     }
@@ -1713,13 +1608,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1728,14 +1616,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_17<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16> {
+pub trait TupleTransposeResult17<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16> TupleTransposeResult1_17<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16> TupleTransposeResult17<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?))
     }
@@ -1822,13 +1710,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1837,14 +1718,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_18<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17> {
+pub trait TupleTransposeResult18<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17> TupleTransposeResult1_18<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17> TupleTransposeResult18<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?))
     }
@@ -1935,13 +1816,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -1950,14 +1824,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_19<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18> {
+pub trait TupleTransposeResult19<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18> TupleTransposeResult1_19<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18> TupleTransposeResult19<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?))
     }
@@ -2052,13 +1926,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -2067,14 +1934,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_20<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19> {
+pub trait TupleTransposeResult20<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19> TupleTransposeResult1_20<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19> TupleTransposeResult20<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?))
     }
@@ -2173,13 +2040,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -2188,14 +2048,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_21<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20> {
+pub trait TupleTransposeResult21<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20> TupleTransposeResult1_21<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20> TupleTransposeResult21<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?))
     }
@@ -2298,13 +2158,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -2313,14 +2166,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_22<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21> {
+pub trait TupleTransposeResult22<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21> TupleTransposeResult1_22<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21> TupleTransposeResult22<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?))
     }
@@ -2427,13 +2280,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -2442,14 +2288,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_23<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22> {
+pub trait TupleTransposeResult23<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22> TupleTransposeResult1_23<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22> TupleTransposeResult23<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?))
     }
@@ -2560,13 +2406,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>, Result<T23, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -2575,14 +2414,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_24<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23> {
+pub trait TupleTransposeResult24<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23> TupleTransposeResult1_24<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23> TupleTransposeResult24<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?))
     }
@@ -2697,13 +2536,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>, Result<T23, E>, Result<T24, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -2712,14 +2544,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_25<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24> {
+pub trait TupleTransposeResult25<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24> TupleTransposeResult1_25<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24> TupleTransposeResult25<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?))
     }
@@ -2838,13 +2670,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>, Result<T23, E>, Result<T24, E>, Result<T25, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -2853,14 +2678,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_26<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25> {
+pub trait TupleTransposeResult26<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25> TupleTransposeResult1_26<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25> TupleTransposeResult26<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?))
     }
@@ -2983,13 +2808,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>, Result<T23, E>, Result<T24, E>, Result<T25, E>, Result<T26, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -2998,14 +2816,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_27<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26> {
+pub trait TupleTransposeResult27<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26> TupleTransposeResult1_27<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26> TupleTransposeResult27<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?))
     }
@@ -3132,13 +2950,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>, Result<T23, E>, Result<T24, E>, Result<T25, E>, Result<T26, E>, Result<T27, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -3147,14 +2958,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_28<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27> {
+pub trait TupleTransposeResult28<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27> TupleTransposeResult1_28<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27> TupleTransposeResult28<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?))
     }
@@ -3285,13 +3096,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?, v28?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>, Result<T23, E>, Result<T24, E>, Result<T25, E>, Result<T26, E>, Result<T27, E>, Result<T28, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -3300,14 +3104,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_29<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28> {
+pub trait TupleTransposeResult29<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28> TupleTransposeResult1_29<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28> TupleTransposeResult29<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?, v28?))
     }
@@ -3442,13 +3246,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28, E29, T29> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>, Result<T29, E29>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?, v28?, v29?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>, Result<T23, E>, Result<T24, E>, Result<T25, E>, Result<T26, E>, Result<T27, E>, Result<T28, E>, Result<T29, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -3457,14 +3254,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_30<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29> {
+pub trait TupleTransposeResult30<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28, E29, T29> TupleTransposeResult1_30<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>, Result<T29, E29>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28, E29, T29> TupleTransposeResult30<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>, Result<T29, E29>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?, v28?, v29?))
     }
@@ -3603,13 +3400,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28, E29, T29, E30, T30> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>, Result<T29, E29>, Result<T30, E30>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?, v28?, v29?, v30?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>, Result<T23, E>, Result<T24, E>, Result<T25, E>, Result<T26, E>, Result<T27, E>, Result<T28, E>, Result<T29, E>, Result<T30, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -3618,14 +3408,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_31<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29, E30> {
+pub trait TupleTransposeResult31<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29, E30> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28, E29, T29, E30, T30> TupleTransposeResult1_31<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29, E30> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>, Result<T29, E29>, Result<T30, E30>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28, E29, T29, E30, T30> TupleTransposeResult31<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29, E30> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>, Result<T29, E29>, Result<T30, E30>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?, v28?, v29?, v30?))
     }
@@ -3768,13 +3558,6 @@ impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9,
         ))
     }
 }
-impl<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30> + From<E31>, E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28, E29, T29, E30, T30, E31, T31> TupleTransposeResult<Eo> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>, Result<T29, E29>, Result<T30, E30>, Result<T31, E31>) {
-    type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31), Eo>;
-    fn transpose(self) -> Self::OutTuple {
-        let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31) = self;
-        Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?, v28?, v29?, v30?, v31?))
-    }
-}
 impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> TupleTransposeResultSameError for (Result<T0, E>, Result<T1, E>, Result<T2, E>, Result<T3, E>, Result<T4, E>, Result<T5, E>, Result<T6, E>, Result<T7, E>, Result<T8, E>, Result<T9, E>, Result<T10, E>, Result<T11, E>, Result<T12, E>, Result<T13, E>, Result<T14, E>, Result<T15, E>, Result<T16, E>, Result<T17, E>, Result<T18, E>, Result<T19, E>, Result<T20, E>, Result<T21, E>, Result<T22, E>, Result<T23, E>, Result<T24, E>, Result<T25, E>, Result<T26, E>, Result<T27, E>, Result<T28, E>, Result<T29, E>, Result<T30, E>, Result<T31, E>) {
     type OutTuple = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31), E>;
     fn transpose_same_error(self) -> Self::OutTuple {
@@ -3783,14 +3566,14 @@ impl<E, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
     }
 }
 #[doc = r" Transposes for Result"]
-pub trait TupleTransposeResult1_32<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29, E30, E31> {
+pub trait TupleTransposeResult32<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29, E30, E31> {
     type OutTuple<Eo>;
     #[doc = r" Transposes for Result"]
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30> + From<E31>>(self) -> Self::OutTuple<Eo>;
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30> + From<E31>>(self) -> Self::OutTuple<Eo>;
 }
-impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28, E29, T29, E30, T30, E31, T31> TupleTransposeResult1_32<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29, E30, E31> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>, Result<T29, E29>, Result<T30, E30>, Result<T31, E31>) {
+impl<E0, T0, E1, T1, E2, T2, E3, T3, E4, T4, E5, T5, E6, T6, E7, T7, E8, T8, E9, T9, E10, T10, E11, T11, E12, T12, E13, T13, E14, T14, E15, T15, E16, T16, E17, T17, E18, T18, E19, T19, E20, T20, E21, T21, E22, T22, E23, T23, E24, T24, E25, T25, E26, T26, E27, T27, E28, T28, E29, T29, E30, T30, E31, T31> TupleTransposeResult32<E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15, E16, E17, E18, E19, E20, E21, E22, E23, E24, E25, E26, E27, E28, E29, E30, E31> for (Result<T0, E0>, Result<T1, E1>, Result<T2, E2>, Result<T3, E3>, Result<T4, E4>, Result<T5, E5>, Result<T6, E6>, Result<T7, E7>, Result<T8, E8>, Result<T9, E9>, Result<T10, E10>, Result<T11, E11>, Result<T12, E12>, Result<T13, E13>, Result<T14, E14>, Result<T15, E15>, Result<T16, E16>, Result<T17, E17>, Result<T18, E18>, Result<T19, E19>, Result<T20, E20>, Result<T21, E21>, Result<T22, E22>, Result<T23, E23>, Result<T24, E24>, Result<T25, E25>, Result<T26, E26>, Result<T27, E27>, Result<T28, E28>, Result<T29, E29>, Result<T30, E30>, Result<T31, E31>) {
     type OutTuple<Eo> = Result<(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31), Eo>;
-    fn transpose1<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30> + From<E31>>(self) -> Self::OutTuple<Eo> {
+    fn transpose<Eo: From<E0> + From<E1> + From<E2> + From<E3> + From<E4> + From<E5> + From<E6> + From<E7> + From<E8> + From<E9> + From<E10> + From<E11> + From<E12> + From<E13> + From<E14> + From<E15> + From<E16> + From<E17> + From<E18> + From<E19> + From<E20> + From<E21> + From<E22> + From<E23> + From<E24> + From<E25> + From<E26> + From<E27> + From<E28> + From<E29> + From<E30> + From<E31>>(self) -> Self::OutTuple<Eo> {
         let (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31) = self;
         Ok((v0?, v1?, v2?, v3?, v4?, v5?, v6?, v7?, v8?, v9?, v10?, v11?, v12?, v13?, v14?, v15?, v16?, v17?, v18?, v19?, v20?, v21?, v22?, v23?, v24?, v25?, v26?, v27?, v28?, v29?, v30?, v31?))
     }

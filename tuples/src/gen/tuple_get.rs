@@ -2,13 +2,13 @@
 
 impl<T> TupleGet for (T,) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             _ => panic!("index out of bounds: the len is {} but the index is {}", 1usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             _ => None,
@@ -16,13 +16,13 @@ impl<T> TupleGet for (T,) {
     }
 }
 impl<T> TupleGetMut for (T,) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             _ => panic!("index out of bounds: the len is {} but the index is {}", 1usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             _ => None,
@@ -30,7 +30,7 @@ impl<T> TupleGetMut for (T,) {
     }
 }
 impl<T> TupleSwap for (T,) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 1usize || b >= 1usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 1usize, a, b);
         }
@@ -39,12 +39,12 @@ impl<T> TupleSwap for (T,) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 1usize || b >= 1usize {
             return false;
         }
@@ -53,8 +53,8 @@ impl<T> TupleSwap for (T,) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -62,14 +62,14 @@ impl<T> TupleSwap for (T,) {
 }
 impl<T> TupleGet for (T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
             _ => panic!("index out of bounds: the len is {} but the index is {}", 2usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -78,14 +78,14 @@ impl<T> TupleGet for (T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
             _ => panic!("index out of bounds: the len is {} but the index is {}", 2usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -94,7 +94,7 @@ impl<T> TupleGetMut for (T, T) {
     }
 }
 impl<T> TupleSwap for (T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 2usize || b >= 2usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 2usize, a, b);
         }
@@ -103,12 +103,12 @@ impl<T> TupleSwap for (T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 2usize || b >= 2usize {
             return false;
         }
@@ -117,8 +117,8 @@ impl<T> TupleSwap for (T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -126,7 +126,7 @@ impl<T> TupleSwap for (T, T) {
 }
 impl<T> TupleGet for (T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -134,7 +134,7 @@ impl<T> TupleGet for (T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 3usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -144,7 +144,7 @@ impl<T> TupleGet for (T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -152,7 +152,7 @@ impl<T> TupleGetMut for (T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 3usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -162,7 +162,7 @@ impl<T> TupleGetMut for (T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 3usize || b >= 3usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 3usize, a, b);
         }
@@ -171,12 +171,12 @@ impl<T> TupleSwap for (T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 3usize || b >= 3usize {
             return false;
         }
@@ -185,8 +185,8 @@ impl<T> TupleSwap for (T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -194,7 +194,7 @@ impl<T> TupleSwap for (T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -203,7 +203,7 @@ impl<T> TupleGet for (T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 4usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -214,7 +214,7 @@ impl<T> TupleGet for (T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -223,7 +223,7 @@ impl<T> TupleGetMut for (T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 4usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -234,7 +234,7 @@ impl<T> TupleGetMut for (T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 4usize || b >= 4usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 4usize, a, b);
         }
@@ -243,12 +243,12 @@ impl<T> TupleSwap for (T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 4usize || b >= 4usize {
             return false;
         }
@@ -257,8 +257,8 @@ impl<T> TupleSwap for (T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -266,7 +266,7 @@ impl<T> TupleSwap for (T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -276,7 +276,7 @@ impl<T> TupleGet for (T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 5usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -288,7 +288,7 @@ impl<T> TupleGet for (T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -298,7 +298,7 @@ impl<T> TupleGetMut for (T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 5usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -310,7 +310,7 @@ impl<T> TupleGetMut for (T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 5usize || b >= 5usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 5usize, a, b);
         }
@@ -319,12 +319,12 @@ impl<T> TupleSwap for (T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 5usize || b >= 5usize {
             return false;
         }
@@ -333,8 +333,8 @@ impl<T> TupleSwap for (T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -342,7 +342,7 @@ impl<T> TupleSwap for (T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -353,7 +353,7 @@ impl<T> TupleGet for (T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 6usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -366,7 +366,7 @@ impl<T> TupleGet for (T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -377,7 +377,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 6usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -390,7 +390,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 6usize || b >= 6usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 6usize, a, b);
         }
@@ -399,12 +399,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 6usize || b >= 6usize {
             return false;
         }
@@ -413,8 +413,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -422,7 +422,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -434,7 +434,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 7usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -448,7 +448,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -460,7 +460,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 7usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -474,7 +474,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 7usize || b >= 7usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 7usize, a, b);
         }
@@ -483,12 +483,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 7usize || b >= 7usize {
             return false;
         }
@@ -497,8 +497,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -506,7 +506,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -519,7 +519,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 8usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -534,7 +534,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -547,7 +547,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 8usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -562,7 +562,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 8usize || b >= 8usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 8usize, a, b);
         }
@@ -571,12 +571,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 8usize || b >= 8usize {
             return false;
         }
@@ -585,8 +585,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -594,7 +594,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -608,7 +608,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 9usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -624,7 +624,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -638,7 +638,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 9usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -654,7 +654,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 9usize || b >= 9usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 9usize, a, b);
         }
@@ -663,12 +663,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 9usize || b >= 9usize {
             return false;
         }
@@ -677,8 +677,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -686,7 +686,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -701,7 +701,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 10usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -718,7 +718,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -733,7 +733,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 10usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -750,7 +750,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 10usize || b >= 10usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 10usize, a, b);
         }
@@ -759,12 +759,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 10usize || b >= 10usize {
             return false;
         }
@@ -773,8 +773,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -782,7 +782,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -798,7 +798,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 11usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -816,7 +816,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -832,7 +832,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 11usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -850,7 +850,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 11usize || b >= 11usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 11usize, a, b);
         }
@@ -859,12 +859,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 11usize || b >= 11usize {
             return false;
         }
@@ -873,8 +873,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -882,7 +882,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -899,7 +899,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 12usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -918,7 +918,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -935,7 +935,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 12usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -954,7 +954,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 12usize || b >= 12usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 12usize, a, b);
         }
@@ -963,12 +963,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 12usize || b >= 12usize {
             return false;
         }
@@ -977,8 +977,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -986,7 +986,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -1004,7 +1004,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 13usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -1024,7 +1024,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -1042,7 +1042,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 13usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -1062,7 +1062,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 13usize || b >= 13usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 13usize, a, b);
         }
@@ -1071,12 +1071,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 13usize || b >= 13usize {
             return false;
         }
@@ -1085,8 +1085,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -1094,7 +1094,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -1113,7 +1113,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 14usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -1134,7 +1134,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -1153,7 +1153,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 14usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -1174,7 +1174,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 14usize || b >= 14usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 14usize, a, b);
         }
@@ -1183,12 +1183,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 14usize || b >= 14usize {
             return false;
         }
@@ -1197,8 +1197,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -1206,7 +1206,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -1226,7 +1226,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 15usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -1248,7 +1248,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -1268,7 +1268,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 15usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -1290,7 +1290,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 15usize || b >= 15usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 15usize, a, b);
         }
@@ -1299,12 +1299,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 15usize || b >= 15usize {
             return false;
         }
@@ -1313,8 +1313,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -1322,7 +1322,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -1343,7 +1343,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 16usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -1366,7 +1366,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -1387,7 +1387,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 16usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -1410,7 +1410,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 16usize || b >= 16usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 16usize, a, b);
         }
@@ -1419,12 +1419,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 16usize || b >= 16usize {
             return false;
         }
@@ -1433,8 +1433,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -1442,7 +1442,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -1464,7 +1464,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 17usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -1488,7 +1488,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -1510,7 +1510,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 17usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -1534,7 +1534,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 17usize || b >= 17usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 17usize, a, b);
         }
@@ -1543,12 +1543,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 17usize || b >= 17usize {
             return false;
         }
@@ -1557,8 +1557,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -1566,7 +1566,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -1589,7 +1589,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 18usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -1614,7 +1614,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -1637,7 +1637,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 18usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -1662,7 +1662,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 18usize || b >= 18usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 18usize, a, b);
         }
@@ -1671,12 +1671,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 18usize || b >= 18usize {
             return false;
         }
@@ -1685,8 +1685,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -1694,7 +1694,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -1718,7 +1718,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => panic!("index out of bounds: the len is {} but the index is {}", 19usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -1744,7 +1744,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -1768,7 +1768,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 19usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -1794,7 +1794,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 19usize || b >= 19usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 19usize, a, b);
         }
@@ -1803,12 +1803,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 19usize || b >= 19usize {
             return false;
         }
@@ -1817,8 +1817,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -1826,7 +1826,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -1851,7 +1851,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 20usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -1878,7 +1878,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -1903,7 +1903,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 20usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -1930,7 +1930,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 20usize || b >= 20usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 20usize, a, b);
         }
@@ -1939,12 +1939,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 20usize || b >= 20usize {
             return false;
         }
@@ -1953,8 +1953,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -1962,7 +1962,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -1988,7 +1988,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 21usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -2016,7 +2016,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -2042,7 +2042,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 21usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -2070,7 +2070,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 21usize || b >= 21usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 21usize, a, b);
         }
@@ -2079,12 +2079,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 21usize || b >= 21usize {
             return false;
         }
@@ -2093,8 +2093,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -2102,7 +2102,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -2129,7 +2129,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 22usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -2158,7 +2158,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -2185,7 +2185,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 22usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -2214,7 +2214,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 22usize || b >= 22usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 22usize, a, b);
         }
@@ -2223,12 +2223,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 22usize || b >= 22usize {
             return false;
         }
@@ -2237,8 +2237,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -2246,7 +2246,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -2274,7 +2274,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 23usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -2304,7 +2304,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -2332,7 +2332,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 23usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -2362,7 +2362,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 23usize || b >= 23usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 23usize, a, b);
         }
@@ -2371,12 +2371,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 23usize || b >= 23usize {
             return false;
         }
@@ -2385,8 +2385,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -2394,7 +2394,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -2423,7 +2423,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 24usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -2454,7 +2454,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -2483,7 +2483,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 24usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -2514,7 +2514,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 24usize || b >= 24usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 24usize, a, b);
         }
@@ -2523,12 +2523,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 24usize || b >= 24usize {
             return false;
         }
@@ -2537,8 +2537,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -2546,7 +2546,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -2576,7 +2576,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 25usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -2608,7 +2608,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -2638,7 +2638,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 25usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -2670,7 +2670,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 25usize || b >= 25usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 25usize, a, b);
         }
@@ -2679,12 +2679,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 25usize || b >= 25usize {
             return false;
         }
@@ -2693,8 +2693,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -2702,7 +2702,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -2733,7 +2733,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 26usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -2766,7 +2766,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -2797,7 +2797,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 26usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -2830,7 +2830,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 26usize || b >= 26usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 26usize, a, b);
         }
@@ -2839,12 +2839,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 26usize || b >= 26usize {
             return false;
         }
@@ -2853,8 +2853,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -2862,7 +2862,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -2894,7 +2894,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 27usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -2928,7 +2928,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -2960,7 +2960,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 27usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -2994,7 +2994,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 27usize || b >= 27usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 27usize, a, b);
         }
@@ -3003,12 +3003,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 27usize || b >= 27usize {
             return false;
         }
@@ -3017,8 +3017,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -3026,7 +3026,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -3059,7 +3059,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 28usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -3094,7 +3094,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -3127,7 +3127,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 28usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -3162,7 +3162,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 28usize || b >= 28usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 28usize, a, b);
         }
@@ -3171,12 +3171,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 28usize || b >= 28usize {
             return false;
         }
@@ -3185,8 +3185,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -3194,7 +3194,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -3228,7 +3228,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 29usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -3264,7 +3264,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -3298,7 +3298,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 29usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -3334,7 +3334,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 29usize || b >= 29usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 29usize, a, b);
         }
@@ -3343,12 +3343,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 29usize || b >= 29usize {
             return false;
         }
@@ -3357,8 +3357,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -3366,7 +3366,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -3401,7 +3401,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 30usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -3438,7 +3438,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -3473,7 +3473,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 30usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -3510,7 +3510,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 30usize || b >= 30usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 30usize, a, b);
         }
@@ -3519,12 +3519,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 30usize || b >= 30usize {
             return false;
         }
@@ -3533,8 +3533,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -3542,7 +3542,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -3578,7 +3578,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 31usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -3616,7 +3616,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -3652,7 +3652,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 31usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -3690,7 +3690,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 31usize || b >= 31usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 31usize, a, b);
         }
@@ -3699,12 +3699,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 31usize || b >= 31usize {
             return false;
         }
@@ -3713,8 +3713,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
@@ -3722,7 +3722,7 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
 }
 impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
     type Output = T;
-    fn get(&self, index: usize) -> &Self::Output {
+    fn get_at(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.0,
             1 => &self.1,
@@ -3759,7 +3759,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 32usize, index),
         }
     }
-    fn try_get(&self, index: usize) -> Option<&Self::Output> {
+    fn try_get_at(&self, index: usize) -> Option<&Self::Output> {
         match index {
             0 => Some(&self.0),
             1 => Some(&self.1),
@@ -3798,7 +3798,7 @@ impl<T> TupleGet for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn get_mut(&mut self, index: usize) -> &mut Self::Output {
+    fn get_mut_at(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.0,
             1 => &mut self.1,
@@ -3835,7 +3835,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
             _ => panic!("index out of bounds: the len is {} but the index is {}", 32usize, index),
         }
     }
-    fn try_get_mut(&mut self, index: usize) -> Option<&mut Self::Output> {
+    fn try_get_mut_at(&mut self, index: usize) -> Option<&mut Self::Output> {
         match index {
             0 => Some(&mut self.0),
             1 => Some(&mut self.1),
@@ -3874,7 +3874,7 @@ impl<T> TupleGetMut for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T
     }
 }
 impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
-    fn swap(&mut self, a: usize, b: usize) {
+    fn swap_at(&mut self, a: usize, b: usize) {
         if a >= 32usize || b >= 32usize {
             panic!("index out of bounds: the len is {} but the index is {} and {}", 32usize, a, b);
         }
@@ -3883,12 +3883,12 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
     }
-    fn try_swap(&mut self, a: usize, b: usize) -> bool {
+    fn try_swap_at(&mut self, a: usize, b: usize) -> bool {
         if a >= 32usize || b >= 32usize {
             return false;
         }
@@ -3897,8 +3897,8 @@ impl<T> TupleSwap for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
         }
         unsafe {
             let this = self as *mut Self;
-            let a = (&mut *this).get_mut(a);
-            let b = (&mut *this).get_mut(b);
+            let a = (&mut *this).get_mut_at(a);
+            let b = (&mut *this).get_mut_at(b);
             core::mem::swap(a, b);
         }
         true
