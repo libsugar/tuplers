@@ -134,7 +134,7 @@ For readability, most examples use homogeneous tuples, but in practice they are 
 
 - iter
 
-  **Iteraotr only supports homogeneous tuples**
+  **Iterator only supports homogeneous tuples**
 
   ```rust
   let a = (1, 2, 3)
