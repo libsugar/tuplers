@@ -29,19 +29,24 @@ pub trait TupleSwap: TupleGetMut {
 
 include!("./gen/tuple_get.rs");
 
-#[test]
-fn test() {
-    let a = (1, 2, 3, 4, 5);
-    assert_eq!(*a.get(2), 3);
+#[cfg(test)]
+mod tests {
+    use crate::*;
 
-    let mut a = (1, 2, 3, 4, 5);
-    *a.get_mut(3) = 6;
-    assert_eq!(a, (1, 2, 3, 6, 5));
-}
+    #[test]
+    fn test() {
+        let a = (1, 2, 3, 4, 5);
+        assert_eq!(*a.get(2), 3);
 
-#[test]
-fn test_swap() {
-    let mut a = (1, 2, 3, 4, 5);
-    a.swap(1, 3);
-    assert_eq!(a, (1, 4, 3, 2, 5));
+        let mut a = (1, 2, 3, 4, 5);
+        *a.get_mut(3) = 6;
+        assert_eq!(a, (1, 2, 3, 6, 5));
+    }
+
+    #[test]
+    fn test_swap() {
+        let mut a = (1, 2, 3, 4, 5);
+        a.swap(1, 3);
+        assert_eq!(a, (1, 4, 3, 2, 5));
+    }
 }
