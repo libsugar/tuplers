@@ -24,16 +24,16 @@ combinations = []
 convert = []
 default = [
   "get",
+  "clone",
+  "map",
   "convert",
+  "transpose",
   "apply_tuple",
   "combin",
   "split",
   "tuple_iter",
-  "tuple_map",
-  "transpose",
   "shorthand",
   "flatten",
-  "clone",
   "tuple_call",
   "re-exports",
   "capt",
@@ -45,6 +45,7 @@ default = [
 ]
 flatten = []
 get = []
+map = []
 permutations = []
 re-exports = []
 shorthand = []
@@ -58,7 +59,6 @@ split_to_tuple_by = []
 transpose = []
 tuple_call = []
 tuple_iter = []
-tuple_map = []
 uniform_map = []
 uniform_map_by = []
 

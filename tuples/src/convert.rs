@@ -1,6 +1,8 @@
 //! Traits for conversions between types
 
-use crate::AnyTuple;
+#![allow(unused_variables)]
+
+use crate::{AnyTuple, Tuple, TupleItem};
 use core::{
     convert::Infallible,
     ops::{Deref, DerefMut},
@@ -63,10 +65,42 @@ pub trait TupleAsResultErr<T> {
 }
 
 /// Mark tuple all item impled `Into<T>`
-pub trait TupleAllInto<T> {}
+pub trait AnyTupleAllInto<T>: AnyTuple {}
 
 /// Mark tuple all item impled `From<T>`
-pub trait TupleAllFrom<T> {}
+pub trait AnyTupleAllFrom<T>: AnyTuple {}
+
+/// Mark tuple all item impled `Into<T>`
+pub trait TupleAllInto<T>: AnyTupleAllInto<T> + Tuple {
+    type Item<const N: usize>: Into<T>
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<T>;
+
+    fn item_into<const N: usize>(item: <Self as TupleAllInto<T>>::Item<N>) -> T
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<T>,
+    {
+        item.into()
+    }
+}
+
+/// Mark tuple all item impled `From<T>`
+pub trait TupleAllFrom<T>: AnyTupleAllFrom<T> + Tuple {
+    type Item<const N: usize>: From<T>
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<T>;
+
+    fn item_from<const N: usize>(val: T) -> <Self as TupleAllFrom<T>>::Item<N>
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<T>,
+    {
+        val.into()
+    }
+}
 
 /// Into for tuple
 pub trait TupleInto<T> {
@@ -97,31 +131,3 @@ pub trait TupleTryFrom<T>: Sized {
 }
 
 include!("./gen/convert.rs");
-
-impl TupleInto<()> for () {
-    fn tuple_into(self: ()) -> () {
-        self
-    }
-}
-
-impl TupleFrom<()> for () {
-    fn tuple_from(src: ()) -> () {
-        src
-    }
-}
-
-impl TupleTryInto<()> for () {
-    type Output = ();
-
-    fn tuple_try_into(self) -> () {
-        self
-    }
-}
-
-impl TupleTryFrom<()> for () {
-    type Output = ();
-
-    fn tuple_try_from(src: ()) -> () {
-        src
-    }
-}

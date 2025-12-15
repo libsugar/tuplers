@@ -42,6 +42,44 @@ impl<O> TupleAsResultErr<O> for () {
         ()
     }
 }
+impl<U> AnyTupleAllInto<U> for () {}
+impl<U> AnyTupleAllFrom<U> for () {}
+impl<U> TupleAllInto<U> for () {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
+}
+impl<U> TupleAllFrom<U> for () {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
+}
+impl TupleInto<()> for () {
+    fn tuple_into(self) -> () {
+        ()
+    }
+}
+impl TupleFrom<()> for () {
+    fn tuple_from(src: ()) -> Self {
+        ()
+    }
+}
+impl TupleTryInto<()> for () {
+    type Output = ();
+    fn tuple_try_into(self) -> Self::Output {
+        ()
+    }
+}
+impl TupleTryFrom<()> for () {
+    type Output = ();
+    fn tuple_try_from(src: ()) -> Self::Output {
+        ()
+    }
+}
 impl<'a, T0: 'a> TupleAsRef<'a> for (T0,) {
     type Output = (&'a T0,);
     fn as_ref(&'a self) -> Self::Output {
@@ -84,8 +122,28 @@ impl<O, T0> TupleAsResultErr<O> for (T0,) {
         (Err(self.0),)
     }
 }
-impl<U, T0> TupleAllInto<U> for (T0,) where T0: Into<U> {}
-impl<U, T0> TupleAllFrom<U> for (T0,) where T0: From<U> {}
+impl<U, T0> AnyTupleAllInto<U> for (T0,) where T0: Into<U> {}
+impl<U, T0> AnyTupleAllFrom<U> for (T0,) where T0: From<U> {}
+impl<U, T0> TupleAllInto<U> for (T0,)
+where
+    T0: Into<U>,
+{
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
+}
+impl<U, T0> TupleAllFrom<U> for (T0,)
+where
+    T0: From<U>,
+{
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
+}
 impl<T0, U0> TupleInto<(U0,)> for (T0,)
 where
     T0: Into<U0>,
@@ -162,17 +220,39 @@ impl<O, T0, T1> TupleAsResultErr<O> for (T0, T1) {
         (Err(self.0), Err(self.1))
     }
 }
+impl<U, T0, T1> AnyTupleAllInto<U> for (T0, T1)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+{
+}
+impl<U, T0, T1> AnyTupleAllFrom<U> for (T0, T1)
+where
+    T0: From<U>,
+    T1: From<U>,
+{
+}
 impl<U, T0, T1> TupleAllInto<U> for (T0, T1)
 where
     T0: Into<U>,
     T1: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1> TupleAllFrom<U> for (T0, T1)
 where
     T0: From<U>,
     T1: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, U0, U1> TupleInto<(U0, U1)> for (T0, T1)
 where
@@ -254,12 +334,31 @@ impl<O, T0, T1, T2> TupleAsResultErr<O> for (T0, T1, T2) {
         (Err(self.0), Err(self.1), Err(self.2))
     }
 }
+impl<U, T0, T1, T2> AnyTupleAllInto<U> for (T0, T1, T2)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+{
+}
+impl<U, T0, T1, T2> AnyTupleAllFrom<U> for (T0, T1, T2)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+{
+}
 impl<U, T0, T1, T2> TupleAllInto<U> for (T0, T1, T2)
 where
     T0: Into<U>,
     T1: Into<U>,
     T2: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2> TupleAllFrom<U> for (T0, T1, T2)
 where
@@ -267,6 +366,11 @@ where
     T1: From<U>,
     T2: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, U0, U1, U2> TupleInto<(U0, U1, U2)> for (T0, T1, T2)
 where
@@ -352,6 +456,22 @@ impl<O, T0, T1, T2, T3> TupleAsResultErr<O> for (T0, T1, T2, T3) {
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3))
     }
 }
+impl<U, T0, T1, T2, T3> AnyTupleAllInto<U> for (T0, T1, T2, T3)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3> AnyTupleAllFrom<U> for (T0, T1, T2, T3)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3> TupleAllInto<U> for (T0, T1, T2, T3)
 where
     T0: Into<U>,
@@ -359,6 +479,11 @@ where
     T2: Into<U>,
     T3: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3> TupleAllFrom<U> for (T0, T1, T2, T3)
 where
@@ -367,6 +492,11 @@ where
     T2: From<U>,
     T3: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, U0, U1, U2, U3> TupleInto<(U0, U1, U2, U3)> for (T0, T1, T2, T3)
 where
@@ -456,6 +586,24 @@ impl<O, T0, T1, T2, T3, T4> TupleAsResultErr<O> for (T0, T1, T2, T3, T4) {
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4))
     }
 }
+impl<U, T0, T1, T2, T3, T4> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4> TupleAllInto<U> for (T0, T1, T2, T3, T4)
 where
     T0: Into<U>,
@@ -464,6 +612,11 @@ where
     T3: Into<U>,
     T4: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4> TupleAllFrom<U> for (T0, T1, T2, T3, T4)
 where
@@ -473,6 +626,11 @@ where
     T3: From<U>,
     T4: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, U0, U1, U2, U3, U4> TupleInto<(U0, U1, U2, U3, U4)> for (T0, T1, T2, T3, T4)
 where
@@ -566,6 +724,26 @@ impl<O, T0, T1, T2, T3, T4, T5> TupleAsResultErr<O> for (T0, T1, T2, T3, T4, T5)
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5)
 where
     T0: Into<U>,
@@ -575,6 +753,11 @@ where
     T4: Into<U>,
     T5: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5)
 where
@@ -585,6 +768,11 @@ where
     T4: From<U>,
     T5: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, U0, U1, U2, U3, U4, U5> TupleInto<(U0, U1, U2, U3, U4, U5)> for (T0, T1, T2, T3, T4, T5)
 where
@@ -682,6 +870,28 @@ impl<O, T0, T1, T2, T3, T4, T5, T6> TupleAsResultErr<O> for (T0, T1, T2, T3, T4,
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6)
 where
     T0: Into<U>,
@@ -692,6 +902,11 @@ where
     T5: Into<U>,
     T6: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6)
 where
@@ -703,6 +918,11 @@ where
     T5: From<U>,
     T6: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, U0, U1, U2, U3, U4, U5, U6> TupleInto<(U0, U1, U2, U3, U4, U5, U6)> for (T0, T1, T2, T3, T4, T5, T6)
 where
@@ -804,6 +1024,30 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7> TupleAsResultErr<O> for (T0, T1, T2, T3,
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7)
 where
     T0: Into<U>,
@@ -815,6 +1059,11 @@ where
     T6: Into<U>,
     T7: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7)
 where
@@ -827,6 +1076,11 @@ where
     T6: From<U>,
     T7: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, U0, U1, U2, U3, U4, U5, U6, U7> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7)> for (T0, T1, T2, T3, T4, T5, T6, T7)
 where
@@ -932,6 +1186,32 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8> TupleAsResultErr<O> for (T0, T1, T2,
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
 where
     T0: Into<U>,
@@ -944,6 +1224,11 @@ where
     T7: Into<U>,
     T8: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
 where
@@ -957,6 +1242,11 @@ where
     T7: From<U>,
     T8: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, U0, U1, U2, U3, U4, U5, U6, U7, U8> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
 where
@@ -1066,6 +1356,34 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> TupleAsResultErr<O> for (T0, T1,
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
 where
     T0: Into<U>,
@@ -1079,6 +1397,11 @@ where
     T8: Into<U>,
     T9: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
 where
@@ -1093,6 +1416,11 @@ where
     T8: From<U>,
     T9: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
 where
@@ -1206,6 +1534,36 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> TupleAsResultErr<O> for (T0
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
 where
     T0: Into<U>,
@@ -1220,6 +1578,11 @@ where
     T9: Into<U>,
     T10: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
 where
@@ -1235,6 +1598,11 @@ where
     T9: From<U>,
     T10: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
 where
@@ -1352,6 +1720,38 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> TupleAsResultErr<O> fo
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
     T0: Into<U>,
@@ -1367,6 +1767,11 @@ where
     T10: Into<U>,
     T11: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
@@ -1383,6 +1788,11 @@ where
     T10: From<U>,
     T11: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
@@ -1504,6 +1914,40 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> TupleAsResultErr<
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
     T0: Into<U>,
@@ -1520,6 +1964,11 @@ where
     T11: Into<U>,
     T12: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
@@ -1537,6 +1986,11 @@ where
     T11: From<U>,
     T12: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
@@ -1662,6 +2116,42 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> TupleAsResul
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
     T0: Into<U>,
@@ -1679,6 +2169,11 @@ where
     T12: Into<U>,
     T13: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
@@ -1697,6 +2192,11 @@ where
     T12: From<U>,
     T13: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
@@ -1826,6 +2326,44 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> TupleAs
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
     T0: Into<U>,
@@ -1844,6 +2382,11 @@ where
     T13: Into<U>,
     T14: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
@@ -1863,6 +2406,11 @@ where
     T13: From<U>,
     T14: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
@@ -1996,6 +2544,46 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> Tu
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     T0: Into<U>,
@@ -2015,6 +2603,11 @@ where
     T14: Into<U>,
     T15: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
@@ -2035,6 +2628,11 @@ where
     T14: From<U>,
     T15: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
@@ -2172,6 +2770,48 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     T0: Into<U>,
@@ -2192,6 +2832,11 @@ where
     T15: Into<U>,
     T16: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
@@ -2213,6 +2858,11 @@ where
     T15: From<U>,
     T16: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
@@ -2354,6 +3004,50 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     T0: Into<U>,
@@ -2375,6 +3069,11 @@ where
     T16: Into<U>,
     T17: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
@@ -2397,6 +3096,11 @@ where
     T16: From<U>,
     T17: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
@@ -2542,6 +3246,52 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     T0: Into<U>,
@@ -2564,6 +3314,11 @@ where
     T17: Into<U>,
     T18: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
@@ -2587,6 +3342,11 @@ where
     T17: From<U>,
     T18: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
@@ -2736,6 +3496,54 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     T0: Into<U>,
@@ -2759,6 +3567,11 @@ where
     T18: Into<U>,
     T19: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
@@ -2783,6 +3596,11 @@ where
     T18: From<U>,
     T19: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
@@ -2936,6 +3754,56 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     T0: Into<U>,
@@ -2960,6 +3828,11 @@ where
     T19: Into<U>,
     T20: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
@@ -2985,6 +3858,11 @@ where
     T19: From<U>,
     T20: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
@@ -3142,6 +4020,58 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     T0: Into<U>,
@@ -3167,6 +4097,11 @@ where
     T20: Into<U>,
     T21: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
@@ -3193,6 +4128,11 @@ where
     T20: From<U>,
     T21: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
@@ -3354,6 +4294,60 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     T0: Into<U>,
@@ -3380,6 +4374,11 @@ where
     T21: Into<U>,
     T22: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
@@ -3407,6 +4406,11 @@ where
     T21: From<U>,
     T22: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
@@ -3572,6 +4576,62 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22), Err(self.23))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+    T23: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+    T23: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     T0: Into<U>,
@@ -3599,6 +4659,11 @@ where
     T22: Into<U>,
     T23: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
@@ -3627,6 +4692,11 @@ where
     T22: From<U>,
     T23: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
@@ -3796,6 +4866,64 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22), Err(self.23), Err(self.24))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+    T23: Into<U>,
+    T24: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+    T23: From<U>,
+    T24: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     T0: Into<U>,
@@ -3824,6 +4952,11 @@ where
     T23: Into<U>,
     T24: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
@@ -3853,6 +4986,11 @@ where
     T23: From<U>,
     T24: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
@@ -4026,6 +5164,66 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22), Err(self.23), Err(self.24), Err(self.25))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+    T23: Into<U>,
+    T24: Into<U>,
+    T25: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+    T23: From<U>,
+    T24: From<U>,
+    T25: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     T0: Into<U>,
@@ -4055,6 +5253,11 @@ where
     T24: Into<U>,
     T25: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
@@ -4085,6 +5288,11 @@ where
     T24: From<U>,
     T25: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
@@ -4262,6 +5470,68 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22), Err(self.23), Err(self.24), Err(self.25), Err(self.26))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+    T23: Into<U>,
+    T24: Into<U>,
+    T25: Into<U>,
+    T26: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+    T23: From<U>,
+    T24: From<U>,
+    T25: From<U>,
+    T26: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     T0: Into<U>,
@@ -4292,6 +5562,11 @@ where
     T25: Into<U>,
     T26: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
@@ -4323,6 +5598,11 @@ where
     T25: From<U>,
     T26: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
@@ -4504,6 +5784,70 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22), Err(self.23), Err(self.24), Err(self.25), Err(self.26), Err(self.27))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+    T23: Into<U>,
+    T24: Into<U>,
+    T25: Into<U>,
+    T26: Into<U>,
+    T27: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+    T23: From<U>,
+    T24: From<U>,
+    T25: From<U>,
+    T26: From<U>,
+    T27: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     T0: Into<U>,
@@ -4535,6 +5879,11 @@ where
     T26: Into<U>,
     T27: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
@@ -4567,6 +5916,11 @@ where
     T26: From<U>,
     T27: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
@@ -4752,6 +6106,72 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22), Err(self.23), Err(self.24), Err(self.25), Err(self.26), Err(self.27), Err(self.28))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+    T23: Into<U>,
+    T24: Into<U>,
+    T25: Into<U>,
+    T26: Into<U>,
+    T27: Into<U>,
+    T28: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+    T23: From<U>,
+    T24: From<U>,
+    T25: From<U>,
+    T26: From<U>,
+    T27: From<U>,
+    T28: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     T0: Into<U>,
@@ -4784,6 +6204,11 @@ where
     T27: Into<U>,
     T28: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
@@ -4817,6 +6242,11 @@ where
     T27: From<U>,
     T28: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
@@ -5006,6 +6436,74 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22), Err(self.23), Err(self.24), Err(self.25), Err(self.26), Err(self.27), Err(self.28), Err(self.29))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+    T23: Into<U>,
+    T24: Into<U>,
+    T25: Into<U>,
+    T26: Into<U>,
+    T27: Into<U>,
+    T28: Into<U>,
+    T29: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+    T23: From<U>,
+    T24: From<U>,
+    T25: From<U>,
+    T26: From<U>,
+    T27: From<U>,
+    T28: From<U>,
+    T29: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     T0: Into<U>,
@@ -5039,6 +6537,11 @@ where
     T28: Into<U>,
     T29: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
@@ -5073,6 +6576,11 @@ where
     T28: From<U>,
     T29: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
@@ -5266,6 +6774,76 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22), Err(self.23), Err(self.24), Err(self.25), Err(self.26), Err(self.27), Err(self.28), Err(self.29), Err(self.30))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+    T23: Into<U>,
+    T24: Into<U>,
+    T25: Into<U>,
+    T26: Into<U>,
+    T27: Into<U>,
+    T28: Into<U>,
+    T29: Into<U>,
+    T30: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+    T23: From<U>,
+    T24: From<U>,
+    T25: From<U>,
+    T26: From<U>,
+    T27: From<U>,
+    T28: From<U>,
+    T29: From<U>,
+    T30: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     T0: Into<U>,
@@ -5300,6 +6878,11 @@ where
     T29: Into<U>,
     T30: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
@@ -5335,6 +6918,11 @@ where
     T29: From<U>,
     T30: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
@@ -5532,6 +7120,78 @@ impl<O, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T1
         (Err(self.0), Err(self.1), Err(self.2), Err(self.3), Err(self.4), Err(self.5), Err(self.6), Err(self.7), Err(self.8), Err(self.9), Err(self.10), Err(self.11), Err(self.12), Err(self.13), Err(self.14), Err(self.15), Err(self.16), Err(self.17), Err(self.18), Err(self.19), Err(self.20), Err(self.21), Err(self.22), Err(self.23), Err(self.24), Err(self.25), Err(self.26), Err(self.27), Err(self.28), Err(self.29), Err(self.30), Err(self.31))
     }
 }
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> AnyTupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    T0: Into<U>,
+    T1: Into<U>,
+    T2: Into<U>,
+    T3: Into<U>,
+    T4: Into<U>,
+    T5: Into<U>,
+    T6: Into<U>,
+    T7: Into<U>,
+    T8: Into<U>,
+    T9: Into<U>,
+    T10: Into<U>,
+    T11: Into<U>,
+    T12: Into<U>,
+    T13: Into<U>,
+    T14: Into<U>,
+    T15: Into<U>,
+    T16: Into<U>,
+    T17: Into<U>,
+    T18: Into<U>,
+    T19: Into<U>,
+    T20: Into<U>,
+    T21: Into<U>,
+    T22: Into<U>,
+    T23: Into<U>,
+    T24: Into<U>,
+    T25: Into<U>,
+    T26: Into<U>,
+    T27: Into<U>,
+    T28: Into<U>,
+    T29: Into<U>,
+    T30: Into<U>,
+    T31: Into<U>,
+{
+}
+impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> AnyTupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    T0: From<U>,
+    T1: From<U>,
+    T2: From<U>,
+    T3: From<U>,
+    T4: From<U>,
+    T5: From<U>,
+    T6: From<U>,
+    T7: From<U>,
+    T8: From<U>,
+    T9: From<U>,
+    T10: From<U>,
+    T11: From<U>,
+    T12: From<U>,
+    T13: From<U>,
+    T14: From<U>,
+    T15: From<U>,
+    T16: From<U>,
+    T17: From<U>,
+    T18: From<U>,
+    T19: From<U>,
+    T20: From<U>,
+    T21: From<U>,
+    T22: From<U>,
+    T23: From<U>,
+    T24: From<U>,
+    T25: From<U>,
+    T26: From<U>,
+    T27: From<U>,
+    T28: From<U>,
+    T29: From<U>,
+    T30: From<U>,
+    T31: From<U>,
+{
+}
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> TupleAllInto<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     T0: Into<U>,
@@ -5567,6 +7227,11 @@ where
     T30: Into<U>,
     T31: Into<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: Into<U>;
 }
 impl<U, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> TupleAllFrom<U> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
@@ -5603,6 +7268,11 @@ where
     T30: From<U>,
     T31: From<U>,
 {
+    type Item<const N: usize>
+        = <Self as TupleItem<N>>::ItemN
+    where
+        Self: TupleItem<N>,
+        <Self as TupleItem<N>>::ItemN: From<U>;
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31> TupleInto<(U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where

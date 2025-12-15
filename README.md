@@ -42,30 +42,99 @@ Provides many useful tools related to tuples
 
 For readability, most examples use homogeneous tuples, but in practice they are heterogeneous. Please refer to the documentation for details.
 
-- map
-
-  **Single mapper mapping only supports homogeneous tuples**
-
-  ```rust
-  let a = (1, 2, 3);
-  let b = a.map(|v| v * 3);
-  assert_eq!(b, (3, 6, 9));
-  ```
-
-- mapN
+- meta
 
   ```rust
   let a = (1, 2, 3, 4, 5);
-  let b = a.map3(|v| v * 5);
+  assert_eq!(a.arity(), 5);
+
+  let b = ();
+  assert_eq!(b.arity(), 0);
+
+  assert_eq!(<(i32, f64, char) as Tuple>::ARITY, 3);
+  assert_eq!(<(i32, f64, char)>::ARITY, 3);
+
+  let _: <(i32, f64, char) as Tuple>::Item<1> = 3.14f64;
+  ```
+
+- const get
+
+  ```rust
+  let a = (1, '2', "3");
+  let r: &char = a.get::<1>();
+  assert_eq!(*r, '2');
+
+  let mut a = (1, '2', "3");
+  *a.get_mut::<1>() = 'c';
+  ```
+
+- dynamic get
+
+  **Homogeneous only**
+
+  ```rust
+  let a = (1, 2, 3, 4, 5);
+  assert_eq!(*a.get(2), 3);
+
+  let mut a = (1, 2, 3, 4, 5);
+  *a.get_mut(3) = 6;
+  ```
+
+- const swap
+
+  **The two items to be swapped must be of the same type**
+
+  ```rust
+  let mut a = (1, '2', "3", 6);
+  a.swap::<0, 3>();
+  assert_eq!(a.0, 6);
+  ```
+
+- dynamic swap
+
+  **Homogeneous only**
+
+  ```rust
+  let mut a = (1, 2, 3, 4, 5);
+  a.swap(1, 3);
+  assert_eq!(a, (1, 4, 3, 2, 5));
+  ```
+
+- map nth item
+
+  ```rust
+  let a = (1, 2, 3, 4, 5);
+  let b = a.map::<3>(|v| v * 5);
   assert_eq!(b, (1, 2, 3, 20, 5));
   ```
 
-- map_all
+- map all for homogeneous tuples
+
+  **Homogeneous only**
+
+  ```rust
+  let a = (1, 2, 3);
+  let b = a.map_all(|v| v * 3);
+  assert_eq!(b, (3, 6, 9));
+  ```
+
+- map all for heterogeneous tuples
 
   ```rust
   let a = (1, 2, 3);
   let b = a.map_all(|v| v * 10, |v| v * 100, |v| v * 1000);
   assert_eq!(b, (10, 200, 3000));
+  ```
+
+- dynamic map
+
+  **Homogeneous only**
+
+  ```rust
+  let a = (1, 2, 3);
+  let r: Result<(i32, i32, i32), (i32, i32, i32)> = a.dyn_map(1, |v| v * 3);
+  let b = r.unwrap();
+  assert_eq!(b, (1, 6, 3));
   ```
 
 - as_ref
@@ -94,47 +163,9 @@ For readability, most examples use homogeneous tuples, but in practice they are 
   assert_eq!(b, (1, 2, 3, 4, 5, 6, 7, 8, 9));
   ```
 
-- meta
-
-  ```rust
-  let a = (1, 2, 3, 4, 5);
-  assert_eq!(a.arity(), 5);
-
-  let b = ();
-  assert_eq!(b.arity(), 0);
-
-  assert_eq!(<(i32, f64, char) as TupleV2>::ARITY, 3);
-  assert_eq!(<(i32, f64, char)>::ARITY, 3);
-
-  let _: <(i32, f64, char) as TupleV2>::Item<1> = 3.14f64;
-  ```
-
-- const get
-
-  ```rust
-  let a = (1, '2', "3");
-  let r: &char = a.get::<1>();
-  assert_eq!(*r, '2');
-
-  let mut a = (1, '2', "3");
-  *a.get_mut::<1>() = 'c';
-  ```
-
-- dynamic get
-
-  **Dynamic get only supports homogeneous tuples**
-
-  ```rust
-  let a = (1, 2, 3, 4, 5);
-  assert_eq!(*a.get(2), 3);
-
-  let mut a = (1, 2, 3, 4, 5);
-  *a.get_mut(3) = 6;
-  ```
-
 - iter
 
-  **Iterator only supports homogeneous tuples**
+  **Homogeneous only**
 
   ```rust
   let a = (1, 2, 3)
@@ -316,45 +347,9 @@ For readability, most examples use homogeneous tuples, but in practice they are 
   assert_eq!(r, 6)
   ```
 
-- const swap
-
-  **The two items to be swapped must be of the same type**
-
-  ```rust
-  let mut a = (1, '2', "3", 6);
-  a.swap::<0, 3>();
-  assert_eq!(a.0, 6);
-  ```
-
-- dynamic swap
-
-  **Dynamic swap only supports homogeneous tuples**
-
-  ```rust
-  let mut a = (1, 2, 3, 4, 5);
-  a.swap(1, 3);
-  assert_eq!(a, (1, 4, 3, 2, 5));
-  ```
-
-- swap_n
-
-  **Not enabled by default**
-
-  ***Deprecated***
-
-  ```toml
-  features = ["tuple_swap_n"]
-  ```
-
-  ```rust
-  let mut a = (1, 2, 3, 4, 5);
-  a.swap_1_3();
-  assert_eq!(a, (1, 4, 3, 2, 5));
-  ```
-
 - sort
 
-  **Sort only supports homogeneous tuples**
+  **Homogeneous only**
 
   Currently implemented sorting algorithm
 

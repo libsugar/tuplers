@@ -172,10 +172,20 @@ pub mod clone;
 #[cfg(all(feature = "clone", feature = "re-exports"))]
 pub use clone::*;
 
+#[cfg(feature = "map")]
+pub mod map;
+#[cfg(all(feature = "map", feature = "re-exports"))]
+pub use map::*;
+
 #[cfg(feature = "convert")]
 pub mod convert;
 #[cfg(all(feature = "convert", feature = "re-exports"))]
 pub use convert::*;
+
+#[cfg(feature = "transpose")]
+pub mod transpose;
+#[cfg(all(feature = "transpose", feature = "re-exports"))]
+pub use transpose::*;
 
 /////
 
@@ -183,11 +193,6 @@ pub use convert::*;
 pub mod tuple_iter;
 #[cfg(all(feature = "tuple_iter", feature = "re-exports"))]
 pub use tuple_iter::*;
-
-#[cfg(feature = "tuple_map")]
-pub mod tuple_map;
-#[cfg(all(feature = "tuple_map", feature = "re-exports"))]
-pub use tuple_map::*;
 
 #[cfg(feature = "combin")]
 pub mod combin;
@@ -224,11 +229,6 @@ pub mod split {
 }
 #[cfg(all(any(feature = "split_by", feature = "split_to_tuple_by", feature = "split_at", feature = "split_to_tuple_at"), feature = "re-exports"))]
 pub use split::*;
-
-#[cfg(feature = "transpose")]
-pub mod transpose;
-#[cfg(all(feature = "transpose", feature = "re-exports"))]
-pub use transpose::*;
 
 #[cfg(feature = "flatten")]
 pub mod flatten;
