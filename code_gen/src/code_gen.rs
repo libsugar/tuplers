@@ -52,6 +52,7 @@ struct Ctx<'a> {
     pub us: Vec<&'a Ident>,
     pub nts: Vec<Ident>,
     pub nus: Vec<Ident>,
+    pub nes: Vec<Ident>,
     pub nms: Vec<Ident>,
     pub nvs: Vec<Ident>,
     pub nvms: Vec<Ident>,
@@ -66,13 +67,14 @@ fn init<'a>(max: usize, t: &'a Ident, u: &'a Ident) -> Ctx<'a> {
     let us = (0..max + 1).into_iter().map(|_| u).collect::<Vec<_>>();
     let nts = (0..max + 1).into_iter().map(|i| format_ident!("T{}", i)).collect::<Vec<_>>();
     let nus = (0..max + 1).into_iter().map(|i| format_ident!("U{}", i)).collect::<Vec<_>>();
+    let nes = (0..max + 1).into_iter().map(|i| format_ident!("E{}", i)).collect::<Vec<_>>();
     let nms = (0..max + 1).into_iter().map(|i| format_ident!("M{}", i)).collect::<Vec<_>>();
     let nvs = (0..max + 1).into_iter().map(|i| format_ident!("v{}", i)).collect::<Vec<_>>();
     let nvms = (0..max + 1).into_iter().map(|i| format_ident!("m{}", i)).collect::<Vec<_>>();
     let nfs = (0..max + 1).into_iter().map(|i| format_ident!("f{}", i)).collect::<Vec<_>>();
     let ntfs = (0..max + 1).into_iter().map(|i| format_ident!("F{}", i)).collect::<Vec<_>>();
     let ants = nts[0..max + 1].iter().map(|i| quote! { #i: 'a }).collect::<Vec<_>>();
-    let ctx = Ctx { t, u, size_lits, ts, us, nts, nus, nms, nvs, nvms, nfs, ntfs, ants };
+    let ctx = Ctx { t, u, size_lits, ts, us, nts, nus, nes, nms, nvs, nvms, nfs, ntfs, ants };
     ctx
 }
 
@@ -1104,9 +1106,10 @@ fn gen_transpose(ctx: &Ctx, out_dir: &Path) {
     let none_impl = ctx.size_lits.iter().map(|_| quote! { None }).collect::<Vec<_>>();
     let items_1 = (2..33usize).map(|i| gen_transpose_size_option_1(ctx, i, &none_impl[0..i]));
     let items_2 = (2..33usize).map(|i| gen_transpose_size_option_2(ctx, i));
-    let items_3 = (2..33usize).map(|i| gen_transpose_size_result(ctx, i));
+    let items_3 = (2..33usize).map(|i| gen_transpose_size_result_1(ctx, i));
+    let items_4 = (2..33usize).map(|i| gen_transpose_size_result_2(ctx, i));
 
-    let tks = quote! { #(#items_1)* #(#items_2)* #(#items_3)* };
+    let tks = quote! { #(#items_1)* #(#items_2)* #(#items_3)* #(#items_4)* };
     let mut code = tks.to_string();
     code.insert_str(0, AUTO_GEN_TIP);
     let dest_path = Path::new(out_dir).join("transpose.rs");
@@ -1149,75 +1152,57 @@ fn gen_transpose_size_option_2(ctx: &Ctx, size: usize) -> TokenStream {
     tks
 }
 
-fn gen_transpose_size_result(ctx: &Ctx, size: usize) -> TokenStream {
-    // let nts = &ctx.nts[0..size];
-    // let ents = (0..size).map(|i| format_ident!("E{}", i)).collect::<Vec<_>>();
-    // let nvs = &ctx.nvs[0..size];
-    // let f_names = (0..size).map(|i| format_ident!("f{}", i)).collect::<Vec<_>>();
-    // let gat_impl_trait_name = format_ident!("TupleTransposeResult{}", size);
-    // let map_err_trait_name = format_ident!("TupleTransposeResultMapErr{}", size);
-    // let map_err_params = (0..size)
-    //     .enumerate()
-    //     .map(|(i, _)| {
-    //         let f_name = &f_names[i];
-    //         let ent = &ents[i];
-    //         quote! { #f_name: impl FnOnce(#ent) -> Eo }
-    //     })
-    //     .collect::<Vec<_>>();
-    // let map_err_matchs = (0..size)
-    //     .enumerate()
-    //     .map(|(i, _)| {
-    //         let nv = &nvs[i];
-    //         let f_name = &f_names[i];
-    //         quote! { match #nv {
-    //             Ok(v) => v,
-    //             Err(e) => Err(#f_name(e))?,
-    //         } }
-    //     })
-    //     .collect::<Vec<_>>();
+fn gen_transpose_size_result_1(ctx: &Ctx, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let nes = &ctx.nes[0..size];
+    let lits = &ctx.size_lits[0..size];
     let tks = quote! {
-        // impl<E, #(#nts),*> TupleTransposeResultSameError for (#(Result<#nts, E>),*) {
-        //     type OutTuple = Result<(#(#nts),*), E>;
+        impl<#(#nts,)* #(#nes,)* > TupleTranspose for Result<(#(#nts,)*), (#(#nes,)*)> {
+            type Output = (#(Result<#nts, #nes>,)*);
 
-        //     fn transpose_same_error(self) -> Self::OutTuple {
-        //         let (#(#nvs),*) = self;
-        //         Ok((#(#nvs?),*))
-        //     }
-        // }
+            fn transpose(self) -> Self::Output {
+                match self {
+                    Ok(v) => (#(Ok(v.#lits),)*),
+                    Err(e) => (#(Err(e.#lits),)*),
+                }
+            }
+        }
+    };
+    tks
+}
 
-        // /// Transposes for Result
-        // pub trait #gat_impl_trait_name<#(#ents),*> {
-        //     type OutTuple<Eo>;
+fn gen_transpose_size_result_2(ctx: &Ctx, size: usize) -> TokenStream {
+    let nts = &ctx.nts[0..size];
+    let nes = &ctx.nes[0..size];
+    let lits = &ctx.size_lits[0..size];
+    let tks = quote! {
+        impl<U, #(#nts,)* #(#nes,)* > TupleTransposeInto<U> for (#(Result<#nts, #nes>,)*)
+        where
+            #(#nes: Into<U>,)*
+        {
+            type ConvertedOutput = Result<(#(#nts,)*), U>;
 
-        //     /// Transposes for Result
-        //     fn transpose<Eo: #(From<#ents>)+*>(self) -> Self::OutTuple<Eo>;
-        // }
+            fn transpose_into(self) -> Self::ConvertedOutput {
+                Ok((#(match self.#lits {
+                    Ok(v) => v,
+                    Err(e) => return Err(e.into()),
+                },)*))
+            }
+        }
 
-        // impl<#(#ents, #nts),*> #gat_impl_trait_name<#(#ents),*> for (#(Result<#nts, #ents>),*) {
-        //     type OutTuple<Eo> = Result<(#(#nts),*), Eo>;
+        impl<#(#nts,)* #(#nes,)*> TupleTransposeConvert for (#(Result<#nts, #nes>,)*) {
+        type Output<U>
+            = <Self as TupleTransposeInto<U>>::ConvertedOutput
+        where
+            Self: TupleTransposeInto<U>;
 
-        //     fn transpose<Eo: #(From<#ents>)+*>(self) -> Self::OutTuple<Eo> {
-        //         let (#(#nvs),*) = self;
-        //         Ok((#(#nvs?),*))
-        //     }
-        // }
-
-        // /// Transposes for Result
-        // pub trait #map_err_trait_name<#(#ents),*> {
-        //     type OutTuple<Eo>;
-
-        //     /// Transposes for Result
-        //     fn transpose_map_err<Eo>(self, #(#map_err_params),*) -> Self::OutTuple<Eo>;
-        // }
-
-        // impl<#(#ents, #nts),*> #map_err_trait_name<#(#ents),*> for (#(Result<#nts, #ents>),*) {
-        //     type OutTuple<Eo> = Result<(#(#nts),*), Eo>;
-
-        //     fn transpose_map_err<Eo>(self, #(#map_err_params),*) -> Self::OutTuple<Eo> {
-        //         let (#(#nvs),*) = self;
-        //         Ok((#(#map_err_matchs),*))
-        //     }
-        // }
+        fn transpose<U>(self) -> Self::Output<U>
+        where
+            Self: TupleTransposeInto<U>,
+        {
+            self.transpose_into()
+        }
+    }
     };
     tks
 }

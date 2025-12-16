@@ -1,5 +1,42 @@
 #![allow(deprecated)]
 //! Transposes
+//!
+//!  ```rust
+//!  # use tuples::*;
+//!  let a = Some((1, 2, 3)).transpose();
+//!  assert_eq!(a, (Some(1), Some(2), Some(3)));
+//!
+//!  let b = (Some(1), Some(2), Some(3)).transpose();
+//!  assert_eq!(b, Some((1, 2, 3)));
+//!  ```
+//!
+//!  ```rust
+//!  # use tuples::*;
+//!  let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
+//!  let b: Result<(u8, u8, u8), ()> = a.transpose();
+//!  assert_eq!(b, Ok((1, 2, 3)));
+//!  ```
+//!
+//!  ```rust
+//!  # use tuples::*;
+//!  let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+//!  let b: Result<(u8, u8, u8), i64> = a.transpose();
+//!  assert_eq!(b, Err(-1));
+//!  ```
+//!
+//!  ```rust
+//!  # use tuples::*;
+//!  let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+//!  let b = a.transpose::<i64>();
+//!  assert_eq!(b, Err(-1));
+//!  ```
+//!
+//!  ```rust
+//!  # use tuples::*;
+//!  let a: Result<(u8, u16, u32), (i32, i16, i8)> = Ok((1, 2, 3));
+//!  let b: (Result<u8, i32>, Result<u16, i16>, Result<u32, i8>) = a.transpose();
+//!  assert_eq!(b, (Ok(1), Ok(2), Ok(3)));
+//!  ```
 
 use crate::TupleAllInto;
 
@@ -51,51 +88,24 @@ impl<T> TupleTranspose for (Option<T>,) {
 }
 
 /// Transposes by into
-pub trait TupleTransposeConvert<S> {
-    type Output<U>;
+pub trait TupleTransposeInto<U> {
+    type ConvertedOutput;
 
-    /// Transposes  by into
-    fn transpose<U>(self) -> Self::Output<U>
-    where
-        S: TupleAllInto<U>;
+    /// Transposes by into
+    fn transpose_into(self) -> Self::ConvertedOutput;
 }
 
-// /// Transposes for Result
-// pub trait TupleTransposeResult1<E> {
-//     type OutTuple<Eo>;
+/// Transposes by convert
+pub trait TupleTransposeConvert {
+    type Output<U>
+    where
+        Self: TupleTransposeInto<U>;
 
-//     /// Transposes for Result
-//     fn transpose<Eo: From<E>>(self) -> Self::OutTuple<Eo>;
-// }
-
-// impl<T, E> TupleTransposeResult1<E> for (Result<T, E>,) {
-//     type OutTuple<Eo> = Result<(T,), Eo>;
-
-//     fn transpose<Eo: From<E>>(self) -> Self::OutTuple<Eo> {
-//         let (v0,) = self;
-//         Ok((v0?,))
-//     }
-// }
-
-// /// Transposes for Result
-// pub trait TupleTransposeResultMapErr1<E> {
-//     type OutTuple<Eo>;
-
-//     /// Transposes for Result
-//     fn transpose_map_err<Eo>(self, f: impl FnOnce(E) -> Eo) -> Self::OutTuple<Eo>;
-// }
-
-// impl<T, E> TupleTransposeResultMapErr1<E> for (Result<T, E>,) {
-//     type OutTuple<Eo> = Result<(T,), Eo>;
-
-//     fn transpose_map_err<Eo>(self, f: impl FnOnce(E) -> Eo) -> Self::OutTuple<Eo> {
-//         let (v0,) = self;
-//         Ok((match v0 {
-//             Ok(v) => v,
-//             Err(e) => Err(f(e))?,
-//         },))
-//     }
-// }
+    /// Transposes by into
+    fn transpose<U>(self) -> <Self as TupleTransposeConvert>::Output<U>
+    where
+        Self: TupleTransposeInto<U>;
+}
 
 include!("./gen/transpose.rs");
 
@@ -111,70 +121,42 @@ mod tests {
         assert_eq!(b, Some((1, 2, 3)));
     }
 
-    // #[test]
-    // fn test_result() {
-    //     let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
-    //     let b: Result<(u8, u8, u8), ()> = a.transpose();
-    //     assert_eq!(b, Ok((1, 2, 3)));
-    // }
+    #[test]
+    fn test_result() {
+        let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
+        let b: Result<(u8, u8, u8), ()> = a.transpose();
+        assert_eq!(b, Ok((1, 2, 3)));
+    }
 
-    // #[test]
-    // fn test_result_2() {
-    //     let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
-    //     let b: Result<(u8, u8, u8), i64> = a.transpose();
-    //     assert_eq!(b, Err(-1));
-    // }
+    #[test]
+    fn test_result_1() {
+        let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+        let b: Result<(u8, u8, u8), i64> = a.transpose();
+        assert_eq!(b, Err(-1));
+    }
 
-    // #[test]
-    // fn test_result_same_error() {
-    //     let a: (Result<u8, i64>, Result<u8, i64>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
-    //     let b: Result<(u8, u8, u8), i64> = a.transpose_same_error();
-    //     assert_eq!(b, Err(-1));
-    // }
+    #[test]
+    fn test_result_2() {
+        let a: Result<(u8, u16, u32), (i32, i16, i8)> = Ok((1, 2, 3));
+        let b: (Result<u8, i32>, Result<u16, i16>, Result<u32, i8>) = a.transpose();
+        assert_eq!(b, (Ok(1), Ok(2), Ok(3)));
+    }
 
-    // #[test]
-    // fn test_result_same_error_2() {
-    //     let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
-    //     let b: Result<(u8, u8, u8), ()> = a.transpose_same_error();
-    //     assert_eq!(b, Ok((1, 2, 3)));
-    // }
+    #[test]
+    fn test_result_3() {
+        let a: Result<((), (), ()), (u8, u8, u8)> = Err((1, 2, 3));
+        let b: (Result<(), u8>, Result<(), u8>, Result<(), u8>) = a.transpose();
+        assert_eq!(b, (Err(1), Err(2), Err(3)));
+    }
 
-    // #[test]
-    // fn test_result_gat() {
-    //     let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
-    //     let b: Result<(u8, u8, u8), ()> = a.transpose();
-    //     assert_eq!(b, Ok((1, 2, 3)));
-    // }
-
-    // #[test]
-    // fn test_result_gat_2() {
-    //     let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
-    //     let b: Result<(u8, u8, u8), i64> = a.transpose();
-    //     assert_eq!(b, Err(-1));
-    // }
-
-    // #[test]
-    // fn test_result_gat_try() {
-    //     fn f() -> Result<(), i64> {
-    //         let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
-    //         a.transpose::<i64>()?;
-    //         Ok(())
-    //     }
-    //     let b = f();
-    //     assert_eq!(b, Err(-1));
-    // }
-
-    // #[test]
-    // fn test_result_map_err() {
-    //     let a: (Result<u8, ()>, Result<u8, ()>, Result<u8, ()>) = (Ok(1), Ok(2), Ok(3));
-    //     let b: Result<(u8, u8, u8), ()> = a.transpose_map_err(|a| a, |a| a, |a| a);
-    //     assert_eq!(b, Ok((1, 2, 3)));
-    // }
-
-    // #[test]
-    // fn test_result_map_err_2() {
-    //     let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
-    //     let b: Result<(u8, u8, u8), i64> = a.transpose_map_err(|a| a.into(), |a| a.into(), |a| a.into());
-    //     assert_eq!(b, Err(-1));
-    // }
+    #[test]
+    fn test_result_try() {
+        fn f() -> Result<(), i64> {
+            let a: (Result<u8, i16>, Result<u8, i32>, Result<u8, i64>) = (Ok(1), Err(-1), Ok(3));
+            a.transpose::<i64>()?;
+            Ok(())
+        }
+        let b = f();
+        assert_eq!(b, Err(-1));
+    }
 }
