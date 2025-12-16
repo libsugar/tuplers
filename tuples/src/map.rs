@@ -33,7 +33,7 @@
 //!    assert_eq!(b, (1, 6, 3));
 //!    ```
 
-use crate::{AnyHomogeneousTuple, AnyTuple, HomogeneousTuple, Tuple, TupleItem};
+use crate::{AnyHomogeneousTuple, AnyTuple, HomogeneousTuple, Tuple, TupleItem, misc::RefOrMut};
 
 /// Dynamic mapping
 pub trait TupleDynamicMap<T>: AnyHomogeneousTuple<T> + Sized {
@@ -227,6 +227,44 @@ impl<T: Tuple + Sized, M> TupleMap<M> for T {
 
 ////////////////////
 
+/// Mapping nth item of tuple with arg
+pub trait TupleMapWithN<A, const N: usize, Mapper>: Tuple + Sized {
+    /// The type returned after item mapping with arg
+    type OutputN;
+
+    /// Mapping nth item of tuple with arg
+    fn map_with_n(self, arg: A, mapper: Mapper) -> Self::OutputN;
+}
+
+/// Mapping tuple items with arg
+pub trait TupleMapWith<A, Mapper>: Tuple + Sized {
+    /// The type returned after item mapping with arg
+    type Output<const N: usize>
+    where
+        Self: TupleMapWithN<A, N, Mapper>;
+
+    /// Mapping nth item of tuple with arg
+    fn map_with<const N: usize>(self, arg: A, mapper: Mapper) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, Mapper>;
+}
+
+impl<A, T: Tuple + Sized, M> TupleMapWith<A, M> for T {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
+    }
+}
+
+////////////////////
+
 /// Mapping all items of the tuple
 pub trait TupleMapAll<Mapper>: Tuple + Sized {
     type Output;
@@ -239,6 +277,38 @@ impl<M> TupleMapAll<M> for () {
     type Output = ();
 
     fn map_all(self, _mapper: M) -> () {
+        self
+    }
+}
+
+/// Mapping all items of the tuple with arg
+pub trait TupleMapAllWith<A, Mapper>: Tuple + Sized {
+    type Output;
+
+    /// Mapping all items of the tuple with arg
+    fn map_all_with(self, arg: A, mapper: Mapper) -> Self::Output;
+}
+
+/// Mapping all items of the tuple with arg
+pub trait TupleMapAllWithMut<'a, A, Mapper>: Tuple + Sized {
+    type Output;
+
+    /// Mapping all items of the tuple with arg
+    fn map_all_with_mut(self, arg: &'a mut A, mapper: Mapper) -> Self::Output;
+}
+
+impl<A, M> TupleMapAllWith<A, M> for () {
+    type Output = ();
+
+    fn map_all_with(self, _arg: A, _mapper: M) -> Self::Output {
+        self
+    }
+}
+
+impl<'a, A, M> TupleMapAllWithMut<'a, A, M> for () {
+    type Output = ();
+
+    fn map_all_with_mut(self, _arg: &'a mut A, _mapper: M) -> Self::Output {
         self
     }
 }
@@ -277,6 +347,30 @@ where
         (mapper.do_map_once(self.0),)
     }
 }
+
+impl<A, T, U, M> TupleMapAllWith<A, M> for (T,)
+where
+    M: FnOnce(A, T) -> U,
+{
+    type Output = (U,);
+
+    fn map_all_with(self, arg: A, mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0),)
+    }
+}
+
+impl<'a, A: 'a, T, U, M> TupleMapAllWithMut<'a, A, M> for (T,)
+where
+    M: FnOnce(&'a mut A, T) -> U,
+{
+    type Output = (U,);
+
+    fn map_all_with_mut(self, arg: &'a mut A, mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0),)
+    }
+}
+
+// todo gen
 
 include!("./gen/map.rs");
 
@@ -327,5 +421,26 @@ mod tests {
         let a = (1i32, 2f32, 3f64);
         let b = a.map_all((|v| v * 10i32, |v| v * 100f32, |v| v * 1000f64));
         assert_eq!(b, (10i32, 200f32, 3000f64));
+    }
+
+    #[test]
+    fn test_all_with_1() {
+        let a = (1, 2);
+        let b = a.map_all_with(&3, |a: &i32, b| *a * b);
+        assert_eq!(b, (3, 6));
+    }
+
+    #[test]
+    fn test_all_with_2() {
+        let a = (1, 2);
+        let b = a.map_all_with_mut(&mut 3, |a: &mut i32, b| *a * b);
+        assert_eq!(b, (3, 6));
+    }
+
+    #[test]
+    fn test_n_with() {
+        let a = (1, 2, 3);
+        let b = a.map_with::<1>(&3, |a: &i32, v| v * *a);
+        assert_eq!(b, (1, 6, 3));
     }
 }

@@ -9,6 +9,15 @@ where
         (mapper.do_map_once(self.0),)
     }
 }
+impl<A, T0, U, M> TupleMapWithN<A, 0, M> for (T0,)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U,);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0),)
+    }
+}
 impl<T> TupleDynamicMap<T> for (T,) {
     fn dyn_map(self, n: usize, mapper: impl FnOnce(T) -> T) -> Result<Self, Self> {
         let (mut v0,) = self;
@@ -28,6 +37,15 @@ where
         (mapper.do_map_once(self.0), self.1)
     }
 }
+impl<A, T0, T1, U, M> TupleMapWithN<A, 0, M> for (T0, T1)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1)
+    }
+}
 impl<T0, T1, M> TupleMapN<1, M> for (T0, T1)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<1, Self>,
@@ -35,6 +53,15 @@ where
     type OutputN = (T0, M::Output<1>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, mapper.do_map_once(self.1))
+    }
+}
+impl<A, T0, T1, U, M> TupleMapWithN<A, 1, M> for (T0, T1)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T) {
@@ -68,6 +95,46 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1))
     }
 }
+impl<A: Copy, T0, T1, U0, U1, M> TupleMapAllWith<A, M> for (T0, T1)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+{
+    type Output = (U0, U1);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1))
+    }
+}
+impl<A: Copy, T0, T1, U0, U1, M0, M1> TupleMapAllWith<A, (M0, M1)> for (T0, T1)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+{
+    type Output = (U0, U1);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1))
+    }
+}
+impl<'a, A: 'a, T0, T1, U0, U1, M> TupleMapAllWithMut<'a, A, M> for (T0, T1)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+{
+    type Output = (U0, U1);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1))
+    }
+}
+impl<'a, A: 'a, T0, T1, U0, U1, M0, M1> TupleMapAllWithMut<'a, A, (M0, M1)> for (T0, T1)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+{
+    type Output = (U0, U1);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1))
+    }
+}
 impl<T0, T1, T2, M> TupleMapN<0, M> for (T0, T1, T2)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -75,6 +142,15 @@ where
     type OutputN = (M::Output<0>, T1, T2);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2)
+    }
+}
+impl<A, T0, T1, T2, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2)
     }
 }
 impl<T0, T1, T2, M> TupleMapN<1, M> for (T0, T1, T2)
@@ -86,6 +162,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2)
     }
 }
+impl<A, T0, T1, T2, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2)
+    }
+}
 impl<T0, T1, T2, M> TupleMapN<2, M> for (T0, T1, T2)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -93,6 +178,15 @@ where
     type OutputN = (T0, T1, M::Output<2>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2))
+    }
+}
+impl<A, T0, T1, T2, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T) {
@@ -128,6 +222,50 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2))
     }
 }
+impl<A: Copy, T0, T1, T2, U0, U1, U2, M> TupleMapAllWith<A, M> for (T0, T1, T2)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+{
+    type Output = (U0, U1, U2);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2))
+    }
+}
+impl<A: Copy, T0, T1, T2, U0, U1, U2, M0, M1, M2> TupleMapAllWith<A, (M0, M1, M2)> for (T0, T1, T2)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+{
+    type Output = (U0, U1, U2);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, U0, U1, U2, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+{
+    type Output = (U0, U1, U2);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, U0, U1, U2, M0, M1, M2> TupleMapAllWithMut<'a, A, (M0, M1, M2)> for (T0, T1, T2)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+{
+    type Output = (U0, U1, U2);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2))
+    }
+}
 impl<T0, T1, T2, T3, M> TupleMapN<0, M> for (T0, T1, T2, T3)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -135,6 +273,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3)
+    }
+}
+impl<A, T0, T1, T2, T3, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3)
     }
 }
 impl<T0, T1, T2, T3, M> TupleMapN<1, M> for (T0, T1, T2, T3)
@@ -146,6 +293,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3)
     }
 }
+impl<A, T0, T1, T2, T3, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3)
+    }
+}
 impl<T0, T1, T2, T3, M> TupleMapN<2, M> for (T0, T1, T2, T3)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -155,6 +311,15 @@ where
         (self.0, self.1, mapper.do_map_once(self.2), self.3)
     }
 }
+impl<A, T0, T1, T2, T3, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3)
+    }
+}
 impl<T0, T1, T2, T3, M> TupleMapN<3, M> for (T0, T1, T2, T3)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<3, Self>,
@@ -162,6 +327,15 @@ where
     type OutputN = (T0, T1, T2, M::Output<3>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, mapper.do_map_once(self.3))
+    }
+}
+impl<A, T0, T1, T2, T3, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T) {
@@ -199,6 +373,54 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, U0, U1, U2, U3, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+{
+    type Output = (U0, U1, U2, U3);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, U0, U1, U2, U3, M0, M1, M2, M3> TupleMapAllWith<A, (M0, M1, M2, M3)> for (T0, T1, T2, T3)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+{
+    type Output = (U0, U1, U2, U3);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, U0, U1, U2, U3, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+{
+    type Output = (U0, U1, U2, U3);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, U0, U1, U2, U3, M0, M1, M2, M3> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3)> for (T0, T1, T2, T3)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+{
+    type Output = (U0, U1, U2, U3);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3))
+    }
+}
 impl<T0, T1, T2, T3, T4, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -206,6 +428,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4)
     }
 }
 impl<T0, T1, T2, T3, T4, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4)
@@ -217,6 +448,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4)
     }
 }
+impl<A, T0, T1, T2, T3, T4, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4)
+    }
+}
 impl<T0, T1, T2, T3, T4, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -224,6 +464,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4)
     }
 }
 impl<T0, T1, T2, T3, T4, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4)
@@ -235,6 +484,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4)
     }
 }
+impl<A, T0, T1, T2, T3, T4, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4)
+    }
+}
 impl<T0, T1, T2, T3, T4, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -242,6 +500,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T) {
@@ -281,6 +548,58 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, U0, U1, U2, U3, U4, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+{
+    type Output = (U0, U1, U2, U3, U4);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, U0, U1, U2, U3, U4, M0, M1, M2, M3, M4> TupleMapAllWith<A, (M0, M1, M2, M3, M4)> for (T0, T1, T2, T3, T4)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+{
+    type Output = (U0, U1, U2, U3, U4);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, U0, U1, U2, U3, U4, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+{
+    type Output = (U0, U1, U2, U3, U4);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, U0, U1, U2, U3, U4, M0, M1, M2, M3, M4> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4)> for (T0, T1, T2, T3, T4)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+{
+    type Output = (U0, U1, U2, U3, U4);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -288,6 +607,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5)
@@ -299,6 +627,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -306,6 +643,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5)
@@ -317,6 +663,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -326,6 +681,15 @@ where
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<5, Self>,
@@ -333,6 +697,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, M::Output<5>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T) {
@@ -374,6 +747,62 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, U0, U1, U2, U3, U4, U5, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+{
+    type Output = (U0, U1, U2, U3, U4, U5);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, U0, U1, U2, U3, U4, U5, M0, M1, M2, M3, M4, M5> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5)> for (T0, T1, T2, T3, T4, T5)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+{
+    type Output = (U0, U1, U2, U3, U4, U5);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, U0, U1, U2, U3, U4, U5, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+{
+    type Output = (U0, U1, U2, U3, U4, U5);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, U0, U1, U2, U3, U4, U5, M0, M1, M2, M3, M4, M5> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5)> for (T0, T1, T2, T3, T4, T5)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+{
+    type Output = (U0, U1, U2, U3, U4, U5);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -381,6 +810,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6)
@@ -392,6 +830,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -399,6 +846,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6)
@@ -410,6 +866,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -417,6 +882,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6)
@@ -428,6 +902,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -435,6 +918,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T) {
@@ -478,6 +970,66 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, U0, U1, U2, U3, U4, U5, U6, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, U0, U1, U2, U3, U4, U5, U6, M0, M1, M2, M3, M4, M5, M6> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6)> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, U0, U1, U2, U3, U4, U5, U6, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, U0, U1, U2, U3, U4, U5, U6, M0, M1, M2, M3, M4, M5, M6> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6)> for (T0, T1, T2, T3, T4, T5, T6)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -485,6 +1037,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
@@ -496,6 +1057,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -503,6 +1073,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
@@ -514,6 +1093,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -521,6 +1109,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
@@ -532,6 +1129,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -541,6 +1147,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<7, Self>,
@@ -548,6 +1163,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, M::Output<7>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T) {
@@ -593,6 +1217,70 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, U0, U1, U2, U3, U4, U5, U6, U7, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, U0, U1, U2, U3, U4, U5, U6, U7, M0, M1, M2, M3, M4, M5, M6, M7> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7)> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, U0, U1, U2, U3, U4, U5, U6, U7, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, U0, U1, U2, U3, U4, U5, U6, U7, M0, M1, M2, M3, M4, M5, M6, M7> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7)> for (T0, T1, T2, T3, T4, T5, T6, T7)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -600,6 +1288,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
@@ -611,6 +1308,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -618,6 +1324,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
@@ -629,6 +1344,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -636,6 +1360,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
@@ -647,6 +1380,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -654,6 +1396,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
@@ -665,6 +1416,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -672,6 +1432,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T) {
@@ -719,6 +1488,74 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, U0, U1, U2, U3, U4, U5, U6, U7, U8, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, U0, U1, U2, U3, U4, U5, U6, U7, U8, M0, M1, M2, M3, M4, M5, M6, M7, M8> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, U0, U1, U2, U3, U4, U5, U6, U7, U8, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, U0, U1, U2, U3, U4, U5, U6, U7, U8, M0, M1, M2, M3, M4, M5, M6, M7, M8> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -726,6 +1563,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
@@ -737,6 +1583,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -744,6 +1599,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
@@ -755,6 +1619,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -762,6 +1635,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
@@ -773,6 +1655,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -780,6 +1671,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
@@ -791,6 +1691,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -800,6 +1709,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<9, Self>,
@@ -807,6 +1725,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, M::Output<9>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T) {
@@ -856,6 +1783,78 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -863,6 +1862,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
@@ -874,6 +1882,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -881,6 +1898,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
@@ -892,6 +1918,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -899,6 +1934,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
@@ -910,6 +1954,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -917,6 +1970,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
@@ -928,6 +1990,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -935,6 +2006,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
@@ -946,6 +2026,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -953,6 +2042,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T) {
@@ -1004,6 +2102,82 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -1011,6 +2185,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
@@ -1022,6 +2205,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -1029,6 +2221,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
@@ -1040,6 +2241,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -1047,6 +2257,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
@@ -1058,6 +2277,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -1065,6 +2293,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
@@ -1076,6 +2313,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -1083,6 +2329,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
@@ -1094,6 +2349,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -1103,6 +2367,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<11, Self>,
@@ -1110,6 +2383,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M::Output<11>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -1163,6 +2445,86 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -1170,6 +2532,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
@@ -1181,6 +2552,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -1188,6 +2568,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
@@ -1199,6 +2588,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -1206,6 +2604,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
@@ -1217,6 +2624,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -1224,6 +2640,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
@@ -1235,6 +2660,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -1242,6 +2676,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
@@ -1253,6 +2696,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -1260,6 +2712,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
@@ -1271,6 +2732,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -1278,6 +2748,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -1333,6 +2812,90 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -1340,6 +2903,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
@@ -1351,6 +2923,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -1358,6 +2939,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
@@ -1369,6 +2959,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -1376,6 +2975,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
@@ -1387,6 +2995,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -1394,6 +3011,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
@@ -1405,6 +3031,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -1412,6 +3047,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
@@ -1423,6 +3067,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -1430,6 +3083,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
@@ -1441,6 +3103,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -1450,6 +3121,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<13, Self>,
@@ -1457,6 +3137,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M::Output<13>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -1514,6 +3203,94 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -1521,6 +3298,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
@@ -1532,6 +3318,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -1539,6 +3334,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
@@ -1550,6 +3354,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -1557,6 +3370,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
@@ -1568,6 +3390,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -1575,6 +3406,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
@@ -1586,6 +3426,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -1593,6 +3442,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
@@ -1604,6 +3462,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -1611,6 +3478,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
@@ -1622,6 +3498,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -1629,6 +3514,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
@@ -1640,6 +3534,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -1647,6 +3550,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -1706,6 +3618,98 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -1713,6 +3717,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
@@ -1724,6 +3737,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -1731,6 +3753,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
@@ -1742,6 +3773,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -1749,6 +3789,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
@@ -1760,6 +3809,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -1767,6 +3825,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
@@ -1778,6 +3845,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -1785,6 +3861,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
@@ -1796,6 +3881,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -1803,6 +3897,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
@@ -1814,6 +3917,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -1821,6 +3933,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
@@ -1832,6 +3953,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -1841,6 +3971,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<15, Self>,
@@ -1848,6 +3987,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M::Output<15>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -1909,6 +4057,102 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -1916,6 +4160,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
@@ -1927,6 +4180,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -1934,6 +4196,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
@@ -1945,6 +4216,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -1952,6 +4232,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
@@ -1963,6 +4252,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -1970,6 +4268,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
@@ -1981,6 +4288,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -1988,6 +4304,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
@@ -1999,6 +4324,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -2006,6 +4340,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
@@ -2017,6 +4360,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -2024,6 +4376,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
@@ -2035,6 +4396,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -2042,6 +4412,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
@@ -2053,6 +4432,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -2060,6 +4448,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -2123,6 +4520,106 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -2130,6 +4627,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
@@ -2141,6 +4647,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -2148,6 +4663,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
@@ -2159,6 +4683,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -2166,6 +4699,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
@@ -2177,6 +4719,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -2184,6 +4735,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
@@ -2195,6 +4755,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -2202,6 +4771,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
@@ -2213,6 +4791,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -2220,6 +4807,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
@@ -2231,6 +4827,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -2238,6 +4843,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
@@ -2249,6 +4863,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -2256,6 +4879,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
@@ -2267,6 +4899,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -2276,6 +4917,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<17, Self>,
@@ -2283,6 +4933,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M::Output<17>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -2348,6 +5007,110 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -2355,6 +5118,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -2366,6 +5138,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -2373,6 +5154,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -2384,6 +5174,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -2391,6 +5190,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -2402,6 +5210,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -2409,6 +5226,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -2420,6 +5246,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -2427,6 +5262,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -2438,6 +5282,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -2445,6 +5298,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -2456,6 +5318,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -2463,6 +5334,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -2474,6 +5354,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -2481,6 +5370,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -2492,6 +5390,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -2499,6 +5406,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -2510,6 +5426,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -2517,6 +5442,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -2584,6 +5518,114 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -2591,6 +5633,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -2602,6 +5653,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -2609,6 +5669,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -2620,6 +5689,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -2627,6 +5705,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -2638,6 +5725,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -2645,6 +5741,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -2656,6 +5761,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -2663,6 +5777,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -2674,6 +5797,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -2681,6 +5813,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -2692,6 +5833,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -2699,6 +5849,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -2710,6 +5869,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -2717,6 +5885,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -2728,6 +5905,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -2735,6 +5921,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -2746,6 +5941,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -2755,6 +5959,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<19, Self>,
@@ -2762,6 +5975,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M::Output<19>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -2831,6 +6053,118 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -2838,6 +6172,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -2849,6 +6192,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -2856,6 +6208,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -2867,6 +6228,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -2874,6 +6244,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -2885,6 +6264,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -2892,6 +6280,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -2903,6 +6300,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -2910,6 +6316,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -2921,6 +6336,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -2928,6 +6352,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -2939,6 +6372,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -2946,6 +6388,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -2957,6 +6408,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -2964,6 +6424,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -2975,6 +6444,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -2982,6 +6460,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -2993,6 +6480,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -3000,6 +6496,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -3011,6 +6516,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -3018,6 +6532,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -3089,6 +6612,122 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -3096,6 +6735,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3107,6 +6755,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -3114,6 +6771,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3125,6 +6791,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -3132,6 +6807,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3143,6 +6827,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -3150,6 +6843,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3161,6 +6863,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -3168,6 +6879,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3179,6 +6899,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -3186,6 +6915,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3197,6 +6935,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -3204,6 +6951,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3215,6 +6971,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -3222,6 +6987,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3233,6 +7007,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -3240,6 +7023,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3251,6 +7043,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -3258,6 +7059,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -3269,6 +7079,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -3278,6 +7097,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<21, Self>,
@@ -3285,6 +7113,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M::Output<21>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -3358,6 +7195,126 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -3365,6 +7322,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3376,6 +7342,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -3383,6 +7358,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3394,6 +7378,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -3401,6 +7394,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3412,6 +7414,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -3419,6 +7430,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3430,6 +7450,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -3437,6 +7466,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3448,6 +7486,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -3455,6 +7502,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3466,6 +7522,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -3473,6 +7538,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3484,6 +7558,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -3491,6 +7574,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3502,6 +7594,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -3509,6 +7610,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3520,6 +7630,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -3527,6 +7646,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3538,6 +7666,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -3545,6 +7682,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -3556,6 +7702,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -3563,6 +7718,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M::Output<22>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -3638,6 +7802,130 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -3645,6 +7933,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3656,6 +7953,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -3663,6 +7969,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3674,6 +7989,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -3681,6 +8005,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3692,6 +8025,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -3699,6 +8041,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3710,6 +8061,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -3717,6 +8077,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3728,6 +8097,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -3735,6 +8113,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3746,6 +8133,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -3753,6 +8149,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3764,6 +8169,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -3771,6 +8185,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3782,6 +8205,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -3789,6 +8221,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3800,6 +8241,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -3807,6 +8257,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3818,6 +8277,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -3825,6 +8293,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22, T23);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22, self.23)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22, self.23)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -3836,6 +8313,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22, self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22, self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -3845,6 +8331,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22), self.23)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, T23);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22), self.23)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapN<23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<23, Self>,
@@ -3852,6 +8347,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M::Output<23>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, mapper.do_map_once(self.23))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, M> TupleMapWithN<A, 23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnOnce(A, T23) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, (mapper)(arg, self.23))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -3929,6 +8433,134 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22), m23.do_map_once(self.23))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+    M: FnMut(A, T23) -> U23,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22), (mapper)(arg, self.23))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+    M23: FnMut(A, T23) -> U23,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22), (mapper.23)(arg, self.23))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M: for<'s> FnMut(&'s mut A, T23) -> U23,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22), (mapper)(&mut *arg, self.23))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M23: for<'s> FnMut(&'s mut A, T23) -> U23,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22), (mapper.23)(&mut *arg, self.23))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -3936,6 +8568,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -3947,6 +8588,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -3954,6 +8604,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -3965,6 +8624,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -3972,6 +8640,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -3983,6 +8660,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -3990,6 +8676,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -4001,6 +8696,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -4008,6 +8712,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -4019,6 +8732,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -4026,6 +8748,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -4037,6 +8768,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -4044,6 +8784,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -4055,6 +8804,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -4062,6 +8820,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -4073,6 +8840,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -4080,6 +8856,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -4091,6 +8876,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -4098,6 +8892,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -4109,6 +8912,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -4116,6 +8928,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22, self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22, self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -4127,6 +8948,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22, self.23, self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22, self.23, self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -4134,6 +8964,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M::Output<22>, T23, T24);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22), self.23, self.24)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, T23, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22), self.23, self.24)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -4145,6 +8984,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, mapper.do_map_once(self.23), self.24)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T23) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, T24);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, (mapper)(arg, self.23), self.24)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapN<24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<24, Self>,
@@ -4152,6 +9000,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M::Output<24>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, mapper.do_map_once(self.24))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, M> TupleMapWithN<A, 24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnOnce(A, T24) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, (mapper)(arg, self.24))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -4231,6 +9088,138 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22), m23.do_map_once(self.23), m24.do_map_once(self.24))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+    M: FnMut(A, T23) -> U23,
+    M: FnMut(A, T24) -> U24,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22), (mapper)(arg, self.23), (mapper)(arg, self.24))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+    M23: FnMut(A, T23) -> U23,
+    M24: FnMut(A, T24) -> U24,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22), (mapper.23)(arg, self.23), (mapper.24)(arg, self.24))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M: for<'s> FnMut(&'s mut A, T24) -> U24,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22), (mapper)(&mut *arg, self.23), (mapper)(&mut *arg, self.24))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M23: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M24: for<'s> FnMut(&'s mut A, T24) -> U24,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22), (mapper.23)(&mut *arg, self.23), (mapper.24)(&mut *arg, self.24))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -4238,6 +9227,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4249,6 +9247,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -4256,6 +9263,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4267,6 +9283,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -4274,6 +9299,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4285,6 +9319,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -4292,6 +9335,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4303,6 +9355,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -4310,6 +9371,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4321,6 +9391,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -4328,6 +9407,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4339,6 +9427,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -4346,6 +9443,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4357,6 +9463,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -4364,6 +9479,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4375,6 +9499,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -4382,6 +9515,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4393,6 +9535,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -4400,6 +9551,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4411,6 +9571,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -4418,6 +9587,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22, self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22, self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4429,6 +9607,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22, self.23, self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22, self.23, self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -4436,6 +9623,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M::Output<22>, T23, T24, T25);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22), self.23, self.24, self.25)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, T23, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22), self.23, self.24, self.25)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -4447,6 +9643,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, mapper.do_map_once(self.23), self.24, self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T23) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, T24, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, (mapper)(arg, self.23), self.24, self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<24, Self>,
@@ -4456,6 +9661,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, mapper.do_map_once(self.24), self.25)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T24) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, T25);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, (mapper)(arg, self.24), self.25)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapN<25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<25, Self>,
@@ -4463,6 +9677,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M::Output<25>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, mapper.do_map_once(self.25))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, M> TupleMapWithN<A, 25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnOnce(A, T25) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, (mapper)(arg, self.25))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -4544,6 +9767,142 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22), m23.do_map_once(self.23), m24.do_map_once(self.24), m25.do_map_once(self.25))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+    M: FnMut(A, T23) -> U23,
+    M: FnMut(A, T24) -> U24,
+    M: FnMut(A, T25) -> U25,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22), (mapper)(arg, self.23), (mapper)(arg, self.24), (mapper)(arg, self.25))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+    M23: FnMut(A, T23) -> U23,
+    M24: FnMut(A, T24) -> U24,
+    M25: FnMut(A, T25) -> U25,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22), (mapper.23)(arg, self.23), (mapper.24)(arg, self.24), (mapper.25)(arg, self.25))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M: for<'s> FnMut(&'s mut A, T25) -> U25,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22), (mapper)(&mut *arg, self.23), (mapper)(&mut *arg, self.24), (mapper)(&mut *arg, self.25))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M23: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M24: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M25: for<'s> FnMut(&'s mut A, T25) -> U25,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22), (mapper.23)(&mut *arg, self.23), (mapper.24)(&mut *arg, self.24), (mapper.25)(&mut *arg, self.25))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -4551,6 +9910,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4562,6 +9930,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -4569,6 +9946,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4580,6 +9966,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -4587,6 +9982,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4598,6 +10002,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -4605,6 +10018,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4616,6 +10038,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -4623,6 +10054,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4634,6 +10074,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -4641,6 +10090,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4652,6 +10110,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -4659,6 +10126,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4670,6 +10146,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -4677,6 +10162,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4688,6 +10182,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -4695,6 +10198,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4706,6 +10218,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -4713,6 +10234,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4724,6 +10254,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -4731,6 +10270,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22, self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22, self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4742,6 +10290,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22, self.23, self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22, self.23, self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -4749,6 +10306,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M::Output<22>, T23, T24, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22), self.23, self.24, self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, T23, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22), self.23, self.24, self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4760,6 +10326,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, mapper.do_map_once(self.23), self.24, self.25, self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T23) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, T24, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, (mapper)(arg, self.23), self.24, self.25, self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<24, Self>,
@@ -4767,6 +10342,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M::Output<24>, T25, T26);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, mapper.do_map_once(self.24), self.25, self.26)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T24) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, T25, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, (mapper)(arg, self.24), self.25, self.26)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -4778,6 +10362,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, mapper.do_map_once(self.25), self.26)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T25) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, T26);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, (mapper)(arg, self.25), self.26)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapN<26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<26, Self>,
@@ -4785,6 +10378,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M::Output<26>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, mapper.do_map_once(self.26))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, M> TupleMapWithN<A, 26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnOnce(A, T26) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, (mapper)(arg, self.26))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -4868,6 +10470,146 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22), m23.do_map_once(self.23), m24.do_map_once(self.24), m25.do_map_once(self.25), m26.do_map_once(self.26))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+    M: FnMut(A, T23) -> U23,
+    M: FnMut(A, T24) -> U24,
+    M: FnMut(A, T25) -> U25,
+    M: FnMut(A, T26) -> U26,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22), (mapper)(arg, self.23), (mapper)(arg, self.24), (mapper)(arg, self.25), (mapper)(arg, self.26))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+    M23: FnMut(A, T23) -> U23,
+    M24: FnMut(A, T24) -> U24,
+    M25: FnMut(A, T25) -> U25,
+    M26: FnMut(A, T26) -> U26,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22), (mapper.23)(arg, self.23), (mapper.24)(arg, self.24), (mapper.25)(arg, self.25), (mapper.26)(arg, self.26))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M: for<'s> FnMut(&'s mut A, T26) -> U26,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22), (mapper)(&mut *arg, self.23), (mapper)(&mut *arg, self.24), (mapper)(&mut *arg, self.25), (mapper)(&mut *arg, self.26))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M23: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M24: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M25: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M26: for<'s> FnMut(&'s mut A, T26) -> U26,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22), (mapper.23)(&mut *arg, self.23), (mapper.24)(&mut *arg, self.24), (mapper.25)(&mut *arg, self.25), (mapper.26)(&mut *arg, self.26))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -4875,6 +10617,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -4886,6 +10637,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -4893,6 +10653,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -4904,6 +10673,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -4911,6 +10689,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -4922,6 +10709,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -4929,6 +10725,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -4940,6 +10745,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -4947,6 +10761,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -4958,6 +10781,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -4965,6 +10797,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -4976,6 +10817,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -4983,6 +10833,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -4994,6 +10853,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -5001,6 +10869,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -5012,6 +10889,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -5019,6 +10905,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -5030,6 +10925,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -5037,6 +10941,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -5048,6 +10961,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -5055,6 +10977,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -5066,6 +10997,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22, self.23, self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22, self.23, self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -5073,6 +11013,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M::Output<22>, T23, T24, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22), self.23, self.24, self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, T23, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22), self.23, self.24, self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -5084,6 +11033,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, mapper.do_map_once(self.23), self.24, self.25, self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T23) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, T24, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, (mapper)(arg, self.23), self.24, self.25, self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<24, Self>,
@@ -5091,6 +11049,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M::Output<24>, T25, T26, T27);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, mapper.do_map_once(self.24), self.25, self.26, self.27)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T24) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, T25, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, (mapper)(arg, self.24), self.25, self.26, self.27)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -5102,6 +11069,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, mapper.do_map_once(self.25), self.26, self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T25) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, T26, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, (mapper)(arg, self.25), self.26, self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<26, Self>,
@@ -5111,6 +11087,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, mapper.do_map_once(self.26), self.27)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T26) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, T27);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, (mapper)(arg, self.26), self.27)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapN<27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<27, Self>,
@@ -5118,6 +11103,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M::Output<27>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, mapper.do_map_once(self.27))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, M> TupleMapWithN<A, 27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnOnce(A, T27) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, (mapper)(arg, self.27))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -5203,6 +11197,150 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22), m23.do_map_once(self.23), m24.do_map_once(self.24), m25.do_map_once(self.25), m26.do_map_once(self.26), m27.do_map_once(self.27))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+    M: FnMut(A, T23) -> U23,
+    M: FnMut(A, T24) -> U24,
+    M: FnMut(A, T25) -> U25,
+    M: FnMut(A, T26) -> U26,
+    M: FnMut(A, T27) -> U27,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22), (mapper)(arg, self.23), (mapper)(arg, self.24), (mapper)(arg, self.25), (mapper)(arg, self.26), (mapper)(arg, self.27))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+    M23: FnMut(A, T23) -> U23,
+    M24: FnMut(A, T24) -> U24,
+    M25: FnMut(A, T25) -> U25,
+    M26: FnMut(A, T26) -> U26,
+    M27: FnMut(A, T27) -> U27,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22), (mapper.23)(arg, self.23), (mapper.24)(arg, self.24), (mapper.25)(arg, self.25), (mapper.26)(arg, self.26), (mapper.27)(arg, self.27))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M: for<'s> FnMut(&'s mut A, T27) -> U27,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22), (mapper)(&mut *arg, self.23), (mapper)(&mut *arg, self.24), (mapper)(&mut *arg, self.25), (mapper)(&mut *arg, self.26), (mapper)(&mut *arg, self.27))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M23: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M24: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M25: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M26: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M27: for<'s> FnMut(&'s mut A, T27) -> U27,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22), (mapper.23)(&mut *arg, self.23), (mapper.24)(&mut *arg, self.24), (mapper.25)(&mut *arg, self.25), (mapper.26)(&mut *arg, self.26), (mapper.27)(&mut *arg, self.27))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -5210,6 +11348,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5221,6 +11368,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -5228,6 +11384,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5239,6 +11404,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -5246,6 +11420,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5257,6 +11440,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -5264,6 +11456,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5275,6 +11476,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -5282,6 +11492,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5293,6 +11512,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -5300,6 +11528,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5311,6 +11548,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -5318,6 +11564,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5329,6 +11584,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -5336,6 +11600,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5347,6 +11620,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -5354,6 +11636,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5365,6 +11656,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -5372,6 +11672,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5383,6 +11692,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -5390,6 +11708,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5401,6 +11728,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22, self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22, self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -5408,6 +11744,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M::Output<22>, T23, T24, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22), self.23, self.24, self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, T23, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22), self.23, self.24, self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5419,6 +11764,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, mapper.do_map_once(self.23), self.24, self.25, self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T23) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, T24, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, (mapper)(arg, self.23), self.24, self.25, self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<24, Self>,
@@ -5426,6 +11780,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M::Output<24>, T25, T26, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, mapper.do_map_once(self.24), self.25, self.26, self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T24) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, T25, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, (mapper)(arg, self.24), self.25, self.26, self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5437,6 +11800,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, mapper.do_map_once(self.25), self.26, self.27, self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T25) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, T26, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, (mapper)(arg, self.25), self.26, self.27, self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<26, Self>,
@@ -5444,6 +11816,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M::Output<26>, T27, T28);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, mapper.do_map_once(self.26), self.27, self.28)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T26) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, T27, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, (mapper)(arg, self.26), self.27, self.28)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -5455,6 +11836,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, mapper.do_map_once(self.27), self.28)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T27) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, T28);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, (mapper)(arg, self.27), self.28)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapN<28, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<28, Self>,
@@ -5462,6 +11852,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M::Output<28>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, mapper.do_map_once(self.28))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, M> TupleMapWithN<A, 28, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnOnce(A, T28) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, (mapper)(arg, self.28))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -5549,6 +11948,154 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22), m23.do_map_once(self.23), m24.do_map_once(self.24), m25.do_map_once(self.25), m26.do_map_once(self.26), m27.do_map_once(self.27), m28.do_map_once(self.28))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+    M: FnMut(A, T23) -> U23,
+    M: FnMut(A, T24) -> U24,
+    M: FnMut(A, T25) -> U25,
+    M: FnMut(A, T26) -> U26,
+    M: FnMut(A, T27) -> U27,
+    M: FnMut(A, T28) -> U28,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22), (mapper)(arg, self.23), (mapper)(arg, self.24), (mapper)(arg, self.25), (mapper)(arg, self.26), (mapper)(arg, self.27), (mapper)(arg, self.28))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+    M23: FnMut(A, T23) -> U23,
+    M24: FnMut(A, T24) -> U24,
+    M25: FnMut(A, T25) -> U25,
+    M26: FnMut(A, T26) -> U26,
+    M27: FnMut(A, T27) -> U27,
+    M28: FnMut(A, T28) -> U28,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22), (mapper.23)(arg, self.23), (mapper.24)(arg, self.24), (mapper.25)(arg, self.25), (mapper.26)(arg, self.26), (mapper.27)(arg, self.27), (mapper.28)(arg, self.28))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M: for<'s> FnMut(&'s mut A, T27) -> U27,
+    M: for<'s> FnMut(&'s mut A, T28) -> U28,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22), (mapper)(&mut *arg, self.23), (mapper)(&mut *arg, self.24), (mapper)(&mut *arg, self.25), (mapper)(&mut *arg, self.26), (mapper)(&mut *arg, self.27), (mapper)(&mut *arg, self.28))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M23: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M24: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M25: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M26: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M27: for<'s> FnMut(&'s mut A, T27) -> U27,
+    M28: for<'s> FnMut(&'s mut A, T28) -> U28,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22), (mapper.23)(&mut *arg, self.23), (mapper.24)(&mut *arg, self.24), (mapper.25)(&mut *arg, self.25), (mapper.26)(&mut *arg, self.26), (mapper.27)(&mut *arg, self.27), (mapper.28)(&mut *arg, self.28))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -5556,6 +12103,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5567,6 +12123,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -5574,6 +12139,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5585,6 +12159,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -5592,6 +12175,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5603,6 +12195,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -5610,6 +12211,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5621,6 +12231,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -5628,6 +12247,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5639,6 +12267,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -5646,6 +12283,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5657,6 +12303,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -5664,6 +12319,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5675,6 +12339,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -5682,6 +12355,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5693,6 +12375,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -5700,6 +12391,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5711,6 +12411,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -5718,6 +12427,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5729,6 +12447,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -5736,6 +12463,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5747,6 +12483,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -5754,6 +12499,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M::Output<22>, T23, T24, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22), self.23, self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, T23, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22), self.23, self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5765,6 +12519,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, mapper.do_map_once(self.23), self.24, self.25, self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T23) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, T24, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, (mapper)(arg, self.23), self.24, self.25, self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<24, Self>,
@@ -5772,6 +12535,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M::Output<24>, T25, T26, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, mapper.do_map_once(self.24), self.25, self.26, self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T24) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, T25, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, (mapper)(arg, self.24), self.25, self.26, self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5783,6 +12555,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, mapper.do_map_once(self.25), self.26, self.27, self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T25) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, T26, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, (mapper)(arg, self.25), self.26, self.27, self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<26, Self>,
@@ -5790,6 +12571,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M::Output<26>, T27, T28, T29);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, mapper.do_map_once(self.26), self.27, self.28, self.29)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T26) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, T27, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, (mapper)(arg, self.26), self.27, self.28, self.29)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -5801,6 +12591,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, mapper.do_map_once(self.27), self.28, self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T27) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, T28, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, (mapper)(arg, self.27), self.28, self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<28, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<28, Self>,
@@ -5810,6 +12609,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, mapper.do_map_once(self.28), self.29)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 28, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T28) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, T29);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, (mapper)(arg, self.28), self.29)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapN<29, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<29, Self>,
@@ -5817,6 +12625,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M::Output<29>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, mapper.do_map_once(self.29))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, M> TupleMapWithN<A, 29, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnOnce(A, T29) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, (mapper)(arg, self.29))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -5906,6 +12723,158 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22), m23.do_map_once(self.23), m24.do_map_once(self.24), m25.do_map_once(self.25), m26.do_map_once(self.26), m27.do_map_once(self.27), m28.do_map_once(self.28), m29.do_map_once(self.29))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+    M: FnMut(A, T23) -> U23,
+    M: FnMut(A, T24) -> U24,
+    M: FnMut(A, T25) -> U25,
+    M: FnMut(A, T26) -> U26,
+    M: FnMut(A, T27) -> U27,
+    M: FnMut(A, T28) -> U28,
+    M: FnMut(A, T29) -> U29,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22), (mapper)(arg, self.23), (mapper)(arg, self.24), (mapper)(arg, self.25), (mapper)(arg, self.26), (mapper)(arg, self.27), (mapper)(arg, self.28), (mapper)(arg, self.29))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+    M23: FnMut(A, T23) -> U23,
+    M24: FnMut(A, T24) -> U24,
+    M25: FnMut(A, T25) -> U25,
+    M26: FnMut(A, T26) -> U26,
+    M27: FnMut(A, T27) -> U27,
+    M28: FnMut(A, T28) -> U28,
+    M29: FnMut(A, T29) -> U29,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22), (mapper.23)(arg, self.23), (mapper.24)(arg, self.24), (mapper.25)(arg, self.25), (mapper.26)(arg, self.26), (mapper.27)(arg, self.27), (mapper.28)(arg, self.28), (mapper.29)(arg, self.29))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M: for<'s> FnMut(&'s mut A, T27) -> U27,
+    M: for<'s> FnMut(&'s mut A, T28) -> U28,
+    M: for<'s> FnMut(&'s mut A, T29) -> U29,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22), (mapper)(&mut *arg, self.23), (mapper)(&mut *arg, self.24), (mapper)(&mut *arg, self.25), (mapper)(&mut *arg, self.26), (mapper)(&mut *arg, self.27), (mapper)(&mut *arg, self.28), (mapper)(&mut *arg, self.29))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M23: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M24: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M25: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M26: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M27: for<'s> FnMut(&'s mut A, T27) -> U27,
+    M28: for<'s> FnMut(&'s mut A, T28) -> U28,
+    M29: for<'s> FnMut(&'s mut A, T29) -> U29,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22), (mapper.23)(&mut *arg, self.23), (mapper.24)(&mut *arg, self.24), (mapper.25)(&mut *arg, self.25), (mapper.26)(&mut *arg, self.26), (mapper.27)(&mut *arg, self.27), (mapper.28)(&mut *arg, self.28), (mapper.29)(&mut *arg, self.29))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -5913,6 +12882,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -5924,6 +12902,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -5931,6 +12918,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -5942,6 +12938,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -5949,6 +12954,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -5960,6 +12974,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -5967,6 +12990,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -5978,6 +13010,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -5985,6 +13026,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -5996,6 +13046,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -6003,6 +13062,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6014,6 +13082,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -6021,6 +13098,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6032,6 +13118,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -6039,6 +13134,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6050,6 +13154,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -6057,6 +13170,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6068,6 +13190,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -6075,6 +13206,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6086,6 +13226,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -6093,6 +13242,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6104,6 +13262,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -6111,6 +13278,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M::Output<22>, T23, T24, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22), self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, T23, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22), self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6122,6 +13298,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, mapper.do_map_once(self.23), self.24, self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T23) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, T24, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, (mapper)(arg, self.23), self.24, self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<24, Self>,
@@ -6129,6 +13314,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M::Output<24>, T25, T26, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, mapper.do_map_once(self.24), self.25, self.26, self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T24) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, T25, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, (mapper)(arg, self.24), self.25, self.26, self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6140,6 +13334,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, mapper.do_map_once(self.25), self.26, self.27, self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T25) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, T26, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, (mapper)(arg, self.25), self.26, self.27, self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<26, Self>,
@@ -6147,6 +13350,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M::Output<26>, T27, T28, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, mapper.do_map_once(self.26), self.27, self.28, self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T26) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, T27, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, (mapper)(arg, self.26), self.27, self.28, self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6158,6 +13370,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, mapper.do_map_once(self.27), self.28, self.29, self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T27) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, T28, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, (mapper)(arg, self.27), self.28, self.29, self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<28, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<28, Self>,
@@ -6165,6 +13386,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M::Output<28>, T29, T30);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, mapper.do_map_once(self.28), self.29, self.30)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 28, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T28) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, T29, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, (mapper)(arg, self.28), self.29, self.30)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<29, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -6176,6 +13406,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, mapper.do_map_once(self.29), self.30)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 29, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T29) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, T30);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, (mapper)(arg, self.29), self.30)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapN<30, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<30, Self>,
@@ -6183,6 +13422,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M::Output<30>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, mapper.do_map_once(self.30))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U, M> TupleMapWithN<A, 30, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnOnce(A, T30) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, (mapper)(arg, self.30))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -6274,6 +13522,162 @@ where
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22), m23.do_map_once(self.23), m24.do_map_once(self.24), m25.do_map_once(self.25), m26.do_map_once(self.26), m27.do_map_once(self.27), m28.do_map_once(self.28), m29.do_map_once(self.29), m30.do_map_once(self.30))
     }
 }
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+    M: FnMut(A, T23) -> U23,
+    M: FnMut(A, T24) -> U24,
+    M: FnMut(A, T25) -> U25,
+    M: FnMut(A, T26) -> U26,
+    M: FnMut(A, T27) -> U27,
+    M: FnMut(A, T28) -> U28,
+    M: FnMut(A, T29) -> U29,
+    M: FnMut(A, T30) -> U30,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22), (mapper)(arg, self.23), (mapper)(arg, self.24), (mapper)(arg, self.25), (mapper)(arg, self.26), (mapper)(arg, self.27), (mapper)(arg, self.28), (mapper)(arg, self.29), (mapper)(arg, self.30))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+    M23: FnMut(A, T23) -> U23,
+    M24: FnMut(A, T24) -> U24,
+    M25: FnMut(A, T25) -> U25,
+    M26: FnMut(A, T26) -> U26,
+    M27: FnMut(A, T27) -> U27,
+    M28: FnMut(A, T28) -> U28,
+    M29: FnMut(A, T29) -> U29,
+    M30: FnMut(A, T30) -> U30,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22), (mapper.23)(arg, self.23), (mapper.24)(arg, self.24), (mapper.25)(arg, self.25), (mapper.26)(arg, self.26), (mapper.27)(arg, self.27), (mapper.28)(arg, self.28), (mapper.29)(arg, self.29), (mapper.30)(arg, self.30))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M: for<'s> FnMut(&'s mut A, T27) -> U27,
+    M: for<'s> FnMut(&'s mut A, T28) -> U28,
+    M: for<'s> FnMut(&'s mut A, T29) -> U29,
+    M: for<'s> FnMut(&'s mut A, T30) -> U30,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22), (mapper)(&mut *arg, self.23), (mapper)(&mut *arg, self.24), (mapper)(&mut *arg, self.25), (mapper)(&mut *arg, self.26), (mapper)(&mut *arg, self.27), (mapper)(&mut *arg, self.28), (mapper)(&mut *arg, self.29), (mapper)(&mut *arg, self.30))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M23: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M24: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M25: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M26: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M27: for<'s> FnMut(&'s mut A, T27) -> U27,
+    M28: for<'s> FnMut(&'s mut A, T28) -> U28,
+    M29: for<'s> FnMut(&'s mut A, T29) -> U29,
+    M30: for<'s> FnMut(&'s mut A, T30) -> U30,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22), (mapper.23)(&mut *arg, self.23), (mapper.24)(&mut *arg, self.24), (mapper.25)(&mut *arg, self.25), (mapper.26)(&mut *arg, self.26), (mapper.27)(&mut *arg, self.27), (mapper.28)(&mut *arg, self.28), (mapper.29)(&mut *arg, self.29), (mapper.30)(&mut *arg, self.30))
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -6281,6 +13685,15 @@ where
     type OutputN = (M::Output<0>, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (mapper.do_map_once(self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 0, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T0) -> U,
+{
+    type OutputN = (U, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        ((mapper)(arg, self.0), self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6292,6 +13705,15 @@ where
         (self.0, mapper.do_map_once(self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 1, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T1) -> U,
+{
+    type OutputN = (T0, U, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, (mapper)(arg, self.1), self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<2, Self>,
@@ -6299,6 +13721,15 @@ where
     type OutputN = (T0, T1, M::Output<2>, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, mapper.do_map_once(self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 2, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T2) -> U,
+{
+    type OutputN = (T0, T1, U, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, (mapper)(arg, self.2), self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6310,6 +13741,15 @@ where
         (self.0, self.1, self.2, mapper.do_map_once(self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 3, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T3) -> U,
+{
+    type OutputN = (T0, T1, T2, U, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, (mapper)(arg, self.3), self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<4, Self>,
@@ -6317,6 +13757,15 @@ where
     type OutputN = (T0, T1, T2, T3, M::Output<4>, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, mapper.do_map_once(self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 4, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T4) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, U, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, (mapper)(arg, self.4), self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6328,6 +13777,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, mapper.do_map_once(self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 5, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T5) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, U, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, (mapper)(arg, self.5), self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<6, Self>,
@@ -6335,6 +13793,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, M::Output<6>, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, mapper.do_map_once(self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 6, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T6) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, U, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, (mapper)(arg, self.6), self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6346,6 +13813,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, mapper.do_map_once(self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 7, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T7) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, U, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, (mapper)(arg, self.7), self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<8, Self>,
@@ -6353,6 +13829,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, M::Output<8>, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, mapper.do_map_once(self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 8, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T8) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, U, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, (mapper)(arg, self.8), self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6364,6 +13849,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, mapper.do_map_once(self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 9, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T9) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, U, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, (mapper)(arg, self.9), self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<10, Self>,
@@ -6371,6 +13865,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M::Output<10>, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, mapper.do_map_once(self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 10, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T10) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, U, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, (mapper)(arg, self.10), self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6382,6 +13885,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, mapper.do_map_once(self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 11, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T11) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, U, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, (mapper)(arg, self.11), self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<12, Self>,
@@ -6389,6 +13901,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M::Output<12>, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, mapper.do_map_once(self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 12, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T12) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, U, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, (mapper)(arg, self.12), self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6400,6 +13921,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, mapper.do_map_once(self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 13, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T13) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, U, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, (mapper)(arg, self.13), self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<14, Self>,
@@ -6407,6 +13937,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M::Output<14>, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, mapper.do_map_once(self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 14, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T14) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, U, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, (mapper)(arg, self.14), self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6418,6 +13957,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, mapper.do_map_once(self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 15, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T15) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, U, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, (mapper)(arg, self.15), self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<16, Self>,
@@ -6425,6 +13973,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M::Output<16>, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, mapper.do_map_once(self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 16, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T16) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, U, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, (mapper)(arg, self.16), self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6436,6 +13993,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, mapper.do_map_once(self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 17, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T17) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, U, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, (mapper)(arg, self.17), self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<18, Self>,
@@ -6443,6 +14009,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M::Output<18>, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, mapper.do_map_once(self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 18, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T18) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, U, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, (mapper)(arg, self.18), self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6454,6 +14029,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, mapper.do_map_once(self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 19, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T19) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, U, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, (mapper)(arg, self.19), self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<20, Self>,
@@ -6461,6 +14045,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M::Output<20>, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, mapper.do_map_once(self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 20, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T20) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, U, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, (mapper)(arg, self.20), self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6472,6 +14065,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, mapper.do_map_once(self.21), self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 21, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T21) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, U, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, (mapper)(arg, self.21), self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<22, Self>,
@@ -6479,6 +14081,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M::Output<22>, T23, T24, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, mapper.do_map_once(self.22), self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 22, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T22) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, U, T23, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, (mapper)(arg, self.22), self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6490,6 +14101,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, mapper.do_map_once(self.23), self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 23, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T23) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, U, T24, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, (mapper)(arg, self.23), self.24, self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<24, Self>,
@@ -6497,6 +14117,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M::Output<24>, T25, T26, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, mapper.do_map_once(self.24), self.25, self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 24, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T24) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, U, T25, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, (mapper)(arg, self.24), self.25, self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6508,6 +14137,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, mapper.do_map_once(self.25), self.26, self.27, self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 25, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T25) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, U, T26, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, (mapper)(arg, self.25), self.26, self.27, self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<26, Self>,
@@ -6515,6 +14153,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M::Output<26>, T27, T28, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, mapper.do_map_once(self.26), self.27, self.28, self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 26, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T26) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, U, T27, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, (mapper)(arg, self.26), self.27, self.28, self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6526,6 +14173,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, mapper.do_map_once(self.27), self.28, self.29, self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 27, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T27) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, U, T28, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, (mapper)(arg, self.27), self.28, self.29, self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<28, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<28, Self>,
@@ -6533,6 +14189,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M::Output<28>, T29, T30, T31);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, mapper.do_map_once(self.28), self.29, self.30, self.31)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 28, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T28) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, U, T29, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, (mapper)(arg, self.28), self.29, self.30, self.31)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<29, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
@@ -6544,6 +14209,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, mapper.do_map_once(self.29), self.30, self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 29, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T29) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, U, T30, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, (mapper)(arg, self.29), self.30, self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<30, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<30, Self>,
@@ -6553,6 +14227,15 @@ where
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, mapper.do_map_once(self.30), self.31)
     }
 }
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 30, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T30) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, U, T31);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, (mapper)(arg, self.30), self.31)
+    }
+}
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapN<31, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<31, Self>,
@@ -6560,6 +14243,15 @@ where
     type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M::Output<31>);
     fn map_n(self, mapper: M) -> Self::OutputN {
         (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, mapper.do_map_once(self.31))
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U, M> TupleMapWithN<A, 31, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnOnce(A, T31) -> U,
+{
+    type OutputN = (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, U);
+    fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+        (self.0, self.1, self.2, self.3, self.4, self.5, self.6, self.7, self.8, self.9, self.10, self.11, self.12, self.13, self.14, self.15, self.16, self.17, self.18, self.19, self.20, self.21, self.22, self.23, self.24, self.25, self.26, self.27, self.28, self.29, self.30, (mapper)(arg, self.31))
     }
 }
 impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
@@ -6651,5 +14343,165 @@ where
     fn map_all(self, mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30, M31)) -> Self::Output {
         let (m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m17, m18, m19, m20, m21, m22, m23, m24, m25, m26, m27, m28, m29, m30, m31) = mapper;
         (m0.do_map_once(self.0), m1.do_map_once(self.1), m2.do_map_once(self.2), m3.do_map_once(self.3), m4.do_map_once(self.4), m5.do_map_once(self.5), m6.do_map_once(self.6), m7.do_map_once(self.7), m8.do_map_once(self.8), m9.do_map_once(self.9), m10.do_map_once(self.10), m11.do_map_once(self.11), m12.do_map_once(self.12), m13.do_map_once(self.13), m14.do_map_once(self.14), m15.do_map_once(self.15), m16.do_map_once(self.16), m17.do_map_once(self.17), m18.do_map_once(self.18), m19.do_map_once(self.19), m20.do_map_once(self.20), m21.do_map_once(self.21), m22.do_map_once(self.22), m23.do_map_once(self.23), m24.do_map_once(self.24), m25.do_map_once(self.25), m26.do_map_once(self.26), m27.do_map_once(self.27), m28.do_map_once(self.28), m29.do_map_once(self.29), m30.do_map_once(self.30), m31.do_map_once(self.31))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, M> TupleMapAllWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: FnMut(A, T0) -> U0,
+    M: FnMut(A, T1) -> U1,
+    M: FnMut(A, T2) -> U2,
+    M: FnMut(A, T3) -> U3,
+    M: FnMut(A, T4) -> U4,
+    M: FnMut(A, T5) -> U5,
+    M: FnMut(A, T6) -> U6,
+    M: FnMut(A, T7) -> U7,
+    M: FnMut(A, T8) -> U8,
+    M: FnMut(A, T9) -> U9,
+    M: FnMut(A, T10) -> U10,
+    M: FnMut(A, T11) -> U11,
+    M: FnMut(A, T12) -> U12,
+    M: FnMut(A, T13) -> U13,
+    M: FnMut(A, T14) -> U14,
+    M: FnMut(A, T15) -> U15,
+    M: FnMut(A, T16) -> U16,
+    M: FnMut(A, T17) -> U17,
+    M: FnMut(A, T18) -> U18,
+    M: FnMut(A, T19) -> U19,
+    M: FnMut(A, T20) -> U20,
+    M: FnMut(A, T21) -> U21,
+    M: FnMut(A, T22) -> U22,
+    M: FnMut(A, T23) -> U23,
+    M: FnMut(A, T24) -> U24,
+    M: FnMut(A, T25) -> U25,
+    M: FnMut(A, T26) -> U26,
+    M: FnMut(A, T27) -> U27,
+    M: FnMut(A, T28) -> U28,
+    M: FnMut(A, T29) -> U29,
+    M: FnMut(A, T30) -> U30,
+    M: FnMut(A, T31) -> U31,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31);
+    fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+        ((mapper)(arg, self.0), (mapper)(arg, self.1), (mapper)(arg, self.2), (mapper)(arg, self.3), (mapper)(arg, self.4), (mapper)(arg, self.5), (mapper)(arg, self.6), (mapper)(arg, self.7), (mapper)(arg, self.8), (mapper)(arg, self.9), (mapper)(arg, self.10), (mapper)(arg, self.11), (mapper)(arg, self.12), (mapper)(arg, self.13), (mapper)(arg, self.14), (mapper)(arg, self.15), (mapper)(arg, self.16), (mapper)(arg, self.17), (mapper)(arg, self.18), (mapper)(arg, self.19), (mapper)(arg, self.20), (mapper)(arg, self.21), (mapper)(arg, self.22), (mapper)(arg, self.23), (mapper)(arg, self.24), (mapper)(arg, self.25), (mapper)(arg, self.26), (mapper)(arg, self.27), (mapper)(arg, self.28), (mapper)(arg, self.29), (mapper)(arg, self.30), (mapper)(arg, self.31))
+    }
+}
+impl<A: Copy, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30, M31> TupleMapAllWith<A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30, M31)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M0: FnMut(A, T0) -> U0,
+    M1: FnMut(A, T1) -> U1,
+    M2: FnMut(A, T2) -> U2,
+    M3: FnMut(A, T3) -> U3,
+    M4: FnMut(A, T4) -> U4,
+    M5: FnMut(A, T5) -> U5,
+    M6: FnMut(A, T6) -> U6,
+    M7: FnMut(A, T7) -> U7,
+    M8: FnMut(A, T8) -> U8,
+    M9: FnMut(A, T9) -> U9,
+    M10: FnMut(A, T10) -> U10,
+    M11: FnMut(A, T11) -> U11,
+    M12: FnMut(A, T12) -> U12,
+    M13: FnMut(A, T13) -> U13,
+    M14: FnMut(A, T14) -> U14,
+    M15: FnMut(A, T15) -> U15,
+    M16: FnMut(A, T16) -> U16,
+    M17: FnMut(A, T17) -> U17,
+    M18: FnMut(A, T18) -> U18,
+    M19: FnMut(A, T19) -> U19,
+    M20: FnMut(A, T20) -> U20,
+    M21: FnMut(A, T21) -> U21,
+    M22: FnMut(A, T22) -> U22,
+    M23: FnMut(A, T23) -> U23,
+    M24: FnMut(A, T24) -> U24,
+    M25: FnMut(A, T25) -> U25,
+    M26: FnMut(A, T26) -> U26,
+    M27: FnMut(A, T27) -> U27,
+    M28: FnMut(A, T28) -> U28,
+    M29: FnMut(A, T29) -> U29,
+    M30: FnMut(A, T30) -> U30,
+    M31: FnMut(A, T31) -> U31,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31);
+    fn map_all_with(self, arg: A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30, M31)) -> Self::Output {
+        ((mapper.0)(arg, self.0), (mapper.1)(arg, self.1), (mapper.2)(arg, self.2), (mapper.3)(arg, self.3), (mapper.4)(arg, self.4), (mapper.5)(arg, self.5), (mapper.6)(arg, self.6), (mapper.7)(arg, self.7), (mapper.8)(arg, self.8), (mapper.9)(arg, self.9), (mapper.10)(arg, self.10), (mapper.11)(arg, self.11), (mapper.12)(arg, self.12), (mapper.13)(arg, self.13), (mapper.14)(arg, self.14), (mapper.15)(arg, self.15), (mapper.16)(arg, self.16), (mapper.17)(arg, self.17), (mapper.18)(arg, self.18), (mapper.19)(arg, self.19), (mapper.20)(arg, self.20), (mapper.21)(arg, self.21), (mapper.22)(arg, self.22), (mapper.23)(arg, self.23), (mapper.24)(arg, self.24), (mapper.25)(arg, self.25), (mapper.26)(arg, self.26), (mapper.27)(arg, self.27), (mapper.28)(arg, self.28), (mapper.29)(arg, self.29), (mapper.30)(arg, self.30), (mapper.31)(arg, self.31))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, M> TupleMapAllWithMut<'a, A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M: for<'s> FnMut(&'s mut A, T27) -> U27,
+    M: for<'s> FnMut(&'s mut A, T28) -> U28,
+    M: for<'s> FnMut(&'s mut A, T29) -> U29,
+    M: for<'s> FnMut(&'s mut A, T30) -> U30,
+    M: for<'s> FnMut(&'s mut A, T31) -> U31,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+        ((mapper)(&mut *arg, self.0), (mapper)(&mut *arg, self.1), (mapper)(&mut *arg, self.2), (mapper)(&mut *arg, self.3), (mapper)(&mut *arg, self.4), (mapper)(&mut *arg, self.5), (mapper)(&mut *arg, self.6), (mapper)(&mut *arg, self.7), (mapper)(&mut *arg, self.8), (mapper)(&mut *arg, self.9), (mapper)(&mut *arg, self.10), (mapper)(&mut *arg, self.11), (mapper)(&mut *arg, self.12), (mapper)(&mut *arg, self.13), (mapper)(&mut *arg, self.14), (mapper)(&mut *arg, self.15), (mapper)(&mut *arg, self.16), (mapper)(&mut *arg, self.17), (mapper)(&mut *arg, self.18), (mapper)(&mut *arg, self.19), (mapper)(&mut *arg, self.20), (mapper)(&mut *arg, self.21), (mapper)(&mut *arg, self.22), (mapper)(&mut *arg, self.23), (mapper)(&mut *arg, self.24), (mapper)(&mut *arg, self.25), (mapper)(&mut *arg, self.26), (mapper)(&mut *arg, self.27), (mapper)(&mut *arg, self.28), (mapper)(&mut *arg, self.29), (mapper)(&mut *arg, self.30), (mapper)(&mut *arg, self.31))
+    }
+}
+impl<'a, A: 'a, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30, M31> TupleMapAllWithMut<'a, A, (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30, M31)> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)
+where
+    M0: for<'s> FnMut(&'s mut A, T0) -> U0,
+    M1: for<'s> FnMut(&'s mut A, T1) -> U1,
+    M2: for<'s> FnMut(&'s mut A, T2) -> U2,
+    M3: for<'s> FnMut(&'s mut A, T3) -> U3,
+    M4: for<'s> FnMut(&'s mut A, T4) -> U4,
+    M5: for<'s> FnMut(&'s mut A, T5) -> U5,
+    M6: for<'s> FnMut(&'s mut A, T6) -> U6,
+    M7: for<'s> FnMut(&'s mut A, T7) -> U7,
+    M8: for<'s> FnMut(&'s mut A, T8) -> U8,
+    M9: for<'s> FnMut(&'s mut A, T9) -> U9,
+    M10: for<'s> FnMut(&'s mut A, T10) -> U10,
+    M11: for<'s> FnMut(&'s mut A, T11) -> U11,
+    M12: for<'s> FnMut(&'s mut A, T12) -> U12,
+    M13: for<'s> FnMut(&'s mut A, T13) -> U13,
+    M14: for<'s> FnMut(&'s mut A, T14) -> U14,
+    M15: for<'s> FnMut(&'s mut A, T15) -> U15,
+    M16: for<'s> FnMut(&'s mut A, T16) -> U16,
+    M17: for<'s> FnMut(&'s mut A, T17) -> U17,
+    M18: for<'s> FnMut(&'s mut A, T18) -> U18,
+    M19: for<'s> FnMut(&'s mut A, T19) -> U19,
+    M20: for<'s> FnMut(&'s mut A, T20) -> U20,
+    M21: for<'s> FnMut(&'s mut A, T21) -> U21,
+    M22: for<'s> FnMut(&'s mut A, T22) -> U22,
+    M23: for<'s> FnMut(&'s mut A, T23) -> U23,
+    M24: for<'s> FnMut(&'s mut A, T24) -> U24,
+    M25: for<'s> FnMut(&'s mut A, T25) -> U25,
+    M26: for<'s> FnMut(&'s mut A, T26) -> U26,
+    M27: for<'s> FnMut(&'s mut A, T27) -> U27,
+    M28: for<'s> FnMut(&'s mut A, T28) -> U28,
+    M29: for<'s> FnMut(&'s mut A, T29) -> U29,
+    M30: for<'s> FnMut(&'s mut A, T30) -> U30,
+    M31: for<'s> FnMut(&'s mut A, T31) -> U31,
+{
+    type Output = (U0, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31);
+    fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15, M16, M17, M18, M19, M20, M21, M22, M23, M24, M25, M26, M27, M28, M29, M30, M31)) -> Self::Output {
+        ((mapper.0)(&mut *arg, self.0), (mapper.1)(&mut *arg, self.1), (mapper.2)(&mut *arg, self.2), (mapper.3)(&mut *arg, self.3), (mapper.4)(&mut *arg, self.4), (mapper.5)(&mut *arg, self.5), (mapper.6)(&mut *arg, self.6), (mapper.7)(&mut *arg, self.7), (mapper.8)(&mut *arg, self.8), (mapper.9)(&mut *arg, self.9), (mapper.10)(&mut *arg, self.10), (mapper.11)(&mut *arg, self.11), (mapper.12)(&mut *arg, self.12), (mapper.13)(&mut *arg, self.13), (mapper.14)(&mut *arg, self.14), (mapper.15)(&mut *arg, self.15), (mapper.16)(&mut *arg, self.16), (mapper.17)(&mut *arg, self.17), (mapper.18)(&mut *arg, self.18), (mapper.19)(&mut *arg, self.19), (mapper.20)(&mut *arg, self.20), (mapper.21)(&mut *arg, self.21), (mapper.22)(&mut *arg, self.22), (mapper.23)(&mut *arg, self.23), (mapper.24)(&mut *arg, self.24), (mapper.25)(&mut *arg, self.25), (mapper.26)(&mut *arg, self.26), (mapper.27)(&mut *arg, self.27), (mapper.28)(&mut *arg, self.28), (mapper.29)(&mut *arg, self.29), (mapper.30)(&mut *arg, self.30), (mapper.31)(&mut *arg, self.31))
     }
 }

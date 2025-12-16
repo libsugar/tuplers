@@ -155,6 +155,7 @@ fn gen_mapper_size(ctx: &Ctx, size: usize) -> TokenStream {
 
     let map_all = if size > 1 {
         let nts = &ctx.nts[0..size];
+        let nus = &ctx.nus[0..size];
         let nms = &ctx.nms[0..size];
         let nvms = &ctx.nvms[0..size];
         let lits = &ctx.size_lits[0..size];
@@ -180,6 +181,50 @@ fn gen_mapper_size(ctx: &Ctx, size: usize) -> TokenStream {
                 fn map_all(self, mapper: (#(#nms,)*)) -> Self::Output {
                     let (#(#nvms,)*) = mapper;
                     (#(#nvms.do_map_once(self.#lits),)*)
+                }
+            }
+
+            impl<A: Copy, #(#nts,)* #(#nus,)* M> TupleMapAllWith<A, M> for (#(#nts,)*)
+            where
+                #(M: FnMut(A, #nts) -> #nus,)*
+            {
+                type Output = (#(#nus,)*);
+
+                fn map_all_with(self, arg: A, mut mapper: M) -> Self::Output {
+                    (#((mapper)(arg, self.#lits),)*)
+                }
+            }
+
+            impl<A: Copy, #(#nts,)* #(#nus,)* #(#nms,)* > TupleMapAllWith<A, (#(#nms,)*)> for (#(#nts,)*)
+            where
+                #(#nms: FnMut(A, #nts) -> #nus,)*
+            {
+                type Output = (#(#nus,)*);
+
+                fn map_all_with(self, arg: A, mut mapper: (#(#nms,)*)) -> Self::Output {
+                    (#((mapper.#lits)(arg, self.#lits),)*)
+                }
+            }
+
+            impl<'a, A: 'a, #(#nts,)* #(#nus,)* M> TupleMapAllWithMut<'a, A, M> for (#(#nts,)*)
+            where
+                #(M: for<'s> FnMut(&'s mut A, #nts) -> #nus,)*
+            {
+                type Output = (#(#nus,)*);
+
+                fn map_all_with_mut(self, arg: &'a mut A, mut mapper: M) -> Self::Output {
+                    (#((mapper)(&mut *arg, self.#lits),)*)
+                }
+            }
+
+            impl<'a, A: 'a, #(#nts,)* #(#nus,)* #(#nms,)* > TupleMapAllWithMut<'a, A, (#(#nms,)*)> for (#(#nts,)*)
+            where
+                #(#nms: for<'s> FnMut(&'s mut A, #nts) -> #nus,)*
+            {
+                type Output = (#(#nus,)*);
+
+                fn map_all_with_mut(self, arg: &'a mut A, mut mapper: (#(#nms,)*)) -> Self::Output {
+                    (#((mapper.#lits)(&mut *arg, self.#lits),)*)
                 }
             }
         }
@@ -213,6 +258,7 @@ fn gen_mapper_size(ctx: &Ctx, size: usize) -> TokenStream {
 fn gen_mapper_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
     let nts = &ctx.nts[0..size];
     let lit = &ctx.size_lits[n];
+    let nt = &ctx.nts[n];
 
     let outputs = (0..size).into_iter().map(|i| {
         let lit = &ctx.size_lits[i];
@@ -233,6 +279,24 @@ fn gen_mapper_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
         }
     });
 
+    let with_outputs = (0..size).into_iter().map(|i| {
+        let nt = &ctx.nts[i];
+        if i == n {
+            quote! { U }
+        } else {
+            quote! { #nt }
+        }
+    });
+
+    let with_mapping = (0..size).into_iter().map(|i| {
+        let lit = &ctx.size_lits[i];
+        if i == n {
+            quote! { (mapper)(arg, self.#lit) }
+        } else {
+            quote! { self.#lit }
+        }
+    });
+
     let tks = quote! {
         impl<#(#nts,)* M> TupleMapN<#lit, M> for (#(#nts,)*)
         where
@@ -242,6 +306,17 @@ fn gen_mapper_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
 
             fn map_n(self, mapper: M) -> Self::OutputN {
                 (#(#mapping,)*)
+            }
+        }
+
+        impl<A, #(#nts,)* U, M> TupleMapWithN<A, #lit, M> for (#(#nts,)*)
+        where
+            M: FnOnce(A, #nt) -> U,
+        {
+            type OutputN = (#(#with_outputs,)*);
+
+            fn map_with_n(self, arg: A, mapper: M) -> Self::OutputN {
+                (#(#with_mapping,)*)
             }
         }
     };

@@ -40,8 +40,6 @@ default = [
   "sort",
   "permutations",
   "combinations",
-  "uniform_map",
-  "uniform_map_by",
 ]
 flatten = []
 get = []
@@ -59,8 +57,6 @@ split_to_tuple_by = []
 transpose = []
 tuple_call = []
 tuple_iter = []
-uniform_map = []
-uniform_map_by = []
 
 [package.metadata.docs.rs]
 all-features = true
