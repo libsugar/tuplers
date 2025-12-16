@@ -33,7 +33,7 @@
 //!    assert_eq!(b, (1, 6, 3));
 //!    ```
 
-use crate::{AnyHomogeneousTuple, AnyTuple, HomogeneousTuple, Tuple, TupleItem, misc::RefOrMut};
+use crate::{AnyHomogeneousTuple, HomogeneousTuple, Tuple, TupleItem};
 
 /// Dynamic mapping
 pub trait TupleDynamicMap<T>: AnyHomogeneousTuple<T> + Sized {

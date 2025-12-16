@@ -1,6 +1,6 @@
 //! Get the nth item of the tuple
 
-use crate::{HomogeneousTuple, Tuple, TupleItem, TupleNthItem};
+use crate::{HomogeneousTuple, Tuple, TupleItem};
 
 /// Get the nth item of the tuple
 pub trait TupleDynamicGet: HomogeneousTuple<Self::Output> {

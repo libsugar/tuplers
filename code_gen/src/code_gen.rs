@@ -280,7 +280,7 @@ fn gen_map_size(ctx: &Ctx, size: usize) -> TokenStream {
                 self.map_with_n(arg, mapper)
             }
         }
-    
+
         #map_all
     };
     tks
@@ -364,9 +364,14 @@ fn gen_convert(ctx: &Ctx, out_dir: &Path) {
 }
 
 fn gen_convert_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let size_lit = &ctx.size_lits[size];
     let size_lits = &ctx.size_lits[0..size];
+    let ts = &ctx.ts[0..size];
     let nts = &ctx.nts[0..size];
     let nus = &ctx.nus[0..size];
+    let nvs = &ctx.nvs[0..size];
+
+
 
     let tks = quote! {
         impl<'a, #(#nts: 'a,)*> TupleAsRef<'a> for (#(#nts,)*) {
@@ -425,21 +430,21 @@ fn gen_convert_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
-        impl<U, #(#nts),* > AnyTupleAllInto<U> for (#(#nts,)*) where #(#nts: Into<U>,)* { }
-        impl<U, #(#nts),* > AnyTupleAllFrom<U> for (#(#nts,)*) where #(#nts: From<U>,)* { }
+        impl<T> TupleToArray<T> for (#(#ts,)*) {
+            type Output = [T; #size_lit];
 
-        impl<U, #(#nts),* > TupleAllInto<U> for (#(#nts,)*) where #(#nts: Into<U>,)* {
-            type Item<const N: usize> = <Self as TupleItem<N>>::ItemN
-            where
-                Self: TupleItem<N>,
-                <Self as TupleItem<N>>::ItemN: Into<U>;
+            fn to_array(self) -> Self::Output {
+                [#(self.#size_lits,)*]
+            }
         }
 
-        impl<U, #(#nts),* > TupleAllFrom<U> for (#(#nts,)*) where #(#nts: From<U>,)* {
-            type Item<const N: usize> = <Self as TupleItem<N>>::ItemN
-            where
-                Self: TupleItem<N>,
-                <Self as TupleItem<N>>::ItemN: From<U>;
+        impl<T> ArrayToTuple<T> for [T; #size_lit]{
+            type Output = (#(#ts,)*) ;
+
+            fn to_tuple(self) -> Self::Output {
+                let [#(#nvs),*] = self;
+                (#(#nvs,)*)
+            }
         }
 
         impl<#(#nts,)* #(#nus,)* > TupleInto<(#(#nus,)*)> for (#(#nts,)*)

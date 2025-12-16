@@ -2,11 +2,7 @@
 
 #![allow(unused_variables)]
 
-use crate::{AnyTuple, Tuple, TupleItem};
-use core::{
-    convert::Infallible,
-    ops::{Deref, DerefMut},
-};
+use core::ops::{Deref, DerefMut};
 
 /// AsRef for Tuple
 pub trait TupleAsRef<'a> {
@@ -64,42 +60,22 @@ pub trait TupleAsResultErr<T> {
     fn as_err(self) -> Self::Output;
 }
 
-/// Mark tuple all item impled `Into<T>`
-pub trait AnyTupleAllInto<T>: AnyTuple {}
+/// Tuple to array
+pub trait TupleToArray<T> {
+    // The array
+    type Output;
 
-/// Mark tuple all item impled `From<T>`
-pub trait AnyTupleAllFrom<T>: AnyTuple {}
-
-/// Mark tuple all item impled `Into<T>`
-pub trait TupleAllInto<T>: AnyTupleAllInto<T> + Tuple {
-    type Item<const N: usize>: Into<T>
-    where
-        Self: TupleItem<N>,
-        <Self as TupleItem<N>>::ItemN: Into<T>;
-
-    fn item_into<const N: usize>(item: <Self as TupleAllInto<T>>::Item<N>) -> T
-    where
-        Self: TupleItem<N>,
-        <Self as TupleItem<N>>::ItemN: Into<T>,
-    {
-        item.into()
-    }
+    /// Tuple to array
+    fn to_array(self) -> Self::Output;
 }
 
-/// Mark tuple all item impled `From<T>`
-pub trait TupleAllFrom<T>: AnyTupleAllFrom<T> + Tuple {
-    type Item<const N: usize>: From<T>
-    where
-        Self: TupleItem<N>,
-        <Self as TupleItem<N>>::ItemN: From<T>;
+/// Array to tuple
+pub trait ArrayToTuple<T> {
+    // The tuple
+    type Output;
 
-    fn item_from<const N: usize>(val: T) -> <Self as TupleAllFrom<T>>::Item<N>
-    where
-        Self: TupleItem<N>,
-        <Self as TupleItem<N>>::ItemN: From<T>,
-    {
-        val.into()
-    }
+    /// Array to tuple
+    fn to_tuple(self) -> Self::Output;
 }
 
 /// Into for tuple

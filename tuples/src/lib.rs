@@ -1,5 +1,4 @@
 #![no_std]
-#![allow(unused_imports)]
 
 pub use meta::*;
 mod meta {
@@ -61,7 +60,17 @@ mod meta {
     impl<T> HomogeneousTuple<T> for () {}
     impl<T> HomogeneousTuple<T> for (T,) {}
 
+    /// Mark nth item type
+    pub trait TupleNthItem<const N: usize, Item>: AnyTuple {}
+
+    /// Provide nth item type
+    pub trait TupleItem<const N: usize>: Tuple + TupleNthItem<N, Self::ItemN> {
+        /// Nth item type
+        type ItemN;
+    }
+
     include!("./gen/tuple_impl.rs");
+    include!("./gen/tuple_item_n.rs");
 
     #[cfg(test)]
     mod tests {
@@ -84,22 +93,6 @@ mod meta {
             let _: <(i32, f64, char) as Tuple>::Item<1> = 3.14f64;
         }
     }
-}
-
-pub use tuple_item_n::*;
-mod tuple_item_n {
-    use crate::meta::*;
-
-    /// Mark nth item type
-    pub trait TupleNthItem<const N: usize, Item>: AnyTuple {}
-
-    /// Provide nth item type
-    pub trait TupleItem<const N: usize>: Tuple + TupleNthItem<N, Self::ItemN> {
-        /// Nth item type
-        type ItemN;
-    }
-
-    include!("./gen/tuple_item_n.rs");
 }
 
 #[cfg(feature = "shorthand")]
@@ -157,10 +150,6 @@ mod shorthand {
         { $($t:tt)* } => { tuple_! { $($t)* } }
     }
 }
-#[cfg(feature = "shorthand")]
-pub use shorthand::*;
-
-pub mod misc;
 
 #[cfg(any(feature = "get", test, doc))]
 pub mod get;
@@ -186,6 +175,11 @@ pub use convert::*;
 pub mod transpose;
 #[cfg(all(feature = "transpose", feature = "re-exports"))]
 pub use transpose::*;
+
+#[cfg(feature = "flatten")]
+pub mod flatten;
+#[cfg(all(feature = "flatten", feature = "re-exports"))]
+pub use flatten::*;
 
 /////
 
@@ -229,11 +223,6 @@ pub mod split {
 }
 #[cfg(all(any(feature = "split_by", feature = "split_to_tuple_by", feature = "split_at", feature = "split_to_tuple_at"), feature = "re-exports"))]
 pub use split::*;
-
-#[cfg(feature = "flatten")]
-pub mod flatten;
-#[cfg(all(feature = "flatten", feature = "re-exports"))]
-pub use flatten::*;
 
 #[cfg(feature = "tuple_call")]
 pub mod tuple_call;

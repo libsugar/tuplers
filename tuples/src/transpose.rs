@@ -38,8 +38,6 @@
 //!  assert_eq!(b, (Ok(1), Ok(2), Ok(3)));
 //!  ```
 
-use crate::TupleAllInto;
-
 /// Transposes
 pub trait TupleTranspose {
     type Output;
