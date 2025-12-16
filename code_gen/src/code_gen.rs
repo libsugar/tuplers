@@ -22,8 +22,9 @@ pub fn code_gen(out_dir: &Path) {
     gen_get_dyn(&ctx, &out_dir);
     gen_get_const(&ctx, &out_dir);
     gen_clone(&ctx, &out_dir);
-    gen_mapper(&ctx, &out_dir);
+    gen_map(&ctx, &out_dir);
     gen_convert(&ctx, &out_dir);
+    gen_transpose(&ctx, &out_dir);
 
     gen_tuple_iter(&ctx, &out_dir);
     gen_combin(&ctx, &out_dir);
@@ -32,7 +33,6 @@ pub fn code_gen(out_dir: &Path) {
     gen_split_to_tuple_by(&ctx, &out_dir);
     gen_split_at(&ctx, &out_dir);
     gen_split_to_tuple_at(&ctx, &out_dir);
-    gen_transpose(&ctx, &out_dir);
     gen_flatten(&ctx, &out_dir);
     gen_call(&ctx, &out_dir);
     gen_apply_tuple(&ctx, &out_dir);
@@ -143,8 +143,8 @@ fn gen_tuple_item_n_impl_size_n(ctx: &Ctx, size: usize, n: usize) -> TokenStream
     tks
 }
 
-fn gen_mapper(ctx: &Ctx, out_dir: &Path) {
-    let items = (1..33usize).map(|i| gen_mapper_size(ctx, i));
+fn gen_map(ctx: &Ctx, out_dir: &Path) {
+    let items = (1..33usize).map(|i| gen_map_size(ctx, i));
     let tks = quote! { #(#items)* };
     let mut code = tks.to_string();
     code.insert_str(0, AUTO_GEN_TIP);
@@ -152,8 +152,8 @@ fn gen_mapper(ctx: &Ctx, out_dir: &Path) {
     fs::write(&dest_path, code).unwrap();
 }
 
-fn gen_mapper_size(ctx: &Ctx, size: usize) -> TokenStream {
-    let tuple_n = (0..size).map(|n| gen_mapper_n_size(ctx, size, n));
+fn gen_map_size(ctx: &Ctx, size: usize) -> TokenStream {
+    let tuple_n = (0..size).map(|n| gen_map_n_size(ctx, size, n));
 
     let map_all = if size > 1 {
         let nts = &ctx.nts[0..size];
@@ -235,6 +235,7 @@ fn gen_mapper_size(ctx: &Ctx, size: usize) -> TokenStream {
     };
 
     let ts = &ctx.ts[0..size];
+    let nts = &ctx.nts[0..size];
     let lits = &ctx.size_lits[0..size];
     let vars: Vec<_> = lits.iter().map(|lit| format_ident!("v{lit}")).collect();
 
@@ -252,12 +253,40 @@ fn gen_mapper_size(ctx: &Ctx, size: usize) -> TokenStream {
             }
         }
 
+        impl<#(#nts,)* M> TupleMap<M> for (#(#nts,)*) {
+            type Output<const N: usize>
+                = <Self as TupleMapN<N, M>>::OutputN
+            where
+                Self: TupleMapN<N, M>;
+
+            fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+            where
+                Self: TupleMapN<N, M>,
+            {
+                self.map_n(mapper)
+            }
+        }
+
+        impl<A, #(#nts,)* M> TupleMapWith<A, M> for (#(#nts,)*) {
+            type Output<const N: usize>
+                = <Self as TupleMapWithN<A, N, M>>::OutputN
+            where
+                Self: TupleMapWithN<A, N, M>;
+
+            fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+            where
+                Self: TupleMapWithN<A, N, M>,
+            {
+                self.map_with_n(arg, mapper)
+            }
+        }
+    
         #map_all
     };
     tks
 }
 
-fn gen_mapper_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
+fn gen_map_n_size(ctx: &Ctx, size: usize, n: usize) -> TokenStream {
     let nts = &ctx.nts[0..size];
     let lit = &ctx.size_lits[n];
     let nt = &ctx.nts[n];
@@ -2108,8 +2137,41 @@ fn gen_get_const(ctx: &Ctx, out_dir: &Path) {
 
 fn gen_get_size_const(ctx: &Ctx, size: usize) -> TokenStream {
     let tks = (0..size).into_iter().map(|n| gen_get_size_const_n(ctx, size, n));
+    let nts = &ctx.nts[0..size];
     quote! {
-     #(#tks)*
+        impl<#(#nts,)*> TupleGet for (#(#nts),*,) {
+            type Output<const N: usize>
+                = <Self as TupleGetN<N>>::Output
+            where
+                Self: TupleGetN<N>;
+
+            fn get<const N: usize>(&self) -> &Self::Output<N>
+            where
+                Self: TupleGetN<N>,
+            {
+                self.get_n()
+            }
+        }
+
+        impl<#(#nts,)*> TupleGetMut for (#(#nts),*,) {
+            fn get_mut<const N: usize>(&mut self) -> &mut Self::Output<N>
+            where
+                Self: TupleGetMutN<N>,
+            {
+                self.get_n_mut()
+            }
+        }
+
+        impl<#(#nts,)*> TupleSwap for (#(#nts),*,) {
+            fn swap<const A: usize, const B: usize>(&mut self)
+            where
+                Self: TupleSwapN<A, B>,
+            {
+                self.swap_n();
+            }
+        }
+
+        #(#tks)*
     }
 }
 

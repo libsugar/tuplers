@@ -28,6 +28,30 @@ impl<T> TupleDynamicMap<T> for (T,) {
         Ok((v0,))
     }
 }
+impl<T0, M> TupleMap<M> for (T0,) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, M> TupleMapWith<A, M> for (T0,) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
+    }
+}
 impl<T0, T1, M> TupleMapN<0, M> for (T0, T1)
 where
     M: TupleMapperMut<Self> + TupleMapperOnceN<0, Self>,
@@ -73,6 +97,30 @@ impl<T> TupleDynamicMap<T> for (T, T) {
             _ => return Err((v0, v1)),
         }
         Ok((v0, v1))
+    }
+}
+impl<T0, T1, M> TupleMap<M> for (T0, T1) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, M> TupleMapWith<A, M> for (T0, T1) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, M> TupleMapAll<M> for (T0, T1)
@@ -199,6 +247,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T) {
             _ => return Err((v0, v1, v2)),
         }
         Ok((v0, v1, v2))
+    }
+}
+impl<T0, T1, T2, M> TupleMap<M> for (T0, T1, T2) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, M> TupleMapWith<A, M> for (T0, T1, T2) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, M> TupleMapAll<M> for (T0, T1, T2)
@@ -349,6 +421,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T) {
             _ => return Err((v0, v1, v2, v3)),
         }
         Ok((v0, v1, v2, v3))
+    }
+}
+impl<T0, T1, T2, T3, M> TupleMap<M> for (T0, T1, T2, T3) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, M> TupleMapWith<A, M> for (T0, T1, T2, T3) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, M> TupleMapAll<M> for (T0, T1, T2, T3)
@@ -523,6 +619,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4)),
         }
         Ok((v0, v1, v2, v3, v4))
+    }
+}
+impl<T0, T1, T2, T3, T4, M> TupleMap<M> for (T0, T1, T2, T3, T4) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, M> TupleMapAll<M> for (T0, T1, T2, T3, T4)
@@ -721,6 +841,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5)),
         }
         Ok((v0, v1, v2, v3, v4, v5))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5)
@@ -943,6 +1087,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5, v6)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6)
@@ -1189,6 +1357,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7)
@@ -1459,6 +1651,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8)
@@ -1753,6 +1969,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)
@@ -2071,6 +2311,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
@@ -2413,6 +2677,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
@@ -2779,6 +3067,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
@@ -3169,6 +3481,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
@@ -3583,6 +3919,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) {
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
@@ -4021,6 +4381,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T) 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
@@ -4483,6 +4867,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)
@@ -4969,6 +5377,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)
@@ -5479,6 +5911,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)
@@ -6013,6 +6469,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)
@@ -6571,6 +7051,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)
@@ -7153,6 +7657,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)
@@ -7759,6 +8287,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)
@@ -8389,6 +8941,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)
@@ -9043,6 +9619,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)
@@ -9721,6 +10321,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25)
@@ -10423,6 +11047,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26)
@@ -11149,6 +11797,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27)
@@ -11899,6 +12571,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28)
@@ -12673,6 +13369,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29)
@@ -13471,6 +14191,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30)
@@ -14293,6 +15037,30 @@ impl<T> TupleDynamicMap<T> for (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, 
             _ => return Err((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31)),
         }
         Ok((v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31))
+    }
+}
+impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMap<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) {
+    type Output<const N: usize>
+        = <Self as TupleMapN<N, M>>::OutputN
+    where
+        Self: TupleMapN<N, M>;
+    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapN<N, M>,
+    {
+        self.map_n(mapper)
+    }
+}
+impl<A, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapWith<A, M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31) {
+    type Output<const N: usize>
+        = <Self as TupleMapWithN<A, N, M>>::OutputN
+    where
+        Self: TupleMapWithN<A, N, M>;
+    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
+    where
+        Self: TupleMapWithN<A, N, M>,
+    {
+        self.map_with_n(arg, mapper)
     }
 }
 impl<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, M> TupleMapAll<M> for (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31)

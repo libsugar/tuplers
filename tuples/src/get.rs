@@ -86,38 +86,6 @@ pub trait TupleSwap: TupleGetMut {
         Self: TupleSwapN<A, B>;
 }
 
-impl<T> TupleGet for T {
-    type Output<const N: usize>
-        = <Self as TupleGetN<N>>::Output
-    where
-        Self: TupleGetN<N>;
-
-    fn get<const N: usize>(&self) -> &Self::Output<N>
-    where
-        Self: TupleGetN<N>,
-    {
-        self.get_n()
-    }
-}
-
-impl<T> TupleGetMut for T {
-    fn get_mut<const N: usize>(&mut self) -> &mut Self::Output<N>
-    where
-        Self: TupleGetMutN<N>,
-    {
-        self.get_n_mut()
-    }
-}
-
-impl<T> TupleSwap for T {
-    fn swap<const A: usize, const B: usize>(&mut self)
-    where
-        Self: TupleSwapN<A, B>,
-    {
-        self.swap_n();
-    }
-}
-
 include!("./gen/get_dyn.rs");
 include!("./gen/get_const.rs");
 
@@ -146,6 +114,25 @@ mod test_dyn {
 #[cfg(test)]
 mod tests {
     use crate::*;
+
+    trait Some {
+        fn get(&self) -> i32;
+    }
+
+    struct Foo;
+
+    impl Some for Foo {
+        fn get(&self) -> i32 {
+            1
+        }
+    }
+
+    #[test]
+    fn foo() {
+        let x = Foo;
+        let y = x.get();
+        assert_eq!(y, 1);
+    }
 
     #[test]
     fn test0() {

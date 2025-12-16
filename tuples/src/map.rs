@@ -211,20 +211,6 @@ pub trait TupleMap<Mapper>: Tuple + Sized {
         Self: TupleMapN<N, Mapper>;
 }
 
-impl<T: Tuple + Sized, M> TupleMap<M> for T {
-    type Output<const N: usize>
-        = <Self as TupleMapN<N, M>>::OutputN
-    where
-        Self: TupleMapN<N, M>;
-
-    fn map<const N: usize>(self, mapper: M) -> Self::Output<N>
-    where
-        Self: TupleMapN<N, M>,
-    {
-        self.map_n(mapper)
-    }
-}
-
 ////////////////////
 
 /// Mapping nth item of tuple with arg
@@ -247,20 +233,6 @@ pub trait TupleMapWith<A, Mapper>: Tuple + Sized {
     fn map_with<const N: usize>(self, arg: A, mapper: Mapper) -> Self::Output<N>
     where
         Self: TupleMapWithN<A, N, Mapper>;
-}
-
-impl<A, T: Tuple + Sized, M> TupleMapWith<A, M> for T {
-    type Output<const N: usize>
-        = <Self as TupleMapWithN<A, N, M>>::OutputN
-    where
-        Self: TupleMapWithN<A, N, M>;
-
-    fn map_with<const N: usize>(self, arg: A, mapper: M) -> Self::Output<N>
-    where
-        Self: TupleMapWithN<A, N, M>,
-    {
-        self.map_with_n(arg, mapper)
-    }
 }
 
 ////////////////////
